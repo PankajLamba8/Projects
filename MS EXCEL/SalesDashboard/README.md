@@ -38,7 +38,7 @@ The dashboard provides business intelligence using dynamic charts, slicers, and 
 
 ##  Dashboard Preview
 
-![Sales and Probit Dashboard](Sales and Profit Dashboard.png)
+![SalesDashboard](Sales and Profit Dashboard.png)
 
 ---
 
