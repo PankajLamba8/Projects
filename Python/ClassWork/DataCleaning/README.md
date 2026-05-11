@@ -64,6 +64,6 @@ The project successfully transformed raw and inconsistent datasets into structur
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 Pankaj Lamba
