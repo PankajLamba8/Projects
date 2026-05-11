@@ -1,0 +1,7269 @@
+/* RESET */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+}
+
+/* THEMES */
+body.overseas {
+  background: #e8f4ff;
+}
+
+body.domestic {
+  background: #f4f6f8;
+}
+
+/* TOP BAR */
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-img {
+  height: 32px;
+}
+
+.logo-text {
+  font-weight: 600;
+  font-size: 16px;
+  color: #124191; /* Nokia blue */
+}
+
+.topbar {
+  background: white;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.topbar .logo {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.topbar nav a {
+  margin-right: 16px;
+  text-decoration: none;
+  color: #0070c9;
+  font-weight: 500;
+}
+
+/* PAGE */
+.page {
+  padding: 24px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* FORM GRID */
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 8px;
+}
+
+/* BUTTON */
+button {
+  background: #0070c9;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* SUCCESS */
+.success {
+  margin-top: 16px;
+  padding: 12px;
+  background: #e6ffe6;
+  color: #0a6d0a;
+  border-radius: 4px;
+}
+
+/* CUSTOMER COLORS */
+.customer-Bharti { border-left: 6px solid red; }
+.customer-Jio { border-left: 6px solid blue; }
+.customer-Vi { border-left: 6px solid orange; }
+.customer-Bsnl { border-left: 6px solid lightblue; }
+
+.dispatch-box h1 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+body.overseas {
+  border-top: 6px solid #4da3ff;
+}
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000;
+  }
+
+  .theme-Bharti,
+  .theme-JIO,
+  .theme-VI,
+  .theme-BSNL {
+    border-color: black !important;
+    background: none !important;
+  }
+}
+@media print {
+  body,
+  body.overseas {
+    background: white !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+
+/* =========================
+   DISPATCH BOX (RC IN)
+========================= */
+.dispatch-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 2px dashed #999;
+  background: #fff;
+}
+
+.dispatch-box span {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.dispatch-box h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* =========================
+   QR POSITIONING
+========================= */
+#qrCanvas {
+  float: right;
+  margin-bottom: 16px;
+}
+
+/* =========================
+   CUSTOMER LOGO SLOT (future-ready)
+========================= */
+.card::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 80px;
+  height: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Optional logos (can add later) */
+.customer-Bharti::after { background-image: url('/static/Bharti_Logo.svg'); }
+.customer-Jio::after { background-image: url('/static/Jio_Logo.svg'); }
+.customer-Vi::after { background-image: url('/static/VI_Logo.svg'); }
+.customer-Bsnl::after { background-image: url('/static/BSNL_Logo.svg'); }
+
+/* =========================
+   PRINT RULES (FINAL)
+========================= */
+@media print {
+  body,
+  body.overseas {
+    background: white !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+
+  .dispatch-box {
+    border: 1px solid #000;
+  }
+
+  /* No theme colors in print */
+  .customer-bharti,
+  .customer-jio,
+  .customer-vi,
+  .customer-bsnl {
+    border-left-color: black !important;
+  }
+}
+
+/* ================= DISPATCH DATE ================= */
+.dispatch-box {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.dispatch-box span {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.dispatch-box h1 {
+  font-size: 28px;
+  margin: 4px 0 0;
+}
+
+/* ================= QR ================= */
+.qr-box {
+  display: block;
+  margin: 12px auto 20px;
+}
+
+/* ================= CUSTOMER BORDERS ================= */
+.customer-bharti { border-left: 6px solid red; }
+.customer-jio { border-left: 6px solid blue; }
+.customer-vi { border-left: 6px solid orange; }
+.customer-bsnl { border-left: 6px solid lightblue; }
+
+/* ================= ERROR ================= */
+.error-box {
+  margin-top: 12px;
+  padding: 10px;
+  background: #ffecec;
+  color: #a40000;
+  border-radius: 4px;
+}
+
+/* ================= PRINT SAFE ================= */
+@media print {
+  body,
+  body.overseas {
+    background: white !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  nav {
+    display: none !important;
+  }
+}
+
+/* ============================
+   AESTHETIC TRAVELLER THEME
+============================ */
+
+.traveller-shell {
+  max-width: 210mm;
+  margin: auto;
+  padding: 16px;
+}
+
+/* TOP STRIP */
+.top-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.nokia-logo {
+  height: 32px;
+}
+
+.customer-logo {
+  height: 36px;
+  float: right;
+}
+
+/* DISPATCH */
+.dispatch-box span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dispatch-box h1 {
+  font-size: 28px;
+  margin: 2px 0;
+}
+
+/* CARD */
+.card {
+  border-radius: 14px;
+  padding: 16px;
+  border: 2px solid #d0d7e2;
+  background: white;
+}
+
+/* FORM GRID */
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.field.full {
+  grid-column: span 3;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+input, select, textarea {
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BUTTON */
+button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #124191;
+  color: white;
+  border: none;
+}
+
+/* QR */
+.qr-canvas {
+  display: block;
+  margin: 10px auto;
+}
+
+/* THEMES */
+body.overseas {
+  background: linear-gradient(180deg, #e8f4ff, #ffffff);
+}
+
+body.customer-Bharti .card { border-color: #e53935; }
+body.customer-Jio .card { border-color: #1a237e; }
+body.customer-Vi .card { border-color: #7b1fa2; }
+body.customer-Bsnl .card { border-color: #2e7d32; }
+
+/* PRINT SAFE */
+@media print {
+  body, .traveller-shell {
+    background: white !important;
+  }
+  .card {
+    border-color: black;
+  }
+}
+
+/* ================= DOCUMENT CANVAS ================= */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto;
+  padding: 24px;
+  background: white;
+}
+
+/* ================= HEADER ================= */
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: start;
+  column-gap: 24px;
+  margin-bottom: 12px;
+  min-height: 90px;
+}
+
+.nokia-logo {
+  height: 34px;
+}
+
+.customer-logo {
+  height: 38px;
+  float: right;
+}
+
+.dispatch-stamp {
+  margin-top: 4px;
+  border: 2px solid #000;
+  padding: 10px 14px;
+  width: fit-content;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.header-center h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.header-center p {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+
+.dispatch-stamp .date {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+/* ================= QR ================= */
+.qr-wrapper {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ================= FORM ================= */
+.form-card {
+  border: 2px solid #d0d7e2;
+  border-radius: 14px;
+  padding: 24px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-row.single {
+  grid-template-columns: 1fr;
+}
+
+.field label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+/* ================= ACTIONS ================= */
+.form-actions {
+  text-align: right;
+}
+
+button {
+  padding: 12px 22px;
+  border-radius: 12px;
+  background: #124191;
+  color: white;
+  border: none;
+}
+
+/* ================= THEMES ================= */
+body.overseas {
+  background: #e8f4ff;
+}
+
+body.customer-Bharti .form-card { border-color: #e53935; }
+body.customer-Jio .form-card { border-color: #1a237e; }
+body.customer-Vi .form-card { border-color: #7b1fa2; }
+body.customer-Bsnl .form-card { border-color: #2e7d32; }
+
+/* ================= PRINT ================= */
+@media print {
+  body {
+    background: white !important;
+  }
+  .a4-page {
+    margin: 0;
+    padding: 20mm;
+  }
+}
+
+
+
+/* =====================================================
+   FINAL RC IN OVERRIDES (DO NOT MOVE ABOVE)
+===================================================== */
+
+/* ---------- NORMALIZE CUSTOMER THEMES (LOWERCASE ONLY) ---------- */
+body.customer-bharti .page-shell,
+body.customer-bharti .card,
+body.customer-bharti .form-card {
+  background: #fdecea;
+  border-color: #e53935 !important;
+}
+
+body.customer-jio .page-shell,
+body.customer-jio .card,
+body.customer-jio .form-card {
+  background: #eef2ff;
+  border-color: #1a237e !important;
+}
+
+body.customer-vi .page-shell,
+body.customer-vi .card,
+body.customer-vi .form-card {
+  background: #f3e5f5;
+  border-color: #7b1fa2 !important;
+}
+
+body.customer-bsnl .page-shell,
+body.customer-bsnl .card,
+body.customer-bsnl .form-card {
+  background: #e8f5e9;
+  border-color: #2e7d32 !important;
+}
+
+/* ---------- REMOVE LEFT-ONLY COLORING ---------- */
+.customer-bharti,
+.customer-jio,
+.customer-vi,
+.customer-bsnl {
+  border-left: none !important;
+}
+
+/* ---------- SCREEN LAYOUT (NO A4 ON SCREEN) ---------- */
+.a4-page {
+  width: auto !important;
+  min-height: unset !important;
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 24px;
+}
+
+/* ---------- HEADER ALIGNMENT FIX ---------- */
+.doc-header {
+  align-items: flex-start !important;
+}
+
+.header-left {
+  gap: 8px !important;
+}
+
+.dispatch-stamp {
+  margin-top: 0 !important;
+}
+
+/* ---------- FORM SPACING NORMALIZATION ---------- */
+.form-row {
+  gap: 18px !important;
+  margin-bottom: 16px !important;
+}
+
+.form-card {
+  padding: 24px !important;
+}
+
+/* ---------- QR POSITION (NO FLOAT COLLISION) ---------- */
+#qrCanvas {
+  float: none !important;
+  display: block;
+  margin: 8px auto 16px;
+}
+
+/* ---------- OVERSEAS VISUAL (FULL PAGE) ---------- */
+body.overseas .page-shell {
+  box-shadow: 0 0 0 3px #4da3ff inset;
+}
+
+/* ---------- PRINT: A4 ONLY WHEN PRINTING ---------- */
+@media print {
+
+  body,
+  body.overseas {
+    background: white !important;
+  }
+
+  .page-shell,
+  .a4-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    background: white !important;
+  }
+
+  /* Remove theme colors but KEEP logos */
+  body.customer-bharti .page-shell,
+  body.customer-jio .page-shell,
+  body.customer-vi .page-shell,
+  body.customer-bsnl .page-shell {
+    background: white !important;
+  }
+
+  .card,
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+
+  nav,
+  button {
+    display: none !important;
+  }
+}
+/* =====================================================
+   FIX: STOP CUSTOMER FROM TINTING PAGE CANVAS
+===================================================== */
+
+/* Force neutral page background always */
+.page-shell,
+.a4-page {
+  background: #f4f6f8 !important;
+}
+
+/* Keep form itself white */
+.form-card,
+.card {
+  background: #ffffff !important;
+}
+
+/* Remove any customer background tint */
+body.customer-bharti .page-shell,
+body.customer-jio .page-shell,
+body.customer-vi .page-shell,
+body.customer-bsnl .page-shell {
+  background: #f4f6f8 !important;
+}
+/* =====================================================
+   CUSTOMER ACCENT (SUBTLE, PROFESSIONAL)
+===================================================== */
+
+/* Default */
+.form-card {
+  border: 2px solid #d0d7e2;
+}
+
+/* Customer-specific accent */
+body.customer-bharti .form-card {
+  border-color: #e53935;
+}
+
+body.customer-jio .form-card {
+  border-color: #1a237e;
+}
+
+body.customer-vi .form-card {
+  border-color: #7b1fa2;
+}
+
+body.customer-bsnl .form-card {
+  border-color: #2e7d32;
+}
+
+/* Optional: thin header underline */
+body.customer-bharti .doc-header {
+  border-bottom: 3px solid #e53935;
+}
+
+body.customer-jio .doc-header {
+  border-bottom: 3px solid #1a237e;
+}
+
+body.customer-vi .doc-header {
+  border-bottom: 3px solid #7b1fa2;
+}
+
+body.customer-bsnl .doc-header {
+  border-bottom: 3px solid #2e7d32;
+}
+/* =====================================================
+   FIX: REMOVE CUSTOMER HEADER LINE COMPLETELY
+===================================================== */
+
+.doc-header {
+  border-bottom: none !important;
+}
+
+body.customer-bharti .doc-header,
+body.customer-jio .doc-header,
+body.customer-vi .doc-header,
+body.customer-bsnl .doc-header {
+  border-bottom: none !important;
+}
+
+
+/* ================= HEADER CLEANUP ================= */
+.doc-header {
+  margin-bottom: 8px !important;
+  min-height: unset !important;
+}
+
+/* ================= ACTION BAR ================= */
+.action-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 0 10px;
+}
+
+.print-btn {
+  background: #f0f2f5;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* ================= QR ================= */
+.qr-wrapper {
+  margin: 6px 0 10px !important;
+}
+
+/* ================= FORM CARD (CUSTOMER BORDER EFFECT) ================= */
+.form-card {
+  border: 2px solid #d0d7e2;
+  border-radius: 16px;
+}
+
+/* Customer encircling border */
+body.customer-bharti .form-card { border-color: #e53935; }
+body.customer-jio .form-card { border-color: #1a237e; }
+body.customer-vi .form-card { border-color: #7b1fa2; }
+body.customer-bsnl .form-card { border-color: #2e7d32; }
+
+/* ================= DROPDOWN STYLING ================= */
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #666 50%),
+    linear-gradient(135deg, #666 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* ================= CUSTOMER LOGO ================= */
+.customer-logo {
+  height: 42px;
+  display: none;
+}
+
+/* ================= PRINT ================= */
+@media print {
+  .action-bar,
+  button {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+    background: white !important;
+  }
+
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+}
+/* ================= HEADER ADDRESS ================= */
+.nokia-address {
+  font-size: 13px;
+  color: #444;
+  margin-top: 2px;
+}
+
+/* ================= REDUCE GAP BETWEEN HEADER & FORM ================= */
+.doc-header {
+  margin-bottom: 8px !important;
+}
+
+/* ================= PAGE SHELL BACKGROUND ================= */
+body.overseas .page-shell {
+  background: #e8f4ff;
+}
+
+/* On screen only — not print */
+body.overseas .form-card {
+  border-color: #1976d2 !important;
+}
+
+/* ================= PRINT BUTTON ================= */
+.print-btn {
+  background: #0070c9;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+
+/* ================= CLEAN SELECT (No blue focus) ================= */
+select:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: #124191;
+  box-shadow: 0 0 0 2px rgba(18,65,145,0.2);
+}
+
+/* Optional nice dropdown arrow fix */
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #666 50%),
+    linear-gradient(135deg, #666 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* ================= CUSTOMER CARD BORDER (ENCIRCLING) ================= */
+body.customer-bharti .form-card { border-color: #e53935; }
+body.customer-jio    .form-card { border-color: #1a237e; }
+body.customer-vi     .form-card { border-color: #7b1fa2; }
+body.customer-bsnl   .form-card { border-color: #2e7d32; }
+
+/* ================= OVERRIDES (NO weird outlines) ================= */
+body.overseas *:focus {
+  box-shadow: none !important;
+}
+
+/* ================= PRINT MODE ================= */
+@media print {
+  body.overseas .page-shell {
+    background: white !important;
+  }
+
+  .print-btn,
+  nav {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+    background: white !important;
+  }
+
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+}
+/* ===== HARD RESET OF PAGE CANVAS ===== */
+.page-shell {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  margin: 12px auto !important;
+  padding: 16px !important;
+}
+
+/* ===== HEADER COMPACT & CENTERED ===== */
+.doc-header {
+  border: none !important;
+  margin-bottom: 6px !important;
+  padding-bottom: 4px !important;
+}
+
+/* ===== HEADER TEXT ===== */
+.header-center h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.rc-name {
+  font-weight: 600;
+  margin: 4px 0 2px;
+}
+
+.rc-address {
+  font-size: 13px;
+  color: #444;
+  margin: 0;
+}
+
+/* ===== OVERSEAS THEME (CANVAS ONLY) ===== */
+body.overseas .page-shell {
+  background: #e8f4ff !important;
+}
+
+/* ===== FORM CARD (RED BORDER KEPT) ===== */
+.form-card {
+  margin-top: 6px !important;
+}
+
+/* ===== REMOVE ANY STRAY BLUE OUTLINES ===== */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== CUSTOMER LOGO ===== */
+.customer-logo {
+  height: 42px;
+  visibility: hidden;
+}
+
+/* ===== PRINT ===== */
+@media print {
+  body.overseas .page-shell {
+    background: white !important;
+  }
+
+  .print-btn,
+  nav {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+  }
+
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+}
+/* ================= HEADER LAYOUT ================= */
+.doc-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px !important;
+  border: none !important;
+}
+
+.header-center {
+  text-align: center;
+}
+
+.header-center h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.rc-name {
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.rc-address {
+  font-size: 13px;
+  color: #444;
+  margin-top: 2px;
+}
+
+/* ================= REMOVE EXTRA SPACE ================= */
+.qr-wrapper {
+  margin: 4px 0 6px !important;
+}
+
+.form-card {
+  margin-top: 4px !important;
+}
+
+/* ================= PAGE CANVAS ================= */
+.page-shell {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 16px !important;
+}
+
+/* ================= OVERSEAS THEME ================= */
+body.overseas .page-shell {
+  background: #e8f4ff !important;
+}
+
+/* ================= CUSTOMER BORDER COLORS ================= */
+body.customer-bharti .form-card { border-color: #e53935; }
+body.customer-jio    .form-card { border-color: #1a237e; }
+body.customer-vi     .form-card { border-color: #7b1fa2; }
+body.customer-bsnl   .form-card { border-color: #1e88e5; } /* FIXED BLUE */
+
+/* ================= CUSTOMER LOGO ================= */
+.header-right {
+  width: 140px;
+  display: flex;
+  justify-content: center;
+}
+
+.customer-logo {
+  height: 42px;
+  display: none;
+}
+
+/* ================= KILL ALL STRAY OUTLINES ================= */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ================= PRINT ================= */
+@media print {
+  body.overseas .page-shell {
+    background: white !important;
+  }
+
+  .print-btn,
+  nav {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+  }
+
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+}
+/* ================= DISPATCH TEXT ================= */
+.dispatch-text span {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #555;
+}
+.dispatch-text strong {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* ================= HEADER ================= */
+.doc-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.header-center {
+  text-align: center;
+}
+
+/* ================= FORM ================= */
+.form-card {
+  border: 2px solid #d0d7e2; /* neutral gray */
+  position: relative;
+
+/* customer color stays */
+  border-radius: 14px;
+  padding: 20px;
+}
+
+/* ================= QR ================= */
+.qr-wrapper {
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* ================= PRINT ================= */
+@media print {
+  button,
+  nav {
+    display: none !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    background: white;
+  }
+
+  .form-card {
+    border: 1px solid #000;
+  }
+}
+/* CUSTOMER FORM COLORS */
+.form-card.customer-bharti { border: 2px solid #e53935; }
+.form-card.customer-jio { border: 2px solid #1e3a8a; }
+.form-card.customer-vi { border: 2px solid #7b1fa2; }
+.form-card.customer-bsnl { border: 2px solid #1e88e5; }
+
+/* DISPATCH */
+.dispatch-line {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #555;
+}
+.dispatch-date {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* HEADER */
+.doc-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* OVERSEAS */
+body.overseas {
+  background: #eaf4ff;
+}
+
+/* PRINT */
+@media print {
+  body { background: white !important; }
+  button, nav { display: none !important; }
+}
+/* CUSTOMER FORM COLORS */
+.form-card.customer-bharti { border: 2px solid #e53935; }
+.form-card.customer-jio { border: 2px solid #1e3a8a; }
+.form-card.customer-vi { border: 2px solid #7b1fa2; }
+.form-card.customer-bsnl { border: 2px solid #1e88e5; }
+
+/* DISPATCH */
+.dispatch-line {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #555;
+}
+.dispatch-date {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* HEADER */
+.doc-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* OVERSEAS */
+body.overseas {
+  background: #eaf4ff;
+}
+
+/* PRINT */
+@media print {
+  body { background: white !important; }
+  button, nav { display: none !important; }
+}
+/* ================= LEFT CUSTOMER ACCENT STRIP ================= */
+
+.form-card {
+  position: relative;
+}
+
+/* Default: no accent */
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 6px;
+  border-radius: 6px;
+  background: transparent;
+}
+
+/* Customer-specific accent colors */
+.form-card.customer-bharti::before {
+  background: #e53935; /* Red */
+}
+
+.form-card.customer-jio::before {
+  background: #1e3a8a; /* Blue */
+}
+
+/* =====================================================
+   🔒 FINAL RC IN – HARD STABILITY OVERRIDES
+   (DO NOT MOVE, DO NOT EDIT ABOVE)
+===================================================== */
+
+/* ---------- RESET ALL DEFAULT CUSTOMER VISUALS ---------- */
+.form-card,
+.card {
+  border: 2px solid #d0d7e2;   /* neutral idle */
+  background: #ffffff;
+  position: relative;
+}
+
+/* Remove any inherited left borders from old rules */
+.customer-Bharti,
+.customer-Jio,
+.customer-Vi,
+.customer-Bsnl,
+.customer-bharti,
+.customer-jio,
+.customer-vi,
+.customer-bsnl {
+  border-left: none !important;
+}
+
+/* ---------- LEFT ACCENT STRIP (CONTROLLED, SINGLE SOURCE) ---------- */
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 6px;
+  border-radius: 6px;
+  background: transparent; /* idle = none */
+}
+
+/* ---------- CUSTOMER COLORS (LOWERCASE ONLY) ---------- */
+
+/* BHARTI */
+.form-card.customer-bharti {
+  border-color: #e53935;
+}
+.form-card.customer-bharti::before {
+  background: #e53935;
+}
+
+/* JIO */
+.form-card.customer-jio {
+  border-color: #1e3a8a;
+}
+.form-card.customer-jio::before {
+  background: #1e3a8a;
+}
+
+/* VI */
+.form-card.customer-vi {
+  border-color: #7b1fa2;
+}
+.form-card.customer-vi::before {
+  background: #7b1fa2;
+}
+
+/* BSNL */
+.form-card.customer-bsnl {
+  border-color: #1e88e5;
+}
+.form-card.customer-bsnl::before {
+  background: #1e88e5;
+}
+
+/* ---------- IDLE SAFETY (NO CUSTOMER SELECTED) ---------- */
+.form-card:not(.customer-bharti):not(.customer-jio):not(.customer-vi):not(.customer-bsnl) {
+  border-color: #d0d7e2;
+}
+.form-card:not(.customer-bharti):not(.customer-jio):not(.customer-vi):not(.customer-bsnl)::before {
+  background: transparent;
+}
+
+/* ---------- OVERSEAS = PAGE ONLY (NO BORDER SIDE EFFECTS) ---------- */
+body.overseas .page-shell {
+  background: #e8f4ff !important;
+}
+body.overseas .form-card {
+  background: #ffffff !important;
+}
+
+/* ---------- KILL STRAY OUTLINES / FOCUS GHOSTS ---------- */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ---------- HEADER COMPACTNESS ---------- */
+.doc-header {
+  margin-bottom: 6px !important;
+  border: none !important;
+}
+
+/* ---------- QR POSITION (STABLE) ---------- */
+.qr-wrapper {
+  margin: 8px 0 12px !important;
+  text-align: center;
+}
+#qrCanvas {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ---------- PRINT MODE (A4 SAFE, BLACK & WHITE) ---------- */
+@media print {
+
+  body,
+  body.overseas {
+    background: white !important;
+  }
+
+  .page-shell {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+    background: white !important;
+  }
+
+  .form-card {
+    border: 1px solid #000 !important;
+  }
+
+  .form-card::before {
+    background: black !important;
+  }
+
+  nav,
+  button,
+  .print-btn {
+    display: none !important;
+  }
+}
+/* =====================================================
+   FIX: REMOVE LEFT FAT ACCENT STRIP – KEEP EVEN BORDER
+===================================================== */
+
+/* Kill left accent strip completely */
+.form-card::before {
+  content: none !important;
+}
+
+/* Ensure uniform border on all sides */
+.form-card {
+  border-width: 2px !important;
+  border-style: solid !important;
+}
+
+/* Customer-specific border colors (even all around) */
+.form-card.customer-bharti {
+  border-color: #e53935 !important;
+}
+
+.form-card.customer-jio {
+  border-color: #1e3a8a !important;
+}
+
+.form-card.customer-vi {
+  border-color: #7b1fa2 !important;
+}
+
+.form-card.customer-bsnl {
+  border-color: #1e88e5 !important;
+}
+
+/* Idle (no customer selected) */
+.form-card:not(.customer-bharti):not(.customer-jio):not(.customer-vi):not(.customer-bsnl) {
+  border-color: #d0d7e2 !important;
+}
+/* ================= RC IN TITLE (NOKIA THEME) ================= */
+
+.rc-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #124191; /* Nokia Blue */
+  letter-spacing: 0.4px;
+}
+
+/* ================= CENTER TEXT STACK ================= */
+
+.header-center {
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* RC name */
+.rc-name {
+  margin-top: 4px;      /* ↓ closer to title */
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+}
+
+/* Address — pulled UP */
+.rc-address {
+  margin-top: 2px;      /* ↓ THIS reduces the gap */
+  font-size: 13px;
+  color: #444;
+  line-height: 1.25;
+}
+.doc-header {
+  margin-bottom: 6px !important;   /* was too large */
+}
+
+.form-card {
+  margin-top: 4px !important;
+}
+/* ================= RC IN PAGE — HIDE OTHER LINKS ================= */
+
+body.rc-in nav {
+  display: none;
+}
+/* ================= HEADER MICRO-ALIGNMENT (SCREEN + PRINT READY) ================= */
+
+/* RC IN title slightly higher */
+.header-center h1 {
+  margin-bottom: 4px;
+}
+
+/* Address slightly lower + more readable */
+.rc-address {
+  margin-top: 6px;
+  font-size: 14.5px;        /* slightly bigger for A4 */
+  line-height: 1.4;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Reduce gap between header & form (very subtle) */
+.form-card {
+  margin-top: 10px !important;
+}
+
+/* Overall header spacing tighter */
+.doc-header {
+  margin-bottom: 10px !important;
+}
+
+/* Dispatch text stays subtle */
+.dispatch-text {
+  margin-top: 4px;
+}
+
+/* ================= PRINT OPTIMIZATION ================= */
+@media print {
+
+  .header-center h1 {
+    font-size: 28px;
+  }
+
+  .rc-address {
+    font-size: 15px;
+    max-width: 760px;
+  }
+
+  .form-card {
+    margin-top: 14px !important;
+  }
+}
+/* ================= FINAL MICRO TUNING ================= */
+
+/* RC IN title slightly higher */
+.header-center h1 {
+  margin-top: -6px;
+  margin-bottom: 2px;
+}
+
+/* Address pushed a bit down + larger */
+.rc-address {
+  margin-top: 10px;
+  font-size: 15.5px;        /* print-friendly */
+  line-height: 1.45;
+}
+
+/* Header block tighter */
+.doc-header {
+  margin-bottom: 6px !important;
+}
+
+/* Form comes slightly up */
+.form-card {
+  margin-top: 8px !important;
+}
+
+/* Dispatch stays subtle */
+.dispatch-text {
+  margin-top: 2px;
+}
+
+/* ================= PRINT REFINEMENT ================= */
+@media print {
+
+  .header-center h1 {
+    font-size: 30px;
+    margin-top: 0;
+  }
+
+  .rc-address {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+
+  .form-card {
+    margin-top: 12px !important;
+  }
+}
+/* ===== MICRO ALIGNMENT FOR A4 READABILITY ===== */
+
+/* Move RC IN title slightly upward */
+.header-center h1 {
+  margin-top: -8px;      /* very subtle */
+  margin-bottom: 2px;
+}
+
+/* Address: slightly lower + larger for print */
+.rc-address {
+  margin-top: 12px;      /* creates separation from title */
+  font-size: 15.5px;     /* print-friendly, not loud */
+  line-height: 1.45;
+}
+
+/* Create a barely noticeable gap before form */
+.doc-header {
+  margin-bottom: 10px !important;
+}
+
+/* Pull form a touch upward */
+.form-card {
+  margin-top: 6px !important;
+}
+
+/* ===== PRINT PERFECT BALANCE ===== */
+@media print {
+
+  .header-center h1 {
+    font-size: 30px;
+    margin-top: 0;
+  }
+
+  .rc-address {
+    font-size: 16px;     /* reads clean at arm’s length */
+    margin-top: 14px;
+  }
+
+  .form-card {
+    margin-top: 14px !important;
+  }
+}
+/* ================= CUSTOMER LOGO (ACTIVE & VISIBLE) ================= */
+
+.customer-logo {
+  height: 42px;
+  display: none;           /* hidden until customer selected */
+  object-fit: contain;
+}
+
+/* Show logo when customer class is applied to body */
+body.customer-bharti .customer-logo,
+body.customer-jio .customer-logo,
+body.customer-vi .customer-logo,
+body.customer-bsnl .customer-logo {
+  display: block;
+}
+
+/* Logo sources via body class */
+body.customer-bharti .customer-logo {
+  content: url("/static/Bharti_Logo.svg");
+}
+
+body.customer-jio .customer-logo {
+  content: url("/static/Jio_Logo.svg");
+}
+
+body.customer-vi .customer-logo {
+  content: url("/static/VI_Logo.svg");
+}
+
+body.customer-bsnl .customer-logo {
+  content: url("/static/BSNL_Logo.svg");
+}
+
+/* Print-safe */
+@media print {
+  .customer-logo {
+    display: block !important;
+  }
+}
+/* ================= CUSTOMER LOGO ================= */
+.customer-logo {
+  height: 42px;
+  object-fit: contain;
+  display: none;
+}
+
+/* Print-safe */
+@media print {
+  .customer-logo {
+    display: block !important;
+  }
+}
+/* ===== FORCE CUSTOMER LOGO VISIBILITY (FINAL) ===== */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.customer-logo {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: 44px;
+  max-width: 120px;
+  object-fit: contain;
+}
+.customer-logo {
+  height: 42px;
+  display: none;          /* hidden by default */
+  object-fit: contain;
+}
+/* Hide customer logo until a customer is selected */
+.customer-logo {
+  display: none;
+}
+/* Hide customer logo completely until selected */
+.customer-logo {
+  display: none;
+}
+
+
+
+
+
+/* ================= PRINT PAGE BREAK ================= */
+.page-break {
+  page-break-before: always;
+}
+
+/* ================= TRAVELLER PAGE 2 ================= */
+.traveller-page-2 {
+  margin-top: 20px;
+}
+
+.summary-table,
+.history-grid {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.summary-table td,
+.history-grid th,
+.history-grid td {
+  border: 1px solid #000;
+  padding: 6px;
+  font-size: 12px;
+}
+
+.history-grid th {
+  background: #f0f0f0;
+}
+
+@media print {
+  .topbar,
+  .print-box {
+    display: none;
+  }
+}
+
+/* ================= INLINE TRAVELLER HISTORY ================= */
+.history-strip {
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #bbb;
+  background: #fafafa;
+}
+
+.history-strip h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: left;
+}
+
+.history-table th {
+  background: #eee;
+}
+
+
+/* ================= UNIT SUMMARY ================= */
+.unit-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  font-size: 14px;
+  margin: 12px 0;
+}
+
+.unit-summary .full {
+  grid-column: 1 / -1;
+}
+
+/* ================= SIMPLE HEADER ================= */
+.doc-header.simple {
+  margin-bottom: 16px;
+}
+
+/* ================= SECTION TITLES ================= */
+.section-title {
+  margin: 22px 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+/* ================= COMPONENT GRID ================= */
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.component-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 10px;
+  transition: box-shadow 0.2s ease;
+}
+
+.component-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.component-head {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* ================= RADIO OPTIONS ================= */
+.component-options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.component-options label {
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* subtle color cues */
+.opt.pass { color: #1b7f3c; }
+.opt.fail { color: #b00020; }
+.opt.na   { color: #555; }
+
+.component-options input {
+  accent-color: #124191; /* Nokia blue */
+}
+
+/* ================= CENTER STATION PAGES ================= */
+/* ================= PAGE CONTAINER ================= */
+.page-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ================= FORM CARD ================= */
+.form-card {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+
+
+/* ================= STATION CUSTOMER LOGO ================= */
+.customer-logo-station {
+  max-height: 42px;
+  margin-right: 16px; /* pulls it inside */
+}
+
+/* ================= STATION HEADER FIX ================= */
+.station-header {
+  position: relative;
+  text-align: center;
+}
+
+.customer-logo-station {
+  position: absolute;
+  top: 50%;
+  right: 24px;          /* pulls logo inside */
+  transform: translateY(-50%);
+  max-height: 42px;
+}
+/* ================= STATION HEADER ALIGN ================= */
+.station-header {
+  max-width: 1100px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+
+/* ================= SCAN BUTTON ALIGN ================= */
+.scan-action {
+  display: flex;
+  align-items: flex-end;
+}
+
+.scan-btn {
+  height: 42px;
+  padding: 0 20px;
+}
+
+/* ================= STATION CONTAINER ================= */
+.station-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ================= SCAN ROW OVERRIDE ================= */
+.scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.scan-action {
+  display: flex;
+}
+
+.scan-btn {
+  height: 42px;
+  padding: 0 22px;
+  white-space: nowrap;
+}
+
+.customer-logo-station {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+}
+
+.rc-name {
+  opacity: 0.85;
+}
+
+
+/* ===================== */
+/* DIAGNOSIS / STATION UI */
+/* ===================== */
+
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-center {
+  grid-column: 2;
+  text-align: center;
+}
+
+.header-right {
+  grid-column: 3;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.customer-logo {
+  height: 42px;
+  margin-right: 16px;
+}
+
+/* Main Card */
+.form-card {
+  max-width: 1100px;
+  margin: 0 auto 40px auto;
+  padding: 28px;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px solid #e6e6e6;
+}
+
+/* Customer encircle */
+.form-card.customer-bharti {
+  border-color: #e60000;
+}
+
+.form-card.customer-jio {
+  border-color: #0f3cc9;
+}
+
+.form-card.customer-vi {
+  border-color: #ed1c24;
+}
+
+.form-card.customer-bsnl {
+  border-color: #1c5aa6;
+}
+
+/* Overseas tint */
+body.overseas .form-card {
+  background: #f5f9ff;
+}
+
+/* Scan Row Alignment */
+.scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.scan-row button {
+  height: 42px;
+  padding: 0 22px;
+}
+
+/* Unit Summary */
+.unit-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  font-size: 14px;
+}
+
+.unit-summary .full {
+  grid-column: span 4;
+}
+
+/* Section Headings */
+h3 {
+  margin-top: 28px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+.customer-logo {
+  height: 44px;
+  width: auto;
+  display: block !important;
+}
+
+.header-3col {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.customer-logo {
+  height: 42px;
+  width: auto;
+}
+
+.form-card {
+  border: 2px solid #e53935; /* default red */
+  border-radius: 14px;
+  padding: 28px;
+  background: #fff;
+}
+
+.customer-bharti.form-card {
+  border-color: #e53935;
+}
+.customer-jio.form-card {
+  border-color: #1e3a8a;
+}
+.customer-vi.form-card {
+  border-color: #6b21a8;
+}
+.customer-bsnl.form-card {
+  border-color: #0f766e;
+}
+
+
+/* ================= DASHBOARD ================= */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  padding: 18px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #ddd;
+  background: #fff;
+}
+
+.kpi-card span {
+  display: block;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.kpi-card b {
+  font-size: 28px;
+}
+
+.kpi-red { border-color: #e53935; }
+.kpi-orange { border-color: #fb8c00; }
+.kpi-green { border-color: #2e7d32; }
+
+.station-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.station-card {
+  padding: 16px;
+  border-radius: 12px;
+  border: 2px solid #e53935;
+  background: #fff;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.station-card span {
+  font-size: 14px;
+}
+
+.station-card b {
+  display: block;
+  font-size: 22px;
+  margin-top: 6px;
+}
+
+.rc-out-card {
+  background: #fff5f5;
+}
+
+.ops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.ops-grid a {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  text-decoration: none;
+  color: #000;
+}
+
+.ops-grid a:hover {
+  border-color: #e53935;
+}
+
+.rc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rc-table th,
+.rc-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.section-title {
+  margin: 28px 0 12px;
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+/* ================= LIVE DASHBOARD EFFECT ================= */
+
+.live-card {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  animation: liveBorder 6s linear infinite;
+}
+
+/* Soft glow */
+.live-card::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 16px;
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0.35;
+  animation: liveGlow 6s linear infinite;
+}
+
+/* Border color rotation */
+@keyframes liveBorder {
+  0%   { border-color: #e53935; }  /* Nokia Red */
+  33%  { border-color: #fb8c00; }  /* Amber */
+  66%  { border-color: #1e88e5; }  /* Blue */
+  100% { border-color: #e53935; }
+}
+
+/* Glow sync */
+@keyframes liveGlow {
+  0%   { background: #e53935; }
+  33%  { background: #fb8c00; }
+  66%  { background: #1e88e5; }
+  100% { background: #e53935; }
+}
+/* ================= NOKIA LIVE DASHBOARD ================= */
+
+/* Base live card */
+.live-nokia {
+  position: relative;
+  border: 1.5px solid #d0d7de;
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ================= FULL CARD NOKIA FLOW ================= */
+
+.live-nokia {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Moving gradient layer */
+.live-nokia::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(11, 94, 215, 0.08) 45%,
+    rgba(90, 169, 255, 0.18) 50%,
+    rgba(11, 94, 215, 0.08) 55%,
+    transparent 70%
+  );
+  animation: nokiaWave 6s linear infinite;
+  pointer-events: none;
+}
+
+/* Soft breathing glow */
+.live-nokia::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 rgba(11, 94, 215, 0);
+  animation: nokiaPulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nokiaWave {
+  0% {
+    transform: translateX(-30%) translateY(-30%);
+  }
+  100% {
+    transform: translateX(30%) translateY(30%);
+  }
+}
+
+@keyframes nokiaPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(11, 94, 215, 0);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(11, 94, 215, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(11, 94, 215, 0);
+  }
+}
+
+.station-card.live-nokia::before {
+  animation-duration: 10s;
+}
+
+
+/* Soft breathing glow */
+.live-nokia::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  box-shadow: 0 0 0 rgba(11, 94, 215, 0);
+  animation: nokiaPulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Top line motion */
+@keyframes nokiaFlow {
+  0%   { left: -40%; }
+  50%  { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* Calm pulse (very subtle) */
+@keyframes nokiaPulse {
+  0%   { box-shadow: 0 0 0 rgba(11, 94, 215, 0); }
+  50%  { box-shadow: 0 0 12px rgba(11, 94, 215, 0.25); }
+  100% { box-shadow: 0 0 0 rgba(11, 94, 215, 0); }
+}
+/* ================= NOKIA LIVE DASHBOARD ================= */
+
+/* Base live animation container */
+.live-nokia {
+  position: relative;
+  border: 1.5px solid #d0d7de;
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* Animated Nokia-blue top flow */
+.live-nokia::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #0b5ed7,
+    #5aa9ff,
+    #0b5ed7,
+    transparent
+  );
+  animation: nokiaFlow 4s ease-in-out infinite;
+}
+
+/* Soft breathing glow */
+.live-nokia::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  box-shadow: 0 0 0 rgba(11, 94, 215, 0);
+  animation: nokiaPulse 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nokiaFlow {
+  0%   { left: -40%; }
+  50%  { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes nokiaPulse {
+  0%   { box-shadow: 0 0 0 rgba(11, 94, 215, 0); }
+  50%  { box-shadow: 0 0 12px rgba(11, 94, 215, 0.25); }
+  100% { box-shadow: 0 0 0 rgba(11, 94, 215, 0); }
+}
+
+
+.preview-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.preview-sheet {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  box-shadow: 0 0 10px #000;
+}
+
+.preview-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printArea, #printArea * {
+    visibility: visible;
+  }
+  #printArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+
+/* ===== HEADER GRID ===== */
+.rc-header-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: start;
+  gap: 20px;
+}
+
+/* DISPATCH + QR */
+.dispatch-block {
+  font-size: 12px;
+}
+
+.dispatch-date {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.qr-locked {
+  width: 90px;
+  height: 90px;
+  margin-top: 6px;
+}
+
+/* LOGO */
+.logo-block {
+  text-align: right;
+}
+
+.customer-logo {
+  height: 42px;
+  object-fit: contain;
+  background: transparent;
+}
+
+
+/* ===== TRAVELLER NOKIA HEADER ===== */
+
+.traveller-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;        /* bigger than date */
+  width: auto;
+}
+
+.dispatch-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #555;
+}
+
+.dispatch-date {
+  font-size: 18px;     /* slightly smaller than logo */
+  font-weight: 700;
+}
+
+/* ===== TRAVELLER NOKIA LOGO ===== */
+.traveller-logo-block {
+  margin-bottom: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;        /* bigger than dispatch date */
+  width: auto;
+  display: block;
+}
+
+/* ===== PRINT SAFE OFFSET FOR TRAVELLER HEADER ===== */
+.dispatch-line {
+  margin-left: 14px;   /* ← THIS is the key line */
+}
+.traveller-logo-block,
+.dispatch-label,
+.dispatch-date {
+  margin-left: 18px;
+}
+
+/* ===== TRAVELLER NOKIA LOGO PRINT SAFE MARGIN ===== */
+.nokia-traveller-logo {
+  margin-left: 14px;
+}
+
+/* ===== TRAVELLER NOKIA HEADER ===== */
+
+.traveller-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;        /* bigger than date */
+  width: auto;
+}
+
+.dispatch-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #555;
+}
+
+.dispatch-date {
+  font-size: 18px;     /* slightly smaller than logo */
+  font-weight: 700;
+}
+
+/* ===== TRAVELLER NOKIA LOGO ===== */
+.traveller-logo-block {
+  margin-bottom: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;        /* bigger than dispatch date */
+  width: auto;
+  display: block;
+}
+
+/* ===== PRINT SAFE OFFSET FOR TRAVELLER HEADER ===== */
+.dispatch-line {
+  margin-left: 14px;   /* ← THIS is the key line */
+}
+.traveller-logo-block,
+.dispatch-label,
+.dispatch-date {
+  margin-left: 18px;
+}
+
+/* ===== TRAVELLER NOKIA LOGO PRINT SAFE MARGIN ===== */
+.nokia-traveller-logo {
+  margin-left: 14px;
+}
+
+/* PRINT SAFE MARGINS */
+.print-safe {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+/* HEADER LAYOUT */
+.doc-header {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* LEFT HEADER */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+  margin-bottom: 6px;
+}
+
+/* DISPATCH */
+.dispatch-label {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1px;
+}
+
+.dispatch-date {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* CENTER */
+.header-center {
+  text-align: center;
+}
+
+/* RIGHT */
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.traveller-nokia-logo {
+  height: 55px;
+  width: auto;
+  display: block;
+}
+.traveller-logo-block,
+.dispatch-label,
+.dispatch-date {
+  margin-left: 18px;
+}
+
+/* ===== TRAVELLER NOKIA LOGO PRINT SAFE MARGIN ===== */
+.nokia-traveller-logo {
+  margin-left: 20px;
+}
+.dispatch-line {
+  margin-left: 2px;   /* ← THIS is the key line */
+}
+
+/* ===== PRINT-SAFE PAGE MARGIN ===== */
+.page-shell {
+  padding-left: 14px;   /* paint / printer safe margin */
+  padding-right: 14px;
+}
+/* ===== TRAVELLER NOKIA LOGO POSITION ===== */
+.traveller-logo-block {
+  margin-left: 14px;    /* move logo right */
+  margin-top: 2px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+  width: auto;
+  display: block;
+}
+
+
+.traveller-section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #d7dfe8;
+}
+
+.traveller-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #124191;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* Decorative soft circle behind the card (kept safe and non-invasive) */
+.form-card::before {
+  content: "";
+  position: absolute;
+  top: -600px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1200px;
+  height: 1200px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(225, 28, 36, 0.06), transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure no unexpected styles leak from a stray page-shell pseudo */
+.page-shell::after {
+  content: "";
+  display: none;
+}
+
+/* ===============================
+   PRINT / TRAVELLER HARD RESET
+   =============================== */
+
+.print-safe *,
+.print-safe *::before,
+.print-safe *::after {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.print-safe .form-card::before,
+.print-safe .form-card::after,
+.print-safe::before,
+.print-safe::after {
+  display: none !important;
+  content: none !important;
+}
+.print-safe .form-card {
+  position: relative;
+  background: #ffffff !important;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.scan-row {
+  grid-template-columns: 1.2fr auto 1fr 1fr;
+  column-gap: 10px;
+}
+
+.scan-btn-wrap {
+  display: flex;
+  align-items: flex-end;
+}
+.received-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr 140px;
+  gap: 16px;
+  align-items: center;
+}
+
+.received-qr canvas {
+  width: 120px;
+  height: 120px;
+}
+
+.serial-text {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.received-logo img {
+  max-width: 100px;
+  margin-left: auto;
+}
+.section-divider {
+  height: 1px;
+  background: #d9e1ef;
+  margin: 28px 0;
+}
+.service-box {
+  text-align: right;
+}
+
+.service-type {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.service-date {
+  font-size: 13px;
+  color: #555;
+}
+/* IDENTITY */
+.encircle{
+  position:absolute;
+  right:-140px;
+  top:320px;
+  width:420px;
+  height:420px;
+  background:#e60000;
+  border-radius:50%;
+  opacity:.9;
+  animation:pulse 4s infinite ease-in-out;
+  z-index:0;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
+
+/* OVERSEAS */
+body.overseas{background:#e8f4ff}
+
+/* SHADOWS */
+.elevated{
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+/* HEADER */
+.service-type{font-size:26px;font-weight:700}
+.service-date{font-size:13px}
+
+/* SCAN */
+.scan-row{grid-template-columns:1.2fr auto 1fr 1fr;gap:10px}
+
+/* SCANNER BOX */
+.scanner-box{
+  display:grid;
+  grid-template-columns:180px 1fr 140px;
+  padding:20px;
+  margin-top:20px;
+}
+.scanner-left{text-align:center}
+.serial-text{margin-top:6px;font-size:12px}
+.scanner-right img{max-width:90px;margin-left:auto}
+
+/* DIVIDER */
+.section-divider{
+  height:1px;
+  background:#dbe4f3;
+  margin:24px 0;
+}
+
+/* ===== PROJECT IDENTITY : RED ENCIRCLE ===== */
+.form-card {
+  position: relative;
+  background: #fff;
+  border-radius: 14px;
+  border: 2px solid #e11b22; /* NOKIA RED */
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+}
+
+/* Customer theme override */
+.customer-bharti .form-card {
+  border-color: #e11b22;
+}
+
+.customer-jio .form-card {
+  border-color: #0f2a7a;
+}
+
+.customer-vi .form-card {
+  border-color: #ec008c;
+}
+
+.customer-bsnl .form-card {
+  border-color: #1c5aa6;
+}
+/* ===== MAIN RED ENCIRCLE ===== */
+.red-encircle {
+  border: 2px solid #e10600; /* Nokia/Airtel red */
+  border-radius: 12px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Prevent print overflow */
+.print-safe {
+  padding: 14px;
+  box-sizing: border-box;
+}
+/* ===== IDENTITY CORE ===== */
+.form-card {
+  border-radius: 14px;
+  background: #fff;
+  padding: 24px;
+  border: 2px solid transparent;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+}
+
+/* CUSTOMER COLOR ENCIRCLE (LIKE QA) */
+.form-card.customer-bharti { border-color: #e60000; }
+.form-card.customer-jio    { border-color: #0f3cc9; }
+.form-card.customer-vi     { border-color: #ee0077; }
+.form-card.customer-bsnl   { border-color: #1c4fa1; }
+
+/* OVERSEAS THEME */
+body.overseas {
+  background: #eaf4ff;
+}
+
+/* HEADER SERVICE BOX */
+.service-box {
+  text-align: right;
+}
+.service-type {
+  font-size: 22px;
+  font-weight: 700;
+}
+.service-date {
+  font-size: 13px;
+  color: #666;
+}
+
+/* SECTION DIVIDER */
+.section-divider {
+  margin: 28px 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #cfd8ff,
+    transparent
+  );
+}
+
+/* SCANNER BLOCK */
+.scanner-box {
+  display: grid;
+  grid-template-columns: 180px 1fr 120px;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fafafa;
+  box-shadow: inset 0 0 0 1px #e6e6e6;
+}
+
+.scanner-left canvas {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.serial-text {
+  font-size: 13px;
+  color: #333;
+}
+
+.scanner-right img {
+  max-width: 100px;
+}
+
+/* ================= RESET ================= */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #000;
+}
+
+/* ================= OVERSEAS THEME ================= */
+body.overseas {
+  background: #e8f4ff;
+}
+
+/* ================= PAGE SHELL ================= */
+.page-shell {
+  max-width: 1100px;
+  margin: 20px auto 40px;
+}
+
+/* ================= HEADER ================= */
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.header-left,
+.header-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-right {
+  align-items: flex-end;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+  margin-bottom: 6px;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: #444;
+}
+
+.dispatch-date,
+.service-type {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+  line-height: 1.1;
+}
+
+.service-date {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.header-center {
+  text-align: center;
+}
+
+.rc-title {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.6px;
+}
+
+.rc-name {
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.rc-address {
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ================= MAIN CARD (HEART) ================= */
+.form-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  border: 3px solid #d0d6df;
+  transition: border-color 0.25s ease;
+}
+
+/* HEART COLORS */
+.form-card.bharti { border-color: #e60000; }
+.form-card.jio    { border-color: #0052cc; }
+.form-card.vi     { border-color: #e6007e; }
+.form-card.bsnl   { border-color: #0b2e6f; }
+
+/* ================= FORM GRID ================= */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.form-row.scan-row {
+  grid-template-columns: 2fr auto 1fr 1fr;
+}
+
+.form-row.single {
+  grid-template-columns: 1fr;
+}
+
+.field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #cfd6e0;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ================= BUTTONS ================= */
+.btn-field button,
+.form-actions button {
+  background: #0b5ed7;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-actions {
+  margin-top: 24px;
+  text-align: right;
+}
+
+/* ================= SECTION DIVIDER ================= */
+.section-divider {
+  height: 1px;
+  background: #000;
+  margin: 22px 0 14px;
+}
+
+/* ================= SCANNER / QR ================= */
+.scanner-box {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.scanner-left canvas {
+  border: 1px solid #cfd6e0;
+  padding: 6px;
+}
+
+#serialText {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qr-meta {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.scanner-right {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.scanner-right img {
+  max-height: 60px;
+  margin-left: -20px;
+  filter: grayscale(100%);
+}
+
+/* ================= HEADINGS ================= */
+h4 {
+  margin: 12px 0 8px;
+  font-size: 15px;
+}
+
+/* ================= PRINT SAFE ================= */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .page-shell {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .form-card {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  button {
+    display: none;
+  }
+}
+/* ================= RESET ================= */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #000;
+}
+
+/* ================= OVERSEAS THEME ================= */
+body.overseas {
+  background: #e8f4ff;
+}
+
+/* ================= PAGE SHELL ================= */
+.page-shell {
+  max-width: 1100px;
+  margin: 24px auto 40px;
+}
+
+/* ================= HEADER (STRAIGHT LINE FIX) ================= */
+.header-line {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+/* LEFT */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;            /* FIX: logo no longer tiny */
+}
+
+.dispatch-date {
+  font-size: 31px;         /* MATCH service type */
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* CENTER */
+.header-center {
+  text-align: center;
+}
+
+.rc-title {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.6px;
+}
+
+.rc-name {
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.rc-address {
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* RIGHT */
+.header-right {
+  text-align: right;
+}
+
+.service-type {
+  font-size: 30px;         /* SAME AS DISPATCH DATE */
+  font-weight: 700;
+  line-height: 1;
+}
+
+.service-date {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+/* ================= MAIN CARD (HEART) ================= */
+.form-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  border: 3px solid #d0d6df;   /* REQUIRED BASE */
+  transition: border-color 0.25s ease;
+}
+
+/* HEART COLORS */
+.form-card.bharti { border-color: #e60000; } /* Airtel */
+.form-card.jio    { border-color: #0052cc; }
+.form-card.vi     { border-color: #e6007e; }
+.form-card.bsnl   { border-color: #0b2e6f; }
+
+/* ================= FORM GRID ================= */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.form-row.scan-row {
+  grid-template-columns: 2fr auto 1fr 1fr;
+}
+
+.form-row.single {
+  grid-template-columns: 1fr;
+}
+
+.field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #cfd6e0;
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ================= BUTTONS ================= */
+.btn-field button,
+.form-actions button {
+  background: #0b5ed7;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-actions {
+  margin-top: 24px;
+  text-align: right;
+}
+
+/* ================= SECTION DIVIDER ================= */
+.section-divider {
+  height: 1px;
+  background: #000;
+  margin: 22px 0 14px;
+}
+
+/* ================= QR / SCANNER ================= */
+.scanner-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* LEFT SIDE (QR) */
+.scanner-left {
+  text-align: center;
+}
+
+.scanner-left canvas {
+  border: 1px solid #cfd6e0;
+  padding: 6px;
+}
+
+.serial-text {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* RIGHT SIDE (LOGO) */
+.scanner-right {
+  display: flex;
+  justify-content: flex-start; /* NOT extreme right */
+  padding-left: 40px;          /* BALANCED MARGIN */
+}
+
+.scanner-right img {
+  max-height: 64px;
+  filter: none;                /* FIX: no black & white */
+}
+
+/* ================= HEADINGS ================= */
+h4 {
+  margin: 14px 0 8px;
+  font-size: 15px;
+}
+
+/* ================= PRINT SAFE ================= */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .page-shell {
+    margin: 0;
+    max-width: 100%;
+  }
+
+  .form-card {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  button {
+    display: none;
+  }
+}
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: #555;
+}
+
+.dispatch-date {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.service-type {
+  font-size: 26px;       /* was too large */
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1.1;
+}
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: end;   /* 👈 THIS is the key */ 
+}
+.service-date {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+.header-right {
+  padding-top:30px;   /* moves service box down slightly */
+}
+
+.service-box {
+  text-align: right;
+}
+
+.service-type {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  margin-bottom: 5px; /* bring down service type */
+}
+
+.service-date {
+  font-size: 13px;
+  color: #666;
+}
+.scanner-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  column-gap: 60px; /* space between QR and logo */
+}
+
+.scanner-left {
+  text-align: center;
+}
+
+.scanner-right {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 40px; /* push logo right, not extreme */
+}
+
+.scanner-right img {
+  max-height: 60px;
+  object-fit: contain;
+}
+.scanner-box {
+  display: grid;
+  grid-template-columns: 180px 1fr 160px;
+  gap: 32px;
+  padding: 20px;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.scanner-left {
+  text-align: center;
+}
+
+.qr-serial {
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.scanner-center {
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.scanner-center b {
+  display: inline-block;
+  width: 110px; /* Excel-like alignment */
+}
+
+.scanner-right {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 20px;
+}
+
+.scanner-right img {
+  max-height: 60px;
+  object-fit: contain;
+}
+.scanner-right {
+  justify-content: flex-end;
+  padding-right: 60px;   /* moves logo left a bit */
+}
+.form-card.locked {
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.form-card.locked::after {
+  content: "RC IN LOCKED";
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-weight: 700;
+  color: #c00;
+}
+@media print {
+
+  body {
+    background: white !important;
+  }
+
+  .page-shell {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 10mm;
+  }
+
+  .form-card {
+    box-shadow: none;
+    border-width: 2px;
+  }
+
+  input, textarea, select {
+    border: 1px solid #000;
+    font-size: 11px;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  .scanner-box {
+    border: 1px solid #000;
+  }
+
+  .section-divider {
+    border-top: 1.5px solid #000;
+  }
+}
+.locked-field {
+  background: #f8f9fb !important;
+  color: #333;
+  cursor: not-allowed;
+}
+
+@media print {
+  button {
+    display: none !important;
+  }
+}
+.admin-group {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.admin-group label input {
+  margin-right: 6px;
+}
+.admin-decision-row {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0 14px;
+}
+
+.admin-pill {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid #cfd6e0;
+  background: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-pill:hover {
+  background: #eef3fb;
+}
+
+.admin-pill.active {
+  background: #124191;      /* Nokia blue */
+  color: white;
+  border-color: #124191;
+}
+.scan-row {
+  align-items: flex-end;
+}
+
+.align-bottom {
+  padding-bottom: 2px;
+}
+
+.scan-btn {
+  height: 40px;
+  padding: 0 18px;
+  font-weight: 600;
+}
+/* =========================================================
+   GLOBAL STABILITY
+========================================================= */
+.form-card {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #dcdcdc;
+  margin: 18px 0;
+}
+
+/* =========================================================
+   SCAN ROW FIX (ALIGN BUTTON WITH INPUTS)
+========================================================= */
+.scan-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.scan-row .btn-field {
+  padding-bottom: 2px;
+}
+
+.scan-btn {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   CUSTOMER INLINE LOGO
+========================================================= */
+.customer-logo-inline {
+  height: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* =========================================================
+   ADMIN DECISION – PILL BUTTONS (CORE FIX)
+========================================================= */
+.admin-decision-row {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 18px 0;
+  flex-wrap: wrap;
+}
+
+.admin-pill {
+  min-width: 110px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #cfd6e0;
+  background: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-pill:hover {
+  border-color: #124191;
+}
+
+.admin-pill.active {
+  background: #124191;
+  color: #ffffff;
+  border-color: #124191;
+}
+
+/* =========================================================
+   VISUAL SELECT FIELD
+========================================================= */
+select {
+  height: 40px;
+}
+
+/* =========================================================
+   COMPONENT GRID – HARD STABILITY
+========================================================= */
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+
+/* Prevent right drift on smaller screens */
+@media (max-width: 1100px) {
+  .component-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 800px) {
+  .component-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================================================
+   COMPONENT CARD
+========================================================= */
+.component-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.component-head {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Radio alignment */
+.component-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.component-options label {
+  cursor: pointer;
+}
+
+/* PASS / FAIL color cues (subtle, not flashy) */
+.opt.pass { color: #1a7f37; }
+.opt.fail { color: #b42318; }
+.opt.na   { color: #6b7280; }
+
+/* =========================================================
+   COUNT FIELD (HANDWRITING SPACE FEEL)
+========================================================= */
+.component-count {
+  text-align: center;
+}
+
+.component-count input {
+  width: 80px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* =========================================================
+   PRE-DIAG / SANITY FIELDS
+========================================================= */
+.form-row input[type="text"] {
+  height: 40px;
+}
+
+/* =========================================================
+   PRINT SAFETY
+========================================================= */
+@media print {
+  button,
+  .scan-btn {
+    display: none !important;
+  }
+
+  .form-card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+}
+/* Admin Decision – inactive pills text visibility */
+.admin-pill {
+  color: #1f2937;              /* dark readable text */
+  background: #ffffff;
+  border: 1px solid #cfd6e0;
+}
+
+/* Keep active as-is */
+.admin-pill.active {
+  background: #124191;
+  color: #ffffff;
+  border-color: #124191;
+}
+.customer-logo-inline {
+  height: 40px;        /* was ~22px */
+  margin-left: 8px;
+  vertical-align: middle;
+}
+/* =====================================================
+   HEADER LEFT – DISPATCH DATE FIX (CRITICAL)
+===================================================== */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* keeps logo + date aligned */
+  gap: 6px;
+  min-width: 180px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+}
+
+.dispatch-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #6b7280;
+}
+
+.dispatch-date {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+/* ================= HEADER GRID FIX ================= */
+.doc-header.header-line {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  align-items: center;
+  min-height: 140px;
+  padding: 16px 24px;
+}
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.dispatch-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #6b7280;
+}
+
+.dispatch-date {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+.form-card {
+  margin-top: 24px;   /* decouples header height from card */
+}
+/* ================= CARD TOP ROW ================= */
+.card-top-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+/* LEFT */
+.card-dispatch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+}
+
+/* DISPATCH */
+.dispatch-line {
+  line-height: 1.1;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #6b7280;
+}
+
+.dispatch-date {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* ================= QC-EXACT SCAN ROW GRID ================= */
+.card-scan .scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 220px; /* 👈 KEY FIX */
+  gap: 16px;
+  align-items: end;
+  width: 100%;
+}
+
+
+/* BUTTON */
+.scan-btn {
+  height: 40px;
+  padding: 0 18px;
+}
+/* ================= PAGE HEADER (RC IN STYLE) ================= */
+.doc-header.header-line {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  align-items: center;
+  min-height: 140px;
+  padding: 16px 24px;
+}
+
+/* LEFT BLOCK */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.traveller-nokia-logo {
+  height: 55px;
+}
+
+.dispatch-line {
+  text-align: center;
+}
+
+.dispatch-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #6b7280;
+}
+
+.dispatch-date {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* ================= CARD ISOLATION ================= */
+.form-card {
+  margin-top: 24px;   /* Card NEVER touches header */
+}
+/* Reduce excessive header height */
+.doc-header.header-line {
+  min-height: 110px;   /* was too tall */
+  padding: 12px 24px;
+}
+.header-left {
+  gap: 4px;   /* reduce vertical spacing */
+}
+
+.dispatch-date {
+  font-size: 18px;  /* slightly tighter */
+}
+.form-card {
+  margin-top: 12px;   /* was too large */
+}
+.scan-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.2fr auto;
+  gap: 16px;
+  align-items: end;
+}
+.scan-row input {
+  height: 40px;
+}
+.scan-row {
+  display: grid;
+  grid-template-columns: 260px 220px auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.scan-row label {
+  white-space: nowrap;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.scan-row input {
+  width: 100%;
+  height: 42px;
+  padding: 8px 10px;
+}
+.btn-field {
+  align-self: center;
+}
+
+.scan-btn {
+  height: 42px;
+  padding: 0 18px;
+}
+.form-card {
+  padding-top: 18px;   /* was too large */
+}
+.unit-summary {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.form-card hr {
+  margin: 12px 0;
+}
+.scan-row {
+  display: grid;
+  grid-template-columns: 240px 110px 1fr;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+.scan-row input {
+  width: 100%;
+  height: 42px;
+  padding: 8px 10px;
+}
+
+.scan-btn {
+  height: 42px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+.scan-row label {
+  white-space: nowrap;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.btn-field {
+  align-self: end;
+}
+
+
+/* =========================================================
+   VISUAL INSPECTION – QC SPACING & ALIGNMENT (ADD ONLY)
+   ========================================================= */
+
+/* -------- Main Card Parity with QC -------- */
+.qc-aligned-card {
+  max-width: 1100px;
+  margin: 36px auto;
+  padding: 28px 32px;
+}
+
+/* Subtle top breathing space inside card */
+.card-top-spacer {
+  height: 6px;
+}
+
+/* -------- Scan Row Alignment (Match QC) -------- */
+.qc-scan-align {
+  width: 100%;
+}
+
+.qc-scan-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr auto;
+  gap: 20px;
+  align-items: end;
+}
+
+.qc-action-col {
+  display: flex;
+  align-items: flex-end;
+}
+
+.qc-action-col .scan-btn {
+  height: 40px;
+  padding: 0 18px;
+  white-space: nowrap;
+}
+
+/* Inputs baseline parity */
+.scan-row input {
+  height: 40px;
+}
+
+/* -------- QC Divider System (Paper Style) -------- */
+.qc-divider {
+  height: 1px;
+  background: #d8dee9;
+  margin: 28px 0;
+}
+
+.qc-divider.thin {
+  margin: 20px 0;
+}
+
+/* -------- Section Wrappers -------- */
+.qc-section {
+  padding: 0;
+}
+
+/* History block breathing room */
+.qc-history {
+  margin-top: 4px;
+}
+
+/* -------- Section Titles -------- */
+.qc-section-title {
+  margin: 0 0 14px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* -------- Vertical Rhythm Blocks -------- */
+.qc-spacer {
+  height: 18px;
+}
+
+.qc-row {
+  margin-bottom: 18px;
+}
+
+/* -------- Component Grid Spacing -------- */
+.qc-component-grid {
+  margin-top: 12px;
+}
+
+/* Component items breathe like paper */
+.component-item {
+  padding: 10px 12px;
+}
+
+/* -------- Admin Decision Pills -------- */
+.qc-pill-row {
+  margin-bottom: 6px;
+}
+
+/* -------- Actions Area -------- */
+.qc-action-spacer {
+  height: 22px;
+}
+
+.qc-actions {
+  margin-top: 12px;
+}
+
+/* -------- Print Safety -------- */
+@media print {
+  .qc-aligned-card {
+    box-shadow: none;
+    border: 1px solid #cfd6e0;
+  }
+
+  .qc-divider {
+    background: #bbb;
+  }
+}
+/* ======================================================
+   VISUAL INSPECTION – SCAN ROW EQUAL WIDTH FIX (ADD ONLY)
+   ====================================================== */
+
+.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr; /* equal width */
+  gap: 18px;
+  align-items: end;
+  width: 100%;
+}
+
+/* Make inputs and button same height */
+.scan-row input,
+.scan-row .scan-btn {
+  height: 40px;
+}
+
+/* Button should fill its column */
+.scan-row .btn-field {
+  width: 100%;
+}
+
+.scan-row .scan-btn {
+  width: 100%;
+  padding: 0;
+}
+/* =====================================================
+   VISUAL INSPECTION – SCAN ROW SPACING FIX (ADD ONLY)
+   DOES NOT TOUCH LOGIC / FORMS
+   ===================================================== */
+
+/* Force equal-width 3-column layout */
+.form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 18px;
+  width: 100%;
+  align-items: end;
+}
+
+/* Make inputs & button same height */
+.form-row.scan-row input,
+.form-row.scan-row .scan-btn {
+  height: 40px;
+}
+
+/* Button fills its column */
+.form-row.scan-row .btn-field {
+  width: 100%;
+}
+
+.form-row.scan-row .scan-btn {
+  width: 100%;
+  padding: 0;
+}
+
+/* Prevent button shifting */
+.form-row.scan-row label {
+  white-space: nowrap;
+}
+/* =========================================================
+   VISUAL INSPECTION – QC-EXACT SCAN ROW OVERRIDE (ADD ONLY)
+   ========================================================= */
+
+/* Override existing flex rules HARD */
+.form-card .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr auto !important;
+  column-gap: 24px;
+  align-items: end;
+  width: 100%;
+}
+
+/* Make first two fields long like QC */
+.form-card .form-row.scan-row .field {
+  min-width: 0;          /* critical for grid stretch */
+}
+
+.form-card .form-row.scan-row .field input {
+  width: 100%;
+  height: 40px;
+}
+
+/* Button stays compact */
+.form-card .form-row.scan-row .btn-field {
+  width: auto;
+}
+
+.form-card .form-row.scan-row .scan-btn {
+  height: 40px;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+
+/* Ensure card-scan doesn’t constrain width */
+.form-card .card-scan {
+  width: 100%;
+}
+
+
+/* =========================================================
+   VISUAL INSPECTION – QC-EXACT FLEX OVERRIDE (FINAL)
+   ========================================================= */
+
+/* Force QC flex behaviour */
+.form-card .form-row.scan-row {
+  display: flex !important;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+/* First two fields must expand */
+.form-card .form-row.scan-row .field {
+  flex: 1 1 0% !important;
+  max-width: none !important;
+}
+
+/* Inputs must fill available width */
+.form-card .form-row.scan-row .field input {
+  width: 100% !important;
+  max-width: none !important;
+  height: 40px;
+}
+
+/* Button stays natural size */
+.form-card .form-row.scan-row .btn-field {
+  flex: 0 0 auto !important;
+  width: auto !important;
+}
+
+.form-card .form-row.scan-row .scan-btn {
+  height: 40px;
+  padding: 0 18px;
+  white-space: nowrap;
+}
+
+/* Ensure no parent constrains width */
+.form-card .card-scan {
+  width: 100% !important;
+}
+/* ===== Traveller History – Visual Polish ===== */
+.qc-history table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.qc-history th {
+  background: #eef3f9;
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #dbe3ef;
+}
+
+.qc-history td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e6edf5;
+  color: #333;
+}
+
+.qc-history tr:last-child td {
+  border-bottom: none;
+}
+/* ================= VISUAL INSPECTION – QC STYLE SCAN ROW ================= */
+
+.qc-scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.qc-scan-row .field input {
+  width: 100%;
+}
+
+.qc-scan-row .qc-action-col {
+  min-width: 140px;
+}
+
+.qc-scan-row .scan-btn {
+  height: 44px;
+  padding: 0 28px;
+  font-weight: 600;
+  border-radius: 10px;
+}
+/* ================= VISUAL INSPECTION – SECTION 1 (SCAN ROW ONLY) ================= */
+
+/* Ensure scan row spans full card width */
+.qc-scan-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* Inputs take equal space like QC */
+.qc-scan-row .field {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Make inputs visually solid */
+.qc-scan-row .field input {
+  height: 44px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Button column – fixed QC-like width */
+.qc-scan-row .btn-field {
+  min-width: 180px;
+}
+
+/* Scan button – QC style */
+.scan-btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  background: #0b5ed7;           /* QC blue */
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(11, 94, 215, 0.25);
+  transition: all 0.2s ease;
+}
+
+/* Hover like QC */
+.scan-btn:hover {
+  background: #094db1;
+  box-shadow: 0 6px 16px rgba(11, 94, 215, 0.35);
+}
+
+/* Active press */
+.scan-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 8px rgba(11, 94, 215, 0.3);
+}
+
+/* Prevent scan row collapsing on smaller screens */
+@media (max-width: 900px) {
+  .qc-scan-row {
+    flex-wrap: wrap;
+  }
+
+  .qc-scan-row .btn-field {
+    width: 100%;
+  }
+
+  .scan-btn {
+    width: 100%;
+  }
+}
+
+/* ================= END – SCAN ROW ONLY ================= */
+/* ================= SCAN ROW LAYOUT ================= */
+
+.scan-row {
+  display: grid;
+  grid-template-columns: 1.4fr auto 1fr 1fr;
+  gap: 16px;
+  align-items: end;
+}
+
+/* RFID input slightly wider */
+.scan-row .field:first-child input {
+  min-width: 220px;
+}
+
+/* ================= SCAN BUTTON ================= */
+
+.btn-field {
+  display: flex;
+  align-items: flex-end;
+}
+
+#scanBtn {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: #005AFF;              /* Nokia Blue */
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+#scanBtn:hover {
+  background: #0047cc;
+  transform: translateY(-1px);
+}
+
+#scanBtn:disabled {
+  background: #cfd6e4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.scan-row.scanned {
+  opacity: 0.95;
+}
+/* ================= QC-EXACT SCAN ROW PACKING ================= */
+
+/* Force scan row to consume full card width */
+.qc-scan-row {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Inputs expand to fill ALL remaining space */
+.qc-scan-row .field {
+  flex: 1 1 auto;
+}
+
+/* RFID + Engineer inputs same width */
+.qc-scan-row .field input {
+  width: 100%;
+}
+
+/* Button column: fixed width like QC */
+.qc-scan-row .btn-field {
+  flex: 0 0 180px;   /* 👈 THIS IS THE KEY */
+  max-width: 180px;
+}
+
+/* Button fills its column */
+.qc-scan-row .scan-btn {
+  width: 100%;
+}
+
+/* Remove any accidental right padding inside card */
+.card-scan {
+  padding-right: 0;
+}
+
+/* Prevent phantom spacing from parent containers */
+.card-top-row {
+  width: 100%;
+}
+/* ================= FORCE QC SCAN ROW FULL-WIDTH ================= */
+
+/* Break inherited width constraints */
+.card-scan,
+.card-top-row,
+.qc-scan-align {
+  width: 100%;
+  max-width: 100% !important;
+}
+
+/* Override any form-row width limits */
+.scan-row,
+.qc-scan-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+/* Inputs must grow */
+.qc-scan-row .field {
+  flex: 1 1 0%;
+  max-width: none !important;
+}
+
+/* Inputs fill their column */
+.qc-scan-row .field input {
+  width: 100%;
+}
+
+/* Button column fixed like QC */
+.qc-scan-row .btn-field {
+  flex: 0 0 200px;
+  max-width: 200px;
+}
+
+/* Button fills column */
+.qc-scan-row .scan-btn {
+  width: 100%;
+}
+
+/* Remove hidden right padding */
+.form-card {
+  padding-right: 24px;
+}
+/* ================= HARD OVERRIDE — KILL WIDTH CAPS ================= */
+
+/* Kill centering + max-width for scan row only */
+.card-scan,
+.qc-scan-align,
+.card-top-row {
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Kill any inherited form-row caps */
+.scan-row,
+.qc-scan-row {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Now flex can actually work */
+.qc-scan-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+/* Inputs expand */
+.qc-scan-row .field {
+  flex: 1 1 0%;
+}
+
+/* Button fixed like QC */
+.qc-scan-row .btn-field {
+  flex: 0 0 220px;
+}
+
+/* Button fills its column */
+.qc-scan-row .scan-btn {
+  width: 100%;
+}
+/* ================= FORCE GRID TO FILL CARD (QC FIX) ================= */
+
+.card-scan .scan-row {
+  width: 100%;
+  min-width: 100%;
+  justify-self: stretch;
+}
+
+/* Make grid columns consume full width */
+.card-scan .scan-row {
+  grid-template-columns: 1fr 1fr minmax(220px, 1fr);
+}
+
+/* Button must stretch inside its cell */
+.card-scan .scan-row .btn-field,
+.card-scan .scan-row .scan-btn {
+  width: 100%;
+}
+/* ================= HARD OVERRIDE : MATCH QC SCAN ROW ================= */
+
+/* Force scan row to behave EXACTLY like QC */
+.card-scan .scan-row {
+  display: flex !important;
+  width: 100% !important;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* Inputs grow and eat space */
+.card-scan .scan-row .field {
+  flex: 1 1 0;
+}
+
+/* Button column grows too (this kills dead space) */
+.card-scan .scan-row .btn-field {
+  flex: 1 1 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Button stretches fully */
+.card-scan .scan-row .scan-btn {
+  width: 100%;
+  height: 44px;
+}
+/* ================= VISUAL INSPECTION CARD WIDTH FIX ================= */
+body.station .qc-aligned-card {
+  max-width: 1400px;   /* match QC / RC-IN density */
+}
+/* ================= VISUAL / STATION PAGE WIDTH ================= */
+body.station .page-shell {
+  max-width: 1400px;   /* or same as QC */
+}
+/* FORCE QC-LIKE FULL WIDTH SCAN BAR */
+.card-top-row,
+.card-scan,
+.card-scan form {
+  width: 100%;
+}
+/* Base scan row — neutral */
+.form-row.scan-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.form-row.scan-row .field {
+  flex: 1;
+}
+
+.form-row.scan-row .btn-field {
+  flex: 0 0 auto;
+}
+/* Visual Inspection ONLY */
+.visual-scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.visual-scan-row .btn-field {
+  width: auto;
+  white-space: nowrap;
+}
+/* Visual Inspection only */
+.visual-scan-row {
+  grid-template-columns: 1fr 1fr auto;
+}
+/* Visual Inspection – force scan row parity with QA */
+.card-scan form {
+  width: 100%;
+}
+
+.card-scan .form-row.scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+/* Base scan row contract (used by all stations) */
+.form-row.scan-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+/* =========================================================
+   VISUAL INSPECTION — FINAL, AUTHORITATIVE SCAN ROW
+   ========================================================= */
+
+body.station .visual-scan-row {
+  display: flex !important;
+  width: 100% !important;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+/* RFID + Engineer expand fully */
+body.station .visual-scan-row .field {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+/* Inputs fill space */
+body.station .visual-scan-row .field input {
+  width: 100%;
+  height: 44px;
+}
+
+/* Button stays compact, no dead space */
+body.station .visual-scan-row .btn-field {
+  flex: 0 0 auto;
+}
+
+body.station .visual-scan-row .scan-btn {
+  height: 44px;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+/* =========================================================
+   VISUAL INSPECTION — SCAN ROW (QC EXACT, ISOLATED)
+   ========================================================= */
+
+/* Scope lock — NOTHING outside this block is affected */
+.visual-scan-scope {
+  width: 100%;
+}
+
+/* Reset inherited madness ONLY inside visual scan */
+.visual-scan-scope .form-row.scan-row {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  gap: 20px;
+  align-items: flex-end;
+
+  margin: 0;
+  padding: 0;
+}
+
+/* First two fields expand equally like QC */
+.visual-scan-scope .form-row.scan-row .field {
+  flex: 1 1 0%;
+  min-width: 0;            /* CRITICAL for Safari */
+}
+
+/* Inputs fully stretch */
+.visual-scan-scope .form-row.scan-row .field input {
+  width: 100%;
+  height: 44px;
+}
+
+/* Button column — compact, QC-style */
+.visual-scan-scope .form-row.scan-row .btn-field {
+  flex: 0 0 180px;         /* 👈 EXACT QC BEHAVIOR */
+  max-width: 180px;
+}
+
+/* Button fills its column */
+.visual-scan-scope .form-row.scan-row .scan-btn {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Kill phantom right-space from parents */
+.visual-scan-scope,
+.card-scan,
+.card-top-row {
+  width: 100%;
+  max-width: 100%;
+}
+/* Button also participates in width — fills remaining space */
+.visual-scan-scope .form-row.scan-row .btn-field {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+/* =========================================================
+   🔒 FINAL HARD LOCK — VISUAL INSPECTION SCAN ROW
+   DOES NOT MODIFY OR DELETE ANY EXISTING CODE
+   ========================================================= */
+
+/* Visual Inspection ONLY */
+body.station .form-card .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  gap: 18px !important;
+  align-items: end !important;
+}
+
+/* Kill inherited width caps */
+body.station .form-card .form-row.scan-row > * {
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+/* Inputs fill columns */
+body.station .form-card .form-row.scan-row input {
+  width: 100% !important;
+  height: 42px !important;
+}
+
+/* Button column must stretch */
+body.station .form-card .form-row.scan-row .btn-field {
+  width: 100% !important;
+}
+
+/* Button fills column */
+body.station .form-card .form-row.scan-row .scan-btn {
+  width: 100% !important;
+  height: 42px !important;
+  padding: 0 !important;
+}
+/* =========================================================
+   🔒 VISUAL INSPECTION – FINAL SCAN ROW OVERRIDE (ADD ONLY)
+   DO NOT MOVE, DO NOT MODIFY
+   ========================================================= */
+
+/* Scope ONLY Visual Inspection */
+body.station .visual-scan-scope .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 18px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: end !important;
+}
+
+/* Force all fields to stretch */
+body.station .visual-scan-scope .form-row.scan-row .field {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Inputs fill fully */
+body.station .visual-scan-scope .form-row.scan-row input {
+  width: 100% !important;
+  height: 42px !important;
+}
+
+/* Button fills column */
+body.station .visual-scan-scope .form-row.scan-row .btn-field {
+  width: 100% !important;
+}
+
+body.station .visual-scan-scope .form-row.scan-row .scan-btn {
+  width: 100% !important;
+  height: 42px !important;
+}
+/* =====================================
+   FINAL SCAN WIDTH FIX (STRUCTURAL)
+   ===================================== */
+
+.scan-full {
+  width: 100%;
+  max-width: 100%;
+}
+
+.scan-full .scan-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  align-items: flex-end;
+}
+
+.scan-full .scan-row .field {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.scan-full .scan-row input {
+  width: 100%;
+  height: 42px;
+}
+
+.scan-full .scan-row .btn-field {
+  flex: 0 0 auto;
+}
+/* ================= VISUAL SCAN WIDTH FIX ================= */
+
+.qc-scan-align,
+.card-top-row {
+  width: 100%;
+}
+
+.card-top-row .scan-row {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+}
+
+.card-top-row .field {
+  flex: 1;
+}
+
+.card-top-row .btn-field {
+  flex: 0 0 auto;
+}
+
+
+/* ===============================
+   VISUAL INSPECTION – FIX SCAN ROW WIDTH
+   DO NOT REMOVE
+   =============================== */
+
+body.station .card-top-row {
+  width: 100%;
+}
+
+body.station .card-scan {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+}
+
+body.station .scan-full {
+  width: 100%;
+}
+
+body.station .scan-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr auto;
+  gap: 16px;
+  width: 100%;
+  align-items: end;
+}
+
+/* Ensure button does not float weirdly */
+body.station .scan-row .btn-field {
+  align-self: flex-end;
+}
+
+/* Match Incoming vertical spacing */
+body.station .card-top-spacer {
+  height: 12px;
+}
+/* =========================================
+   FORCE VISUAL INSPECTION CARD = INCOMING
+   DO NOT DELETE
+   ========================================= */
+
+body.station .form-card.qc-aligned-card {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Keep incoming look spacing */
+body.station .form-card.qc-aligned-card {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Scan row must span full width */
+body.station .card-top-row,
+body.station .card-scan,
+body.station .scan-full {
+  width: 100%;
+}
+
+/* Scan row layout exactly like incoming */
+body.station .scan-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1.3fr auto;
+  gap: 16px;
+  width: 100%;
+}
+/* ===== FORCE VISUAL INSPECTION FULL WIDTH ===== */
+body.station .form-card {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* ===== FIX SCAN ROW GAP ===== */
+body.station .scan-row {
+  display: grid !important;
+  grid-template-columns: 1.5fr 1.5fr auto !important;
+  gap: 20px !important;
+  width: 100% !important;
+}
+
+/* ===== REMOVE HIDDEN CONSTRAINTS ===== */
+body.station .card-scan,
+body.station .scan-full {
+  width: 100% !important;
+}
+
+/* ===== DEBUG VISUAL (TEMP) ===== */
+body.station .form-card {
+  outline: 2px solid red;
+}
+
+/* ===============================
+   VISUAL INSPECTION — HARD FIX
+   =============================== */
+
+/* 1️⃣ BREAK THE WIDTH CAGE */
+.qc-aligned-card .card-top-row,
+.qc-aligned-card .card-scan,
+.qc-aligned-card .scan-full {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* 2️⃣ FORCE RC-IN STYLE GRID */
+.qc-aligned-card .scan-row {
+  display: grid !important;
+  grid-template-columns: 2fr 2fr auto !important;
+  gap: 16px !important;
+  align-items: end !important;
+}
+
+/* 3️⃣ INPUTS MUST FILL CELL */
+.qc-aligned-card .scan-row .field input {
+  width: 100% !important;
+}
+
+/* 4️⃣ BUTTON STOP FLOATING */
+.qc-aligned-card .scan-row .btn-field {
+  justify-self: start !important;
+}
+
+/* ===============================
+   VISUAL INSPECTION – SCAN ROW FIX
+   =============================== */
+
+/* Force scan row to behave like RC-IN */
+.qc-aligned-card .scan-row {
+  display: flex !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+/* 🔥 Scan RFID MUST stretch */
+.qc-aligned-card .scan-row .field:first-child {
+  flex: 3 1 0% !important;
+}
+
+/* Engineer name normal width */
+.qc-aligned-card .scan-row .field:nth-child(2) {
+  flex: 2 1 0% !important;
+}
+
+/* Button stays compact */
+.qc-aligned-card .scan-row .btn-field {
+  flex: 0 0 auto !important;
+}
+
+/* Inputs fill their containers */
+.qc-aligned-card .scan-row input {
+  width: 100% !important;
+}
+/* ============================================
+   VISUAL INSPECTION – FORCE SCAN ROW EXPANSION
+   (Safari-safe, override-proof)
+   ============================================ */
+
+/* Make the scan container full width */
+.card-top-row,
+.card-scan,
+.scan-full {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Force scan row to flex */
+.card-top-row .form-row.scan-row {
+  display: flex !important;
+  align-items: flex-end !important;
+  width: 100% !important;
+  gap: 16px !important;
+}
+
+/* 🔥 Scan RFID — MUST stretch */
+.card-top-row .form-row.scan-row .field:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Engineer Name — normal width */
+.card-top-row .form-row.scan-row .field:nth-child(2) {
+  flex: 0 0 220px !important;
+}
+
+/* Button — fixed */
+.card-top-row .form-row.scan-row .btn-field {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+/* Inputs fill container */
+.card-top-row .form-row.scan-row input {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+
+/* FORCE SCAN ROW TO BE HORIZONTAL */
+.scan-row-clean {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-end;
+  width: 100%;
+  gap: 350px; /* YOUR MAGIC NUMBER – KEEP */
+}
+
+/* FORCE INPUT COLUMNS TO EXPAND */
+.scan-row-clean .scan-field {
+  flex: 1 1 0;
+  max-width: 100%;
+}
+
+/* FORCE INPUTS TO FILL SPACE */
+.scan-row-clean .scan-field input {
+  width: 100% !important;
+  min-width: 320px;
+}
+
+/* KEEP BUTTON ON RIGHT */
+.scan-row-clean .scan-action {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-end;
+}
+/* ===============================
+   VISUAL INSPECTION – SCAN INPUT WIDTH FIX
+   =============================== */
+
+/* Target ONLY the scan section inputs */
+.visual-inspection .scan-section input,
+.visual-inspection .scan-row input,
+.visual-inspection .scan-fields input,
+.visual-inspection input.scan-input {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;     /* CRITICAL for Safari */
+  flex: 1 1 auto !important;
+}
+
+/* If inputs are wrapped in .field or similar */
+.visual-inspection .scan-section .field,
+.visual-inspection .scan-row .field {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;     /* Safari grid/flex fix */
+}
+
+/* If scan section uses CSS Grid */
+.visual-inspection .scan-section {
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+/* Explicitly DO NOT affect the scan button */
+.visual-inspection .scan-section button,
+.visual-inspection .scan-section .scan-btn {
+  width: auto !important;
+  flex: 0 0 auto !important;
+}
+/* =========================================================
+   FINAL FIX — VISUAL INSPECTION SCAN INPUT WIDTH
+   (Safari-safe, override-proof, minimal)
+   ========================================================= */
+
+/* Scope ONLY Visual Inspection page */
+body.station .card-top-row > form > div {
+  display: flex !important;
+  width: 100% !important;
+  align-items: flex-end !important;
+  gap: 16px !important;          /* overrides 350px safely */
+}
+
+/* Make both input containers expand */
+body.station .card-top-row > form > div > div:not(:last-child) {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;       /* CRITICAL for Safari */
+}
+
+/* Kill ALL width caps on inputs */
+body.station input[name="rfid"],
+body.station input[name="user"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Keep button compact on the right */
+body.station .card-top-row button.scan-btn {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+/* =====================================================
+   VISUAL INSPECTION — FIX SCAN INPUT WIDTH ONLY
+   Does NOT affect Diagnosis or other stations
+   ===================================================== */
+
+/* Visual Inspection scan row only */
+body.station .card-top-row form > div {
+  display: flex !important;
+  width: 100% !important;
+  gap: 24px !important;     /* keep it clean, not diagnosis-like */
+  align-items: flex-end;
+}
+
+/* Allow the two input columns to expand */
+body.station .card-top-row form > div > div:nth-child(1),
+body.station .card-top-row form > div > div:nth-child(2) {
+  flex: 1 1 0 !important;
+  min-width: 0 !important; /* Safari FIX */
+}
+
+/* Kill all inherited width caps */
+body.station input[name="rfid"],
+body.station input[name="user"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Keep Scan Unit button exactly as-is */
+body.station .card-top-row button.scan-btn {
+  flex: 0 0 auto !important;
+}
+/* ================================
+   FIX INPUT SPACE — VISUAL INSPECTION
+   ================================ */
+
+/* Override the inline flex container */
+body.station .card-top-row form > div {
+  gap: 24px !important;      /* 🔥 THIS IS THE FIX */
+  width: 100% !important;
+}
+
+/* Let input containers actually grow */
+body.station .card-top-row form > div > div {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;   /* Safari critical */
+}
+
+/* Inputs fill their container */
+body.station input[name="rfid"],
+body.station input[name="user"] {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* RC-IN — DO NOT CHANGE */
+body.rc-in .form-row,
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+/* VISUAL INSPECTION — isolated fix */
+body.station .card-top-row form > div {
+  display: flex;
+  gap: 24px;
+}
+
+body.station input[name="rfid"],
+body.station input[name="user"] {
+  width: 100%;
+}
+/* =====================================================
+   RC-IN ONLY — SCAN ROW GRID (3 FIELDS PER ROW)
+   DOES NOT AFFECT VISUAL / DIAGNOSIS
+   ===================================================== */
+
+/* Force scan row into 3-column grid */
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 16px 20px !important;
+  align-items: end;
+}
+
+/* Make normal fields fill the grid cell */
+body.rc-in .form-row.scan-row .field {
+  width: 100%;
+}
+
+/* Keep the Scan button aligned and compact */
+body.rc-in .form-row.scan-row .btn-field {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Ensure button does not stretch */
+body.rc-in .form-row.scan-row .btn-field button {
+  width: auto;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+/* =====================================================
+   RC-IN — FORCE SCAN BUTTON TO SHOW (DO NOT TOUCH OTHERS)
+   ===================================================== */
+
+/* Force the Scan button container to exist */
+body.rc-in .form-row.scan-row .btn-field {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: flex-end;
+}
+
+/* Ensure button itself is visible */
+body.rc-in .form-row.scan-row .btn-field button {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+body.rc-in .btn-field button {
+  width: auto;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+
+/* =================================================
+   RC-IN — ABSOLUTE SAFE SCAN BUTTON
+   ================================================= */
+
+.scan-btn-float {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -72px; /* visually aligns with first row */
+  padding-right: 28px;
+}
+
+.scan-btn-float button {
+  background: #0b5ed7 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(11,94,215,0.25);
+}
+
+.scan-btn-float button:hover {
+  background: #094bb5 !important;
+}
+/* =====================================================
+   RC-IN — FINAL GRID POLISH (EVEN + NO DEAD SPACE)
+   ===================================================== */
+
+/* Lock scan section into strict 3-column grid */
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-auto-rows: auto;
+  gap: 14px 20px !important;
+  align-items: start;
+}
+
+/* Normalize all field blocks */
+body.rc-in .form-row.scan-row .field,
+body.rc-in .form-row.scan-row .btn-field {
+  width: 100%;
+  min-height: 72px; /* keeps rows even */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* Inputs uniform */
+body.rc-in .form-row.scan-row input,
+body.rc-in .form-row.scan-row select {
+  height: 40px;
+}
+
+/* 🔵 Scan button — TOP RIGHT */
+body.rc-in .form-row.scan-row .btn-field {
+  grid-column: 3;
+  grid-row: 1;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+/* Button size parity */
+body.rc-in .form-row.scan-row .btn-field button,
+body.rc-in .scan-btn-float button {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Kill vertical dead space under scan section */
+body.rc-in .form-row.scan-row + .form-row {
+  margin-top: 14px !important;
+}
+/* =====================================================
+   RC-IN — CLEAN, EVEN, FACTORY-GRADE GRID
+   ===================================================== */
+
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 180px !important;
+  gap: 14px 20px !important;
+  align-items: end;
+}
+
+/* Force all cells to behave the same */
+body.rc-in .form-row.scan-row > div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Inputs unified */
+body.rc-in .form-row.scan-row input,
+body.rc-in .form-row.scan-row select {
+  height: 40px;
+}
+
+/* 🔵 Scan button — behaves like a field */
+body.rc-in .form-row.scan-row .btn-field {
+  justify-content: flex-end;
+}
+
+/* Button height matches inputs */
+body.rc-in #scanBtn {
+  height: 40px;
+  margin-top: 22px; /* aligns with input baseline */
+  padding: 0 18px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* ==== ROW NORMALIZATION AFTER SCAN ==== */
+body.rc-in .form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px;
+}
+
+/* Single-row textarea stays clean */
+body.rc-in .form-row.single {
+  grid-template-columns: 1fr;
+}
+/* =====================================================
+   RC-IN SCAN GRID — FINAL, LOCKED, NO AUTO-FLOW
+   ===================================================== */
+
+body.rc-in .scan-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas:
+    "rfid engineer rid"
+    "scan rma serial"
+    "family model customer"
+    "service unit country";
+  gap: 14px 20px;
+}
+
+/* ---- Map fields to grid areas ---- */
+body.rc-in .scan-grid .field:nth-of-type(1) { grid-area: rfid; }
+body.rc-in .scan-grid .field:nth-of-type(2) { grid-area: engineer; }
+body.rc-in .scan-grid .btn-field            { grid-area: scan; }
+body.rc-in .scan-grid .field:nth-of-type(3) { grid-area: rid; }
+body.rc-in .scan-grid .field:nth-of-type(4) { grid-area: rma; }
+body.rc-in .scan-grid .field:nth-of-type(5) { grid-area: serial; }
+body.rc-in .scan-grid .field:nth-of-type(6) { grid-area: family; }
+body.rc-in .scan-grid .field:nth-of-type(7) { grid-area: model; }
+body.rc-in .scan-grid .field:nth-of-type(8) { grid-area: customer; }
+body.rc-in .scan-grid .field:nth-of-type(9) { grid-area: service; }
+body.rc-in .scan-grid .field:nth-of-type(10){ grid-area: unit; }
+body.rc-in .scan-grid .field:nth-of-type(11){ grid-area: country; }
+
+/* ---- Uniform sizing ---- */
+body.rc-in .scan-grid .field,
+body.rc-in .scan-grid .btn-field {
+  display: flex;
+  flex-direction: column;
+}
+
+body.rc-in .scan-grid input,
+body.rc-in .scan-grid select {
+  height: 40px;
+}
+
+/* ---- Scan button = input height, NOT full width ---- */
+body.rc-in #scanBtn {
+  height: 40px;
+  align-self: flex-start;
+  margin-top: 22px; /* aligns with inputs */
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+/* =====================================================
+   RC-IN SCAN ROW — HARD ORDER FIX (FINAL)
+   ===================================================== */
+
+body.rc-in .scan-row {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px;
+}
+
+/* ---- FORCE VISUAL ORDER ---- */
+body.rc-in .scan-row .field:nth-child(1) { order: 1; } /* RFID */
+body.rc-in .scan-row .field:nth-child(2) { order: 2; } /* Engineer */
+body.rc-in .scan-row .btn-field           { order: 3; } /* Scan Button */
+
+body.rc-in .scan-row .field:nth-child(4) { order: 4; } /* RID */
+body.rc-in .scan-row .field:nth-child(5) { order: 5; } /* RMA */
+body.rc-in .scan-row .field:nth-child(6) { order: 6; } /* Serial */
+
+body.rc-in .scan-row .field:nth-child(7) { order: 7; } /* Family */
+body.rc-in .scan-row .field:nth-child(8) { order: 8; } /* Model */
+body.rc-in .scan-row .field:nth-child(9) { order: 9; } /* Customer */
+
+body.rc-in .scan-row .field:nth-child(10){ order:10; } /* Service */
+body.rc-in .scan-row .field:nth-child(11){ order:11; } /* Unit */
+body.rc-in .scan-row .field:nth-child(12){ order:12; } /* Country */
+
+/* ---- UNIFORM HEIGHT ---- */
+body.rc-in .scan-row input,
+body.rc-in .scan-row select,
+body.rc-in #scanBtn {
+  height: 40px;
+}
+
+/* ---- BUTTON LOOKS LIKE A FIELD ---- */
+body.rc-in .btn-field {
+  justify-content: flex-end;
+}
+
+body.rc-in #scanBtn {
+  margin-top: 22px; /* aligns with input baseline */
+  padding: 0 18px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+/* =====================================================
+   RC-IN — FINAL GRID LOCK (NO MORE DEAD SPACE)
+   ===================================================== */
+
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1.2fr 1.2fr 0.6fr !important;
+  gap: 14px 18px !important;
+  align-items: end !important;
+}
+
+/* All fields behave */
+body.rc-in .scan-row .field,
+body.rc-in .scan-row .btn-field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Inputs consistent height */
+body.rc-in .scan-row input {
+  height: 40px;
+}
+
+/* 🔵 Scan Button — FIXED POSITION */
+body.rc-in .scan-row .btn-field {
+  justify-content: flex-end;
+}
+
+body.rc-in #scanBtn {
+  height: 40px;
+  width: 100%;
+  background: #0b5ed7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.rc-in #scanBtn:hover {
+  background: #094bb5;
+}
+
+/* Second line aligns perfectly */
+body.rc-in .scan-row .field:nth-child(4) { grid-column: 1; }
+body.rc-in .scan-row .field:nth-child(5) { grid-column: 2; }
+body.rc-in .scan-row .field:nth-child(6) { grid-column: 3; }
+
+/* Safari safety */
+body.rc-in .scan-row * {
+  min-width: 0;
+}
+/* =====================================================
+   RC-IN — ABSOLUTE GRID PLACEMENT (FINAL)
+   ===================================================== */
+
+body.rc-in .form-row.scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 0.8fr;
+  gap: 14px 18px;
+  align-items: end;
+}
+
+/* ---------- COMMON FIELD RULE ---------- */
+body.rc-in .scan-row .field,
+body.rc-in .scan-row .btn-field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ---------- ROW 1 ---------- */
+body.rc-in .scan-row > :nth-child(1) { grid-column: 1; grid-row: 1; } /* RFID */
+body.rc-in .scan-row > :nth-child(2) { grid-column: 2; grid-row: 1; } /* Operator */
+body.rc-in .scan-row > :nth-child(3) { grid-column: 3; grid-row: 1; } /* Scan Btn */
+
+/* ---------- ROW 2 ---------- */
+body.rc-in .scan-row > :nth-child(4) { grid-column: 1; grid-row: 2; } /* RID */
+body.rc-in .scan-row > :nth-child(5) { grid-column: 2; grid-row: 2; } /* RMA */
+body.rc-in .scan-row > :nth-child(6) { grid-column: 3; grid-row: 2; } /* Unit Serial */
+
+/* ---------- INPUT + BUTTON SIZE ---------- */
+body.rc-in .scan-row input {
+  height: 40px;
+}
+
+body.rc-in #scanBtn {
+  height: 40px;
+  width: 100%;
+  background: #0b5ed7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+body.rc-in #scanBtn:hover {
+  background: #094bb5;
+}
+
+/* ---------- SAFARI STABILITY ---------- */
+body.rc-in .scan-row * {
+  min-width: 0;
+}
+/* =====================================================
+   🔒 RC-IN SCAN SECTION — FINAL LOCK (AUTHORITATIVE)
+   ===================================================== */
+
+body.rc-in .scan-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 180px !important;
+  gap: 16px !important;
+  width: 100% !important;
+  align-items: end !important;
+}
+
+/* Fields fill space */
+body.rc-in .scan-row .field {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Inputs stable */
+body.rc-in .scan-row input {
+  width: 100% !important;
+  height: 40px !important;
+}
+
+/* Button cell */
+body.rc-in .scan-row .btn-field {
+  display: flex !important;
+  align-items: flex-end !important;
+  width: 100% !important;
+}
+
+/* 🔵 Scan Button — FORCE VISIBLE */
+body.rc-in #scanBtn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: 40px !important;
+  width: 100% !important;
+  background: #0b5ed7 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+/* Safari safety */
+body.rc-in .scan-row * {
+  min-width: 0 !important;
+}
+/* =====================================================
+   RC-IN : FORCE SECOND ROW TO 3 EVEN COLUMNS
+   ===================================================== */
+
+/* Target ONLY the row after scan-row */
+body.rc-in .scan-row + .form-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+/* Ensure inputs stretch fully */
+body.rc-in .scan-row + .form-row .field,
+body.rc-in .scan-row + .form-row input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+/* =====================================================
+   RC-IN : FORCE 2nd ROW (RID / RMA / UNIT SERIAL)
+   ===================================================== */
+
+body.rc-in form > .form-row:nth-of-type(2) {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+body.rc-in form > .form-row:nth-of-type(2) .field,
+body.rc-in form > .form-row:nth-of-type(2) input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+/* =====================================================
+   RC-IN : FORCE RID / RMA / UNIT SERIAL INTO ONE ROW
+   ===================================================== */
+
+/* target the row that contains RID */
+body.rc-in #ridInput {
+  grid-column: auto;
+}
+
+/* force parent row of RID to become grid */
+body.rc-in .form-row:has(#ridInput) {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 16px !important;
+  width: 100% !important;
+}
+
+/* normalize fields */
+body.rc-in .form-row:has(#ridInput) .field,
+body.rc-in .form-row:has(#ridInput) input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+/* =====================================================
+   RC-IN : MOVE UNIT SERIAL UP (FINAL FIX)
+   ===================================================== */
+
+
+
+/* ================= LABEL → INPUT FIX (RC-IN) ================= */
+
+body.rc-in .field {
+  position: relative;
+}
+
+/* RID */
+body.rc-in label[for="ridInput"] {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* UNIT SERIAL */
+body.rc-in label[for="unitSerialInput"] {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Ensure inputs don’t jump */
+body.rc-in #ridInput,
+body.rc-in #unitSerialInput {
+  margin-top: 0 !important;
+}
+/* ================= RC-IN SPACE COMPRESSION (SAFE) ================= */
+
+/* Reduce vertical gap inside scan grid */
+body.rc-in .scan-grid {
+  row-gap: 14px !important;     /* was too large */
+  column-gap: 18px !important;
+}
+
+/* Tighten spacing between form rows */
+body.rc-in .form-row {
+  margin-bottom: 14px !important;
+}
+
+/* Prevent hidden/empty grid rows from reserving height */
+body.rc-in .scan-grid .field,
+body.rc-in .scan-grid .btn-field {
+  margin-bottom: 0 !important;
+}
+
+/* Align RID + RMA row closer to first row */
+body.rc-in .scan-grid .field label {
+  margin-bottom: 4px !important;
+}
+
+/* Slightly reduce input height padding (visual only) */
+body.rc-in input,
+body.rc-in textarea,
+body.rc-in select {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+/* ================= RC-IN DEAD SPACE KILL ================= */
+
+/* 1️⃣ Force scan grid rows to shrink-wrap content */
+body.rc-in .scan-grid {
+  grid-auto-rows: min-content !important;
+  align-items: start !important;
+  row-gap: 10px !important;
+}
+
+/* 2️⃣ Remove phantom height from duplicated inputs */
+body.rc-in .scan-grid input + input {
+  margin-top: -42px !important;
+  height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* 3️⃣ Pull RID + RMA row upward */
+body.rc-in #ridInput,
+body.rc-in #rmaInput {
+  margin-top: -10px !important;
+}
+
+/* 4️⃣ Kill excess height from Scan button column */
+body.rc-in .btn-field {
+  align-self: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* 5️⃣ Tighten all labels slightly */
+body.rc-in .field label {
+  margin-bottom: 3px !important;
+  line-height: 1.1 !important;
+}
+
+/* 6️⃣ Reduce input vertical padding (visual only) */
+body.rc-in input,
+body.rc-in textarea,
+body.rc-in select {
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+}
+
+/* 7️⃣ Absolute last-resort: remove empty grid cells */
+body.rc-in .scan-grid > :empty {
+  display: none !important;
+}
+/* ================= RC-IN GRID GAP KILL (FINAL) ================= */
+
+/* Make the RC-IN form card span the page and emphasize the customer border
+   Scoped to `body.rc-in` so other pages are unaffected. */
+body.rc-in .form-card {
+  width: calc(100% - 48px) !important;
+  max-width: none !important;
+  margin: 0 24px !important;
+  padding: 20px !important;
+  box-shadow: none !important;
+}
+
+/* If the customer theme is Bharti, ensure the border is strong red and visible
+   across the full card. */
+body.rc-in.body.customer-bharti .form-card,
+body.rc-in .customer-bharti .form-card,
+body.rc-in .form-card.customer-bharti {
+  border: 2px solid #e53935 !important;
+}
+
+
+/* 1️⃣ Force scan grid to pack items tightly */
+body.rc-in .scan-grid {
+  grid-auto-rows: auto !important;
+  align-content: start !important;
+  row-gap: 12px !important;
+}
+
+/* 2️⃣ Explicitly kill empty implicit rows */
+body.rc-in .scan-grid {
+  grid-template-rows: auto auto auto !important;
+}
+
+/* 3️⃣ Remove phantom height below RID + RMA */
+body.rc-in .scan-grid .field {
+  margin-bottom: 0 !important;
+}
+
+/* 4️⃣ Pull Family row upward */
+body.rc-in .form-row:not(.scan-row) {
+  margin-top: 8px !important;
+}
+
+/* 5️⃣ Last-resort: collapse unused grid tracks */
+body.rc-in .scan-grid::after {
+  content: none !important;
+}
+/* ================= RC-IN HARD FIX ================= */
+
+/* Force scan grid to 3 columns */
+body.rc-in .scan-grid {
+  display: grid !important;
+  grid-template-columns: 2fr 2fr 1.5fr !important;
+  grid-auto-flow: row dense !important;
+  row-gap: 12px !important;
+}
+
+/* RFID */
+body.rc-in #rfidInput {
+  grid-column: 1 / 2;
+  grid-row: 1;
+}
+
+/* Operator */
+body.rc-in input[name="user"] {
+  grid-column: 2 / 3;
+  grid-row: 1;
+}
+
+/* Scan button */
+body.rc-in #scanBtn {
+  grid-column: 3 / 4;
+  grid-row: 1;
+}
+
+/* RID */
+body.rc-in #ridInput {
+  grid-column: 1 / 2;
+  grid-row: 2;
+}
+
+/* RMA */
+body.rc-in #rmaInput {
+  grid-column: 2 / 3;
+  grid-row: 2;
+}
+
+/* ✅ UNIT SERIAL — FORCE INTO ROW 2 */
+body.rc-in #unitSerialInput {
+  grid-column: 3 / 4;
+  grid-row: 2;
+  margin: 0 !important;
+}
+/* === RC-IN SCAN SECTION COMPACTION FIX === */
+
+/* Target ONLY the scan block */
+.scan-section .scan-row,
+.scan-section .rfid-row,
+.scan-section .serial-row {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: unset !important;
+  height: auto !important;
+}
+
+/* Force RID, RMA, Unit Serial onto the same row */
+.scan-section .scan-fields {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 0;
+  align-items: center;
+}
+
+/* Neutralize vertical label stacking */
+.scan-section label {
+  margin-bottom: 2px !important;
+}
+
+/* Kill phantom spacing created by wrappers */
+.scan-section > div {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+/* Pull Unit Serial upward into scan row */
+.scan-section .unit-serial {
+  margin-top: 0 !important;
+  grid-row: 1;
+}
+/* === FIX DEAD SPACE IN SCAN SECTION (GRID CELL ISSUE) === */
+
+/* Ensure scan grid is the positioning context */
+.scan-section {
+  display: grid;
+}
+
+/* Force Unit Serial into the same grid row as RID + RMA */
+.scan-section .unit-serial,
+.scan-section #unitSerial,
+.scan-section [name="unit_serial"] {
+  grid-column: 3;
+  grid-row: 2;
+  margin-top: 0 !important;
+}
+
+/* Kill the unused grid cell height */
+.scan-section > div {
+  align-self: start;
+}
+
+/* Remove vertical breathing space created by form rows */
+.scan-section .form-row,
+.scan-section .scan-row {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+/* ===== RC-IN SCAN GRID FIX (DO NOT REMOVE) ===== */
+
+/* Explicit 3-column grid */
+.scan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 10px;
+}
+
+/* Force Unit Serial into RID/RMA row */
+.scan-grid > .field:nth-of-type(6) {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+/* Remove phantom vertical expansion */
+.scan-grid .field,
+.scan-grid .btn-field {
+  margin-bottom: 0 !important;
+}
+
+/* Ensure Scan button stays aligned */
+.scan-grid .btn-field {
+  align-self: end;
+}
+/* ===== RC-IN CLEAN SCAN GRID ===== */
+.scan-clean {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 12px;
+  align-items: end;
+}
+
+/* Tight fields */
+.scan-clean .field,
+.scan-clean .btn-field {
+  margin: 0;
+}
+
+/* Keep scan button aligned */
+.scan-clean .btn-field {
+  display: flex;
+  align-items: flex-end;
+}
+/* ===== SCAN SECTION FULL WIDTH FIX ===== */
+.scan-clean {
+  width: 100%;
+  max-width: 100%;
+}
+/* ===== FLATTEN RID / RMA VISUAL STACK ===== */
+.scan-clean {
+  row-gap: 8px; /* tighter vertical spacing */
+}
+
+.scan-clean .field label {
+  margin-bottom: 4px;
+}
+
+.scan-clean .field input {
+  margin-top: 0;
+}
+.scan-clean .btn-field {
+  align-items: flex-end;
+}
+/* ========================= */
+/* RC-IN SCAN SECTION FIX */
+/* ========================= */
+
+/* Completely override form-row behavior ONLY for scan-clean */
+.form-row.scan-clean {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Kill boxed look caused by inherited spacing */
+.form-row.scan-clean .field,
+.form-row.scan-clean .btn-field {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Normalize labels so they don’t create “inner boxes” */
+.form-row.scan-clean label {
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Ensure inputs stretch cleanly */
+.form-row.scan-clean input {
+  width: 100%;
+}
+
+/* Keep Scan button aligned with inputs */
+.form-row.scan-clean .btn-field {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* Ensure scan row spans full card width */
+.form-card .form-row.scan-clean {
+  align-self: stretch;
+}
+/* Flatten scan section to match other form rows */
+.scan-section {
+  padding: 16px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+}
+.scan-section label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.scan-section input {
+  height: 42px;
+}
+.scan-section .primary-scan-btn {
+  height: 42px;
+  padding: 0 20px;
+}
+/* FIX: make scan section span full width inside form-row grid */
+.form-row > .scan-grid {
+  grid-column: 1 / -1;
+}
+/* === FIX: Bring OLD scan section INSIDE card visually === */
+body.rc-in .form-row > .scan-grid {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #dbe2ea;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure it aligns like other rows */
+body.rc-in .form-row > .scan-grid {
+  grid-column: 1 / -1;
+}
+/* FIX: ensure submit button is always reachable */
+body.rc-in .form-card {
+  overflow: visible;
+}
+
+/* Give breathing room at the bottom */
+body.rc-in .form-actions {
+  margin-bottom: 32px;
+}
+/* 🔥 FIX: allow full form scroll inside print-safe */
+body.rc-in .print-safe {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-y: auto !important;
+}
+/* 🔥 FORCE SUBMIT BUTTON TO BE VISIBLE (RC-IN ONLY) */
+body.rc-in .form-actions {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 10;
+}
+
+body.rc-in .form-actions button {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: #ffffff !important;
+  background: #0b5ed7 !important;
+  border-radius: 8px;
+}
+/* Hide submit button until Scan is pressed */
+body.rc-in .form-actions {
+  display: none;
+}
+/* Hide submit button until scan happens */
+body.rc-in:not(.scan-complete) .form-actions {
+  display: none !important;
+}
+/* FIX: lift RID / RMA labels away from input fields */
+body.rc-in .scan-grid .field label {
+  margin-bottom: 6px;
+  line-height: 1.2;
+  display: inline-block;
+}
+/* ================= Traveller History ================= */
+.traveller-history {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f9fbfd;
+  border: 1px solid #dde5ef;
+}
+
+.traveller-history h4 {
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #0b5ed7;
+}
+
+.traveller-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.traveller-table th,
+.traveller-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e1e7ef;
+  text-align: left;
+}
+
+.traveller-table th {
+  background: #eef3f9;
+  font-weight: 600;
+}
+
+/* FORCE scan button visible on all stations */
+body .primary-scan-btn,
+body button#scanBtn {
+  background: #0b5ed7 !important;
+  color: #ffffff !important;
+  border: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* Prevent double border effect */
+.form-card {
+  outline: none !important;
+}
+
+.form-card.red-debug {
+  border: 2px solid red !important;
+}
+/* Push Admin Decision section down */
+.admin-decision,
+.admin-section {
+  margin-top: 24px !important;
+}
+h4:has(+ .admin-decision),
+h4:contains("Admin Decision") {
+  margin-top: 24px;
+}
+/* ===== FORCE ALL ACTION BUTTONS VISIBLE ===== */
+.form-actions,
+.btn-field,
+button,
+button#scanBtn,
+.primary-scan-btn {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+/* ===== PREVENT PARENT CONTAINERS FROM CLIPPING BUTTONS ===== */
+.form-card,
+.page-shell,
+.print-safe,
+.form-row {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: unset !important;
+}
+/* ===== FINAL SUBMIT BUTTON POSITION FIX ===== */
+.form-actions {
+  margin-top: 32px !important;
+  padding-bottom: 24px !important;
+  justify-content: flex-end !important;
+}
+/* ===== SCAN UNIT BUTTON — HARD FORCE ===== */
+#scanBtn {
+  background: #0b5ed7 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  height: 42px !important;
+  min-width: 160px !important;
+}
+/* ===== ADMIN DECISION SELECTION FIX ===== */
+.admin-decision input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-decision label {
+  border: 1px solid #d0d7e2;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  color: #1f2937;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* THIS is the key */
+.admin-decision input:checked + label {
+  background: #0b5ed7 !important;
+  color: #fff !important;
+  border-color: #0b5ed7 !important;
+}
+/* ===== SPACE BEFORE ADMIN DECISION ===== */
+.admin-decision {
+  margin-top: 28px !important;
+}
+.admin-decision-title {
+  margin-top: 32px !important;
+}
+/* ===== ADMIN DECISION VISUAL STATE ===== */
+.admin-decision {
+  margin-top: 32px !important; /* spacing FIX */
+}
+
+.admin-decision button {
+  background: #fff;
+  border: 1px solid #d0d7e2;
+  color: #1f2937;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+}
+
+.admin-decision button.selected {
+  background: #0b5ed7 !important;
+  color: #fff !important;
+  border-color: #0b5ed7 !important;
+}
+/* 🔴 FIX: allow card to grow and show buttons */
+body.rc-in .form-card,
+body.station .form-card {
+  height: auto !important;
+  overflow: visible !important;
+}
+body.rc-in .form-card form,
+body.station .form-card form {
+  overflow: visible !important;
+}
+/* FIX: make scan form visible */
+.card-top-row form {
+  display: block !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.card-top-row {
+  overflow: visible !important;
+}
+.admin-pill.active {
+  background: #0b5ed7 !important;
+  color: #fff !important;
+  border-color: #0b5ed7 !important;
+}
+.qc-section-title {
+  margin-top: 32px !important;
+}
+body.station .print-safe {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+
+
+
+
+/* ===============================
+   VISUAL READ-ONLY CARD
+   =============================== */
+
+.visual-readonly {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 18px 0;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.history-title {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.history-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.caps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.cap-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #eef2ff;
+  color: #1e3a8a;
+}
+
+.cap-pill.pass {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.cap-pill.fail {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.cap-pill.na {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.cap-name {
+  font-weight: 600;
+}
+
+.history-remarks {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed #d1d5db;
+  font-size: 14px;
+  color: #374151;
+}
+
+
+.visual-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+}
+.visual-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  text-align: right;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #fff;
+  border: none;
+  padding: 14px 34px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(37,99,235,.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(37,99,235,.45);
+}
+
+/* FINAL PAGE FLOW FIX */
+.form-card,
+.qc-form-flow {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+.visual-footer {
+  margin-top: 40px;
+  padding: 24px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.visual-footer button {
+  min-width: 220px;
+  padding: 12px 24px;
+}
+/* ==========================
+   FINAL VISUAL SUBMIT FIX
+   ========================== */
+
+.visual-footer {
+  margin-top: 32px;
+  padding: 24px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.visual-footer button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 240px;
+  height: 44px;
+  font-weight: 600;
+}
+
+/* Prevent Safari clipping */
+.form-card,
+.qc-form-flow {
+  overflow: visible !important;
+  height: auto !important;
+}
+/* 🔥 CRITICAL FIX — ALLOW LONG STATION PAGES */
+.page {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+/* ===============================
+   🔥 FINAL UNCLIP EVERYTHING
+   =============================== */
+
+/* allow page to scroll */
+html, body {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* main wrapper */
+.page {
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+/* station pages */
+body.station,
+body.station * {
+  overflow: visible !important;
+}
+
+/* card + all children */
+.form-card,
+.print-safe,
+.qc-form-flow,
+.page-shell {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* SAFARI / FLEX BUG FIX */
+.form-card,
+.qc-form-flow {
+  display: block !important;
+  position: static !important;
+}
+
+/* FORCE buttons to paint */
+button,
+.form-actions,
+.visual-footer {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 999 !important;
+}
+
+/* ===== FORCE VISUAL SAVE BUTTON ===== */
+.scan-btn {
+  background: #0848c8 !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 12px 28px !important;
+  border-radius: 6px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  min-height: 44px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* hover */
+.scan-btn:hover {
+  background: #063a9f !important;
+}
+/* ===============================
+   VISUAL INSPECTION FOOTER FIX
+   =============================== */
+
+.visual-submit-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 28px 32px 36px;  /* top | sides | bottom */
+  margin-top: 32px;
+  border-top: 1px solid #e5e9f2;
+}
+
+/* Make card breathe */
+.form-card {
+  padding-bottom: 32px !important;
+}
+.visual-submit-footer .scan-btn {
+  min-width: 220px;
+}
+
+/* ===============================
+   UNIT SUMMARY – CLEAN DESIGN
+   =============================== */
+
+.unit-summary-card {
+  background: #f9fbff;
+  border: 1px solid #e4e9f2;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin: 18px 0 22px;
+}
+
+.unit-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 24px;
+}
+
+.us-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.us-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.us-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.us-full {
+  grid-column: 1 / -1;
+}
+
+.us-customer .us-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.customer-logo-inline {
+  height: 18px;
+}
+
+/* =========================
+   QR CODE DISPLAY
+   ========================= */
+
+.qr-box {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  text-align: center;
+}
+
+.qr-box img {
+  height: 80px;
+  width: 80px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  padding: 4px;
+}
+
+.qr-label {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #374151;
+  font-weight: 600;
+}
+
+<!--  /*  /* ===== Visual Inspection header — minimal add-only overrides ===== */
+
+/* Compact the header row so it hugs the red card */
+.doc-header.header-line {
+  min-height: 80px;     /* keep it tight */
+  padding: 6px 16px;    /* compact padding */
+  gap: 12px;            /* smaller column gap */
+}
+
+/* Slightly reduce the left stack spacing */
+.header-left {
+  gap: 4px;
+}
+
+/* Logo a hair smaller so the block comes down visually */
+.traveller-nokia-logo {
+  height: 25px;
+}
+
+/* Pull the center title down toward the card */
+.header-center {
+  margin-bottom: -6px;
+}
+
+.header-center h1 {
+  margin-bottom: 2px;
+}
+
+/* QR block spacing and size — height-only increase */
+.header-right .right-stack {
+  gap: 16px;
+}                                      */
+
+.header-right .header-qr-img {
+  width: 150px;   /* keep width */
+  height: 150px;  /* taller only */
+  object-fit: contain;
+}
+/* ================= VISUAL INSPECTION – QR SIZE OVERRIDE ================= */
+/* Enlarge QR specifically on Visual Inspection (station) */
+body.station .qr-locked,
+body.station .qr-box img,
+body.station .header-right .header-qr-img,
+body.station .received-qr canvas {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+/* Keep aspect and containment clean */
+body.station .qr-box img,
+body.station .header-right .header-qr-img {
+  object-fit: contain;
+}
+
+/* Optional: add a subtle border like existing style */
+body.station .qr-box img {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+}
+
+/* Print-safe: do not force larger size in print */
+@media print {
+  body.station .qr-locked,
+  body.station .qr-box img,
+  body.station .header-right .header-qr-img,
+  body.station .received-qr canvas {
+    width: 80px !important;
+    height: 80px !important;
+  }
+}
+/* Hide the small caption under QR image ONLY on Visual Inspection pages */
+body.station .qr-box .qr-label {
+  display: none !important;
+}
+
+/* Example: if the right header has a small label element for Unit QR */
+body.station .header-right .unit-qr-label {
+  display: none !important;
+}
+body.station .qr-locked,
+body.station .qr-box img,
+body.station .header-right .header-qr-img,
+body.station .received-qr canvas {
+  width: 80px !important;
+  height: 80px !important;
+}
+/* ================= HEADER QR FIX ================= */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 140px;
+}
+
+.right-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* "Unit QR" text */
+.qr-caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* QR container */
+.header-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* QR image */
+.header-qr-img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px;
+}
+
+/* RID text below QR */
+.header-qr-label {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+}
+.doc-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+/* Pull down Nokia logo + dispatch closer to card */
+.header-left {
+  padding-top: 40px;   /* adjust: 12–28px if needed */
+}
+/* Pull down center title slightly */
+.header-center {
+  padding-top: 50px;   /* tweak: 10–20px */
+}
+/* ================= SUBMIT BUTTON SPACING FIX ================= */
+
+/* Reduce space before submit area */
+.visual-save-row {
+  margin-top: 12px !important;
+  padding-top: 0 !important;
+}
+
+/* Tighten submit footer */
+.visual-submit-footer {
+  margin-top: 8px !important;
+  padding-top: 0 !important;
+}
+
+/* Reduce space after remarks textarea */
+.qc-form-flow .form-row.single {
+  margin-bottom: 12px !important;
+}
+
+/* Remove unnecessary bottom padding inside card */
+.form-card {
+  padding-bottom: 16px !important;
+}
+.visual-submit-footer {
+  margin-top: 4px !important;
+}
+/* Incoming IP Test spacing */
+.qc-section-title {
+  margin-top: 18px;
+}
+/* Increase customer logo size slightly */
+.customer-logo-inline {
+  height: 32px;        /* was ~18–20px */
+  max-height: 32px;
+  width: auto;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+@media print {
+  body { background: white; }
+  .no-print { display: none !important; }
+}
+/* ================= AFTER SUCCESS BUTTONS ================= */
+
+.after-success-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+/* Preview button */
+.btn-preview {
+  padding: 10px 18px;
+  background: #f1f3f5;
+  color: #084298;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid #cfe2ff;
+}
+
+.btn-preview:hover {
+  background: #e7f1ff;
+}
+
+/* Download PDF button */
+.btn-download {
+  padding: 12px 22px;
+  background: #0d6efd;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-download:hover {
+  background: #0b5ed7;
+}
+@media print {
+  body {
+    background: white;
+  }
+
+  .print-btn,
+  .no-print {
+    display: none !important;
+  }
+
+  .page-shell,
+  .form-card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+
+
+
+/* ================= SUCCESS BANNER ================= */
+.success-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  background: #f0f9f4;
+  border-left: 6px solid #1aa36f;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.success-banner .check {
+  font-size: 22px;
+  color: #1aa36f;
+}
+
+.success-banner .text {
+  flex: 1;
+  color: #134e4a;
+  font-size: 14px;
+}
+
+.success-banner .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-preview {
+  background: #eef3ff;
+  color: #1f3fb8;
+  border: 1px solid #c7d2fe;
+}
+
+.btn-preview:hover {
+  background: #dbe4ff;
+}
+
+.btn-print {
+  background: #1f3fb8;
+  color: #fff;
+}
+
+.btn-print:hover {
+  background: #162e8a;
+}
+/* ================= TRAVELLER PAGE ================= */
+.traveller-page {
+  background: #fff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.traveller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.traveller-header h2 {
+  margin: 0;
+  color: #0b3c8c;
+}
+
+.traveller-header .subtitle {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+.qr-box {
+  text-align: center;
+}
+
+.qr-box img {
+  width: 120px;
+  border: 1px solid #ddd;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.qr-box .rid {
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Tables */
+.traveller-page table {
+  border-collapse: collapse;
+}
+
+.traveller-page th {
+  background: #f3f6fb;
+  font-weight: 600;
+}
+@media print {
+  body {
+    background: white;
+  }
+
+  .traveller-page {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  nav, .success-banner, .btn {
+    display: none !important;
+  }
+}
+body.overseas .page-shell,
+body.overseas .preview-wrapper,
+body.overseas .form-card {
+  background: #f0f7ff;
+}
+
+body.overseas .section-title {
+  border-left-color: #2563eb;
+}
+body.overseas {
+  background: #e8f4ff;
+}
+
+/* =========================================
+   SCAN CTA — SHARED COMPONENT
+   ========================================= */
+
+.scan-cta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 18px 24px;
+  border-radius: 22px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf9);
+  box-shadow:
+    0 18px 40px rgba(2, 31, 79, 0.18),
+    inset 0 0 0 1px rgba(34,197,94,0.25);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.scan-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 48px rgba(2, 31, 79, 0.26),
+    inset 0 0 0 1px rgba(34,197,94,0.35);
+}
+
+.scan-cta-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(15,23,42,0.08),
+    0 6px 14px rgba(2,31,79,0.12);
+}
+
+.scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-cta-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.scan-cta-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+}
+/* ===============================
+   SCAN CTA — COMPACT BLUE (FINAL)
+   =============================== */
+
+.scan-cta-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 18px 10px 52px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #eef3ff, #f8fbff);
+  color: #0b3c8c;
+
+  font-size: 13.5px;
+  font-weight: 600;
+
+  box-shadow:
+    0 10px 24px rgba(11, 60, 140, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.7);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 32px rgba(11, 60, 140, 0.26),
+    inset 0 0 0 1px rgba(255,255,255,0.85);
+}
+
+/* LOTTIE BADGE */
+.scan-video-fab {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+
+  background: #ffffff;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+}
+
+/* TEXT */
+.scan-text .title {
+  font-size: 13.5px;
+}
+.scan-text .sub {
+  font-size: 11px;
+  opacity: 0.7;
+}
+/* ===============================
+   SCAN STRIP — CANONICAL LAYOUT
+   =============================== */
+
+.scan-strip {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 28px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.scan-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.scan-action {
+  display: flex;
+  align-items: center;
+}
+
+/* Mobile fallback */
+@media (max-width: 900px) {
+  .scan-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .scan-action {
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+}
+.page {
+  min-height: 100vh;
+  height: auto;
+  overflow: visible;
+}
+.page-shell {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;   /* important bottom space */
+  height: auto;
+  overflow: visible;
+}
+.form-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+
+  height: auto !important;
+  min-height: unset !important;
+  overflow: visible !important;
+}

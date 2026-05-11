@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+  <meta charset="UTF-8">
+  <title>RC Tracking</title>
+
+  <!-- ================= STYLES ================= -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- ================= FAVICON ================= -->
+  <link rel="icon" type="image/x-icon"
+        href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+
+
+
+{# 
+{% set unit_type = "Overseas" if unit.is_overseas == 1 else "Domestic" %}
+<span class="us-value">{{ unit_type }}</span>
+#}
+
+
+
+{# ================= THEME RESOLUTION ================= #}
+{% set theme = "" %}
+{% if unit is defined and unit.is_overseas == 1 %}
+  {% set theme = "overseas" %}
+{% endif %}
+
+<body class="{{ body_class | default('') }} {{ theme }}">
+
+<!-- ================= UNIVERSAL SCAN CTA ================= -->
+<!--<button
+  id="universalScanBtn"
+  class="universal-scan-btn"
+  title="Scan RFID / QR"
+>
+  <span class="scan-icon">📡</span>
+  <span class="scan-text">Scan Unit</span>
+</button>-->
+
+
+
+
+  <!-- ================= TOP BAR ================= -->
+  <header class="topbar">
+
+    <div class="logo-box">
+  <!-- LOGO = REFRESH CURRENT PAGE -->
+  <img
+  src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+  class="logo-img topbar-logo"
+  alt="Nokia"
+  title="Reset page"
+  onclick="window.location.href = window.location.pathname;"
+/>
+
+
+  <span class="logo-text">Repair Center – Unit Tracking</span>
+</div>
+
+
+    
+    <!-- Navigation (hidden automatically on station pages) -->
+    {% if body_class != "station" %}
+    <nav class="main-nav">
+      <a href="/incoming">RC IN</a>
+      <a href="/visual-inspection">Visual</a>
+      <a href="/diagnosis">Diagnosis</a>
+      <a href="/repair">Repair</a>
+      <a href="/qa">QA</a>
+    </nav>
+    
+    {% endif %}
+
+  </header>
+
+  <!-- ================= PAGE CONTENT ================= -->
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================= HISTORY MACRO ================= -->
+  {% macro station_history_block(history) %}
+  {% if history and history|length > 0 %}
+  <div class="history-strip">
+    <h4>Traveller History (Read-Only)</h4>
+
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Station</th>
+          <th>User</th>
+          <th>Remarks</th>
+          <th>Date / Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td>{{ h.station }}</td>
+          <td>{{ h.user }}</td>
+          <td>{{ h.remarks }}</td>
+          <td>{{ h.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% endmacro %}
+
+
+
+
+  <script>
+function printTraveller(url) {
+  const w = window.open(url, "_blank", "width=900,height=1100");
+
+  if (!w) {
+    alert("Popup blocked. Please allow popups.");
+    return;
+  }
+
+  w.onload = () => {
+    setTimeout(() => {
+      w.focus();
+      w.print();
+    }, 700);
+  };
+}
+</script>
+<script>
+function printTraveller(url) {
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+
+  iframe.onload = function () {
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, 300);
+  };
+
+  iframe.src = url;
+}
+</script>
+
+
+<style>
+  .logo-img {
+  cursor: pointer;
+}
+
+.logo-img:hover {
+  opacity: 0.85;
+}
+
+.logo-text {
+  cursor: default;
+}
+
+/* ===== TOP BAR LOGO ONLY ===== */
+.topbar .topbar-logo {
+  height: 15px;      /* adjust: 24–32px sweet spot */
+  width: auto;
+}
+
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+
+<!-- ================= SCAN MODAL (FINAL) ================= -->
+<div id="scanModal" class="scan-modal" style="display:none;" onclick="closeScan()">
+
+  <div class="scan-panel" onclick="event.stopPropagation()">
+
+
+   <div class="scan-header">
+  <span class="scan-header-spacer"></span>
+
+  <button
+    type="button"
+    class="scan-close-btn"
+    onclick="closeScan()"
+    aria-label="Close scan"
+  >
+    ×
+  </button>
+</div>
+
+
+    <div class="scan-body scan-layout">
+
+  <!-- LEFT: TEXT + INPUT -->
+  <div class="scan-info">
+  <h3 id="scanTitle">Scan Unit RFID / QR</h3>
+  <p id="scanHint">Scan unit and press Enter</p>
+
+  <!-- ENGINEER NAME -->
+  <input
+    id="scanEngineerName"
+    class="scan-input"
+    autocomplete="off"
+    placeholder="Engineer Name"
+    style="margin-bottom:12px;"
+  >
+
+  <!-- RFID INPUT -->
+  <input
+    id="scanInputUniversal"
+    class="scan-input"
+    autocomplete="off"
+    placeholder="Waiting for scan…"
+  >
+</div>
+
+
+  <!-- RIGHT: ANIMATION -->
+  <div class="scan-visual">
+    <div class="scan-anim-ring">
+      <div id="scanLottieBox"></div>
+    </div>
+    <div id="scanStatus" class="scan-status">
+      Ready to scan
+    </div>
+  </div>
+
+</div>
+
+  </div>
+</div>
+<script>
+/* =====================================================
+   UNIVERSAL SCAN CONTEXT + RC-IN BRIDGE (FINAL)
+   ===================================================== */
+
+window.__SCAN_CONTEXT = null;
+
+/* ---------- OPEN SCAN MODAL ---------- */
+function openScan(context) {
+  window.__SCAN_CONTEXT = context;
+  const modal = document.getElementById("scanModal");
+  const input = document.getElementById("scanInputUniversal");
+
+  if (!modal || !input) return;
+
+  modal.style.display = "flex";
+  input.value = "";
+
+  setTimeout(() => input.focus(), 80);
+}
+
+/* ---------- CLOSE SCAN MODAL ---------- */
+function closeScan() {
+  const modal = document.getElementById("scanModal");
+  if (modal) modal.style.display = "none";
+}
+
+/* ---------- SCAN COMPLETE HANDLER ---------- */
+function onScanComplete(scannedValue, engineerName) {
+  closeScan();
+
+  /* ===============================
+     RC-IN FLOW (UNIT REGISTRATION)
+     =============================== */
+  if (window.__SCAN_CONTEXT === "RC_IN") {
+
+    /* Fill RFID */
+    const rfidField = document.getElementById("rfidInput");
+    if (rfidField) {
+      rfidField.value = scannedValue;
+      rfidField.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    /* Fill Engineer / Operator */
+    const userField =
+      document.querySelector('input[name="user"]') ||
+      document.querySelector('input[name="engineer_name"]');
+
+    if (userField && engineerName) {
+      userField.value = engineerName;
+      userField.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    /* Expand page EXACTLY like old Scan button */
+    const expanded = document.getElementById("expandedSection");
+    if (expanded) expanded.style.display = "block";
+
+    /* Trigger existing QR / page logic */
+    if (typeof updateQR === "function") updateQR();
+
+    document.body.classList.add("scan-complete");
+  }
+
+  /* ===============================
+     OTHER CONTEXTS (UNIT / MODULE)
+     =============================== */
+  if (window.__SCAN_CONTEXT === "UNIT") {
+    // existing unit scan logic (unchanged)
+  }
+
+  if (window.__SCAN_CONTEXT === "MODULE") {
+    // existing module scan logic (unchanged)
+  }
+}
+
+/* ---------- LISTEN FOR ENTER KEY ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("scanInputUniversal");
+  const engineerInput = document.getElementById("scanEngineerName");
+
+  if (!input) return;
+
+  input.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+
+    const scannedValue = input.value.trim();
+    const engineerName = engineerInput
+      ? engineerInput.value.trim()
+      : "";
+
+    if (!engineerName) {
+      alert("Please enter Engineer Name before scanning.");
+      if (engineerInput) engineerInput.focus();
+      return;
+    }
+
+    if (!scannedValue) return;
+
+    onScanComplete(scannedValue, engineerName);
+  });
+});
+
+/* ---------- CLICK OUTSIDE TO CLOSE ---------- */
+document.getElementById("scanModal")?.addEventListener("click", e => {
+  if (e.target.id === "scanModal") {
+    closeScan();
+  }
+});
+</script>
+
+<script>
+/* ===============================
+   SCAN ENGINE — SINGLE SOURCE
+   =============================== */
+
+let SCAN_MODE = null;
+let MODULE_TYPE = null;
+let tagAnim = null;
+
+function openScan(mode) {
+  const modal = document.getElementById("scanModal");
+  const input = document.getElementById("scanInputUniversal");
+
+  SCAN_MODE = mode;
+
+  document.getElementById("scanTitle").textContent =
+    mode === "UNIT" ? "Scan Unit RFID / QR" : "Scan Module QR / RFID";
+
+  document.getElementById("scanHint").textContent =
+    mode === "UNIT"
+      ? "Scan unit and press Enter"
+      : "Scan module tag and press Enter";
+
+  document.getElementById("scanStatus").textContent = "Waiting for scan";
+
+  modal.style.display = "flex";
+  input.value = "";
+
+  if (window.lottie) {
+    const box = document.getElementById("scanLottieBox");
+    box.innerHTML = "";
+    tagAnim = lottie.loadAnimation({
+      container: box,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: "/static/video/tag.json"
+    });
+  }
+
+  setTimeout(() => input.focus(), 80);
+}
+
+function closeScan() {
+  document.getElementById("scanModal").style.display = "none";
+  if (tagAnim) tagAnim.destroy();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("scanInputUniversal");
+
+  input.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+
+  const rfid = input.value.trim();
+  const engineer = document
+    .getElementById("scanEngineerName")
+    .value.trim();
+
+  if (!engineer) {
+    alert("Please enter Engineer Name before scanning.");
+    document.getElementById("scanEngineerName").focus();
+    return;
+  }
+
+  if (!rfid) return;
+
+  closeScan();
+
+  // fill engineer name
+  const engField = document.querySelector(
+    'input[name="engineer_name"]:not([disabled])'
+  );
+  if (engField) {
+    engField.value = engineer;
+    engField.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  // fill rfid
+  const rfidField = document.querySelector(
+    'input[name="rfid"]:not([disabled])'
+  );
+  if (!rfidField) return;
+
+  rfidField.value = rfid;
+  rfidField.dispatchEvent(new Event("input", { bubbles: true }));
+
+  const form = rfidField.closest("form");
+  if (form) form.submit();
+});
+
+});
+</script>
+<style>.scan-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #eef3ff, #f8fbff);
+  box-shadow:
+    0 12px 28px rgba(30, 64, 175, 0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.7);
+}
+
+.scan-cta-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.scan-cta-title {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.scan-cta-sub {
+  font-size: 11px;
+  color: #2563eb;
+}
+.scan-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.scan-panel {
+  background: #fff;
+  border-radius: 18px;
+  width: 520px;
+  padding: 18px 20px;
+}
+
+.scan-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.scan-grid {
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.scan-anim-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f3f6f8, #ffffff);
+  border: 1px solid rgba(148,163,184,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ===============================
+   SCAN MODAL — PREMIUM DESIGN
+   =============================== */
+
+.scan-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.scan-panel {
+  width: 560px;
+  max-width: 92%;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border-radius: 20px;
+  padding: 26px 28px;
+  box-shadow:
+    0 40px 80px rgba(2, 31, 79, 0.35),
+    inset 0 0 0 1px rgba(226,232,240,0.9);
+}
+
+.scan-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 28px;
+  align-items: center;
+}
+
+/* ---------- LEFT ---------- */
+
+.scan-info h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.scan-info p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.scan-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #c7d2fe;
+  background: #f8fbff;
+  font-size: 14px;
+  outline: none;
+}
+
+.scan-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* ---------- RIGHT ---------- */
+
+.scan-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.scan-anim-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #ffffff 55%, #e0e7ff 100%);
+  box-shadow:
+    inset 0 0 0 6px rgba(37,99,235,0.15),
+    0 18px 36px rgba(37,99,235,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scanLottieBox {
+  width: 96px;
+  height: 96px;
+}
+
+.scan-status {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  letter-spacing: 0.3px;
+}
+.scan-cta-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(circle at center, #ffffff 55%, #e0e7ff 100%);
+  box-shadow:
+    inset 0 0 0 4px rgba(37,99,235,0.18),
+    0 10px 22px rgba(37,99,235,0.30);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* ===== SCAN PILL (SAME AS MODULE) ===== */
+
+.scan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: none;
+
+  background: linear-gradient(135deg, #eef3ff, #f8fbff);
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 32px rgba(30, 64, 175, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.7);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-pill:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 40px rgba(30, 64, 175, 0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+}
+
+
+.scan-pill-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+
+  background: transparent;
+  box-shadow: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: visible;
+}
+
+
+/* text */
+.scan-pill-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-pill-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.scan-pill-text small {
+  font-size: 11px;
+  color: #2563eb;
+}
+.scan-cta-btn {
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
+}
+.scan-row,
+.scan-field {
+  pointer-events: auto;
+}
+.scan-cta-btn {
+  gap: 12px;
+  padding: 12px 18px 12px 58px;
+  min-width: auto;
+  white-space: nowrap;
+}
+.scan-video-fab {
+  width: 42px;
+  height: 42px;
+}
+
+/* ===============================
+   FINAL SCAN BUTTON (SINGLE SOURCE)
+   =============================== */
+
+.scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 12px 18px;
+  border-radius: 18px;
+  border: none;
+
+  background: linear-gradient(135deg, #eef3ff, #f8fbff);
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 32px rgba(30,64,175,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.7);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+
+  position: relative;
+  z-index: 50;
+}
+
+.scan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 44px rgba(30,64,175,0.30),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+}
+
+/* ICON */
+
+.scan-btn-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+
+  background:
+    radial-gradient(circle at center, #ffffff 55%, #e0e7ff 100%);
+
+  box-shadow:
+    inset 0 0 0 4px rgba(118, 122, 132, 0.18),
+    0 10px 22px rgba(37,99,235,0.30);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* LOTTIE */
+
+.scan-btn-lottie {
+  width: 38px;
+  height: 38px;
+}
+
+/* TEXT */
+
+.scan-btn-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-btn-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0a0a0a;
+}
+
+.scan-btn-text small {
+  font-size: 11px;
+  color: #121213;
+}
+/* ===============================
+   SCAN BUTTON — LIGHT GREEN (FINAL)
+   =============================== */
+
+.scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  height: 44px;                /* same as input fields */
+  padding: 0 16px;
+  border-radius: 14px;
+  border: none;
+
+  background: linear-gradient(135deg, #eefaf4, #f6fffb);
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(16,185,129,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.85);
+
+  transition: all 0.15s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.scan-btn:hover {
+  background: linear-gradient(135deg, #e6f7ef, #f1fffa);
+  box-shadow:
+    0 12px 26px rgba(16,185,129,0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.95);
+}
+
+/* ================= ICON ================= */
+
+.scan-btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+
+  background:
+    radial-gradient(circle at center, #ffffff 60%, #d1fae5 100%);
+
+  box-shadow:
+    inset 0 0 0 3px rgba(16,185,129,0.22),
+    0 6px 14px rgba(16,185,129,0.25);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* LOTTIE SIZE */
+.scan-btn-lottie {
+  width: 22px;
+  height: 22px;
+}
+
+/* ================= TEXT ================= */
+
+.scan-btn-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.scan-btn-text b {
+  font-size: 13px;
+  font-weight: 700;
+  color: #065f46;   /* dark green */
+}
+
+.scan-btn-text small {
+  font-size: 11px;
+  color: #059669;   /* green accent */
+}
+/* ===============================
+   SCAN CTA — MODULE STYLE (GREEN)
+   =============================== */
+
+.scan-cta-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 16px 22px;
+  border-radius: 22px;
+
+  background: linear-gradient(135deg, #e9f8f1, #f4fcf8);
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 32px rgba(16, 185, 129, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 44px rgba(16, 185, 129, 0.28),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+/* QR ICON HOLDER */
+.scan-cta-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 6px 16px rgba(16,185,129,0.25),
+    inset 0 0 0 1px rgba(209,250,229,0.9);
+
+  flex-shrink: 0;
+}
+
+/* LOTTIE / IMAGE SIZE */
+.scan-cta-icon > div,
+.scan-cta-icon > img {
+  width: 34px;
+  height: 34px;
+}
+
+/* TEXT BLOCK */
+.scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-cta-text b {
+  font-size: 15px;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.scan-cta-text small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* CRITICAL: CLICK FIX */
+.scan-cta-btn,
+.scan-cta-btn * {
+  pointer-events: auto !important;
+}
+/* =====================================
+   SCAN CTA — HORIZONTAL, FIELD-ALIGNED
+   ===================================== */
+
+.scan-cta-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+
+  height: 52px;               /* aligns with input height */
+  padding: 0 20px 0 60px;     /* space for icon overflow */
+  border-radius: 16px;
+
+  background: linear-gradient(135deg, #e9f8f1, #f4fcf8);
+  cursor: pointer;
+
+  position: relative;
+  box-shadow:
+    0 10px 24px rgba(16,185,129,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.95);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 32px rgba(16,185,129,0.26),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+/* ================= ICON (BREAKS OUT) ================= */
+
+.scan-cta-icon {
+  position: absolute;
+  left: -18px;               /* BREAK OUT of pill */
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 10px 26px rgba(36, 16, 185, 0.35),
+    inset 0 0 0 1px rgba(209,250,229,1);
+}
+
+/* BIG scanner animation */
+.scan-cta-icon > div {
+  width: 40px;
+  height: 40px;
+}
+
+/* ================= TEXT ================= */
+
+.scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.scan-cta-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #000000;            /* PURE BLACK */
+}
+
+.scan-cta-text small {
+  font-size: 11px;
+  font-weight: 600;
+  color: #000000;            /* PURE BLACK */
+}
+
+/* ================= CLICK FIX ================= */
+
+.scan-cta-btn,
+.scan-cta-btn * {
+  pointer-events: auto !important;
+}
+#scanUnitAnim,
+#scanModuleAnim {
+  width: 56px;
+  height: 56px;
+
+  transform: scale(1.15);
+}
+.scan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 16px 22px;
+  border-radius: 22px;
+  border: none;
+
+  background: linear-gradient(135deg, #ecfdf3, #f4fff8);
+  cursor: pointer;
+
+  box-shadow:
+    0 16px 36px rgba(16, 185, 129, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-pill:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 44px rgba(16, 185, 129, 0.28),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+.scan-pill-text b {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827; /* black */
+}
+
+.scan-pill-text small {
+  font-size: 12px;
+  color: #111827;
+  opacity: 0.65;
+}
+.scan-pill,
+.scan-pill * {
+  pointer-events: auto;
+}
+
+.scan-pill {
+  position: relative;
+  z-index: 10;
+}
+.scan-close-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: none;
+
+  background: linear-gradient(135deg, #eef3ff, #ffffff);
+  color: #0b3c8c;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(30,64,175,0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-close-btn:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 12px 28px rgba(30,64,175,0.35);
+}
+.scan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+}
+
+/* invisible spacer keeps close button perfectly centered */
+.scan-header-spacer {
+  width: 38px;
+  height: 38px;
+}
+
+</style>
+<script>
+/* ===============================
+   OPTIONAL SCAN CTA LOTTIE
+   =============================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btnBox = document.querySelector("[data-scan-lottie]");
+  if (!btnBox || !window.lottie) return;
+
+  lottie.loadAnimation({
+    container: btnBox,
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: "/static/video/qr-code-scanner.json"
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.lottie) return;
+
+  [
+    { id: "scanUnitAnim", path: "/static/video/qr-code-scanner.json" },
+    { id: "scanModuleAnim", path: "/static/video/qr-code-scanner.json" }
+  ].forEach(cfg => {
+    const el = document.getElementById(cfg.id);
+    if (!el) return;
+
+    lottie.loadAnimation({
+      container: el,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: cfg.path
+    });
+  });
+});
+</script>
+<script>
+/* =========================================================
+   GLOBAL SCAN MODAL → PAGE BRIDGE (BASE.HTML)
+   NO LOGIC, NO PARSING, NO QR – JUST PASS DATA
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modalInput    = document.getElementById("scanInputUniversal");
+  const modalEngineer = document.getElementById("scanEngineerName");
+
+  if (!modalInput) {
+    console.log("⚠️ scanInputUniversal not found in base");
+    return;
+  }
+
+  console.log("🟢 Base scan bridge loaded");
+
+  modalInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const raw = modalInput.value.trim();
+    const engineer = modalEngineer ? modalEngineer.value.trim() : "";
+
+    if (!raw) {
+      console.log("⚠️ Modal scan empty");
+      return;
+    }
+
+    console.log("📤 MODAL SCAN →", raw, engineer);
+
+    // fire custom event for page
+    document.dispatchEvent(new CustomEvent("GLOBAL_SCAN", {
+      detail: { raw, engineer }
+    }));
+
+    if (typeof closeScan === "function") closeScan();
+  });
+});
+</script>
+
+</body>
+</html>

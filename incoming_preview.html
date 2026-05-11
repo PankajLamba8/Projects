@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  html, body {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ================= OFFICIAL TRAVELLER – NOKIA STYLE ================= */
+
+.traveller-wrapper {
+  background: #ffffff;
+  padding: 32px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.08);
+  position: relative;
+  
+}
+
+/* WATERMARK */
+.traveller-wrapper::before {
+  content: "INTERNAL USE ONLY";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 72px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* HEADER */
+.traveller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #0b3c8c;
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.traveller-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.traveller-subtitle {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* META */
+.traveller-meta {
+  font-size: 12px;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* QR */
+.qr-box {
+  text-align: center;
+}
+
+.qr-box img {
+  width: 130px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.qr-box .rid {
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* SECTION */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+
+
+/* INFO TABLE */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table td {
+  padding: 6px 8px;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.info-table b {
+  color: #374151;
+}
+
+/* HISTORY TABLE */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.history-table th,
+.history-table td {
+  border: 1px solid #d1d5db;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.history-table th {
+  background: #e2e5e9;
+  font-weight: 600;
+}
+/* ===== CARD STYLE TRAVELLER HISTORY (MATCH VISUAL PAGE) ===== */
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+/* HEADER */
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #0b3c8c;
+  padding: 10px 12px;
+  border-bottom: 2px solid #e5e7eb;
+  background: transparent;
+}
+
+/* ROWS */
+.history-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #111827;
+  background: transparent;
+}
+
+/* LAST ROW CLEAN */
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* SOFT HOVER (OPTIONAL BUT NICE) */
+.history-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* FOOTER */
+.traveller-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #444;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #d1d5db;
+  padding-top: 10px;
+}
+
+/* PRINT BUTTON */
+.print-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.print-actions button {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #0b3c8c;
+  color: #fff;
+}
+
+.print-actions button:hover {
+  background: #072b63;
+}
+
+/* ================= PRINT MODE ================= */
+@media print {
+
+  body {
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  nav,
+  .print-actions {
+    display: none !important;
+  }
+
+  .traveller-wrapper {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    position: static !important;
+  }
+
+  .traveller-wrapper::before {
+    color: rgba(0,0,0,0.08);
+  }
+
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+}
+
+
+
+.traveller-wrapper {
+  display: block;
+  visibility: visible;
+}
+.traveller-wrapper {
+  break-inside: avoid;
+}
+
+
+
+
+
+
+/* === QR POSITION FIX (SOLO CHANGE) === */
+.qr-floating {
+  position: absolute;
+  right: 48px;          /* distance from right edge */
+  top: 340px;           /* vertical position – tweak if needed */
+  width: 100px;
+  text-align: center;
+}
+
+.qr-floating img {
+  width: 95px;
+  border: 1px solid #cbd5e1;
+  padding: 4px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.qr-floating .rid {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+/* NOKIA LOGO IN TRAVELLER HEADER */
+.traveller-logo {
+  display: flex;
+  align-items: center;
+}
+
+.traveller-logo img {
+  height: 100px;   /* perfect balance for print + screen */
+}
+
+.top-nav {
+  display: none;
+}
+/* HIDE TOP NAV ONLY ON TRAVELLER 
+.traveller-wrapper ~ nav,
+nav {
+  display: none;
+}*/
+
+
+/* ===== REFINED TRAVELLER HISTORY (FINAL) ===== */
+
+.history-card {
+  margin-top: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+}
+
+/* TABLE */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+/* HEADER */
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #0b3c8c;
+  padding: 10px 12px;
+  border-bottom: 2px solid #dbe3f3;
+  background: transparent;
+}
+
+/* ROWS */
+.history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #edf1f7;
+  color: #111827;
+}
+
+/* LAST ROW */
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* STATION EMPHASIS */
+.history-table td:first-child {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* DATE MUTED */
+.history-table td:last-child {
+  color: #4b5563;
+  font-size: 12.5px;
+}
+
+/* HOVER (VERY SOFT) */
+.history-table tr:hover td {
+  background: #f6f9ff;
+}
+
+
+
+/* ===== CLOSE HISTORY TABLE BOTTOM ROUNDED CORNERS ===== */
+
+/* Bottom-left corner */
+.history-table tr:last-child td:first-child {
+  border-bottom-left-radius: 10px;
+}
+
+/* Bottom-right corner */
+.history-table tr:last-child td:last-child {
+  border-bottom-right-radius: 10px;
+}
+
+/* Ensure background clips correctly */
+.history-card {
+  overflow: hidden;
+}
+.history-table th:first-child {
+  border-top-left-radius: 10px;
+}
+
+.history-table th:last-child {
+  border-top-right-radius: 10px;
+}
+
+.print-btn {
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 6px;
+  background: #0b3c8c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.print-btn:hover {
+  background: #072b63;
+}
+.pdf-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #0b3c8c;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+.pdf-btn:hover {
+  background: #072b63;
+}
+
+@media print {
+  body {
+    overflow: visible !important;
+  }
+
+  .traveller-wrapper {
+    overflow: visible !important;
+    position: static !important;
+  }
+}
+.top-nav {
+  display: none;
+}
+/* ===============================
+   HIDE ALL FORMS / NAV / LINKS
+   (PREVIEW MODE)
+================================ */
+
+/* Top navigation + menus */
+nav,
+.top-nav,
+.header-nav,
+.navbar,
+.form-actions,
+.operations-panel {
+  display: none !important;
+}
+
+/* Any form elements */
+form,
+input,
+select,
+textarea,
+button:not(.pdf-btn) {
+  display: none !important;
+}
+
+/* Action / success sections */
+.after-success-actions,
+.success-box,
+.primary-scan-btn {
+  display: none !important;
+}
+
+/* Links except PDF */
+
+a {
+  pointer-events: none;
+  text-decoration: none;
+  color: inherit;
+}
+/* Re-enable PDF button ONLY */
+a.pdf-btn {
+  pointer-events: auto !important;
+}
+/* ===============================
+   PDF BUTTON – FORCE VISIBLE
+================================ */
+
+.pdf-btn {
+  display: inline-block !important;
+  pointer-events: auto !important;
+  background: #0b3c8c;
+  color: #fff !important;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  position: fixed;
+  bottom: 10px;
+  left: 24px;          /* LEFT SIDE as you wanted */
+  z-index: 9999;
+}
+
+.pdf-btn:hover {
+  background: #072b63;
+}
+
+
+</style>
+
+<div class="traveller-wrapper">
+
+  <!-- ================= HEADER ================= -->
+  <div class="traveller-header">
+    <div>
+      <div class="traveller-title">Traveller Sheet</div>
+      <div class="qc-divider"></div> 
+      <div class="traveller-subtitle">
+  <div style="color:#0b3c8c;font-weight:600;font-size:15px;">
+    Nokia Repair Center – Gurgaon
+  </div>
+
+  <p class="sub" style="font-size:13px;color:#555;line-height:1.4;margin-top:4px;">
+    Plot 25–21, Tenon Lane, Electronic City, Phase IV<br>
+    Udyog Vihar, Sector 18, Gurugram, Haryana 122015
+  </p>
+</div>
+
+      <div class="traveller-meta">
+        Generated on: {{ generated_at.strftime("%d %b %Y, %H:%M") }}
+
+      </div>
+    </div>
+<div class="traveller-logo">
+  <img
+    src="{{ url_for('static', filename='img/customers/nokia_traveller_logo2.svg') }}"
+    alt="Nokia"
+  >
+</div>
+
+    <!-- <div class="qr-box">
+      {% set qr_path = 'qr/' ~ unit.rid ~ '.png' %}
+      <img src="{{ url_for('static', filename=qr_path) }}" alt="Unit QR">
+      <div class="rid">{{ unit.rid }}</div>
+    </div>--> 
+  </div>
+
+  <!-- ================= UNIT INFO ================= -->
+  <div class="section-title">Unit Information</div>
+
+  <table class="info-table" width="100%">
+  <tr>
+    <td width="40%">
+      <p><b>RID:</b> {{ unit.rid }}</p>
+      <p><b>RFID:</b> {{ unit.rfid if unit.rfid else "—" }}</p>
+      <p><b>Unit Serial:</b> {{ unit.unit_serial }}</p>
+      <p><b>Customer:</b> {{ unit.customer }}</p>
+      <p>
+        <b>Complaint:</b>
+        <span style="color:#7c2d12;font-weight:600;">
+          {{ unit.complaint }}
+        </span>
+      </p>
+    </td>
+
+    <td width="35%">
+      <p><b>Family:</b> {{ unit.family }}</p>
+      <p><b>Model:</b> {{ unit.model }}</p>
+      <p><b>Unit Type:</b> {% if unit.is_overseas == 1 %}Overseas{% else %}Domestic{% endif %}</p>
+      <p><b>Country:</b> {{ unit.country }}</p>
+      <p><b>Dispatch Date:</b> {{ unit.dispatch_date }}</p>
+      
+    </td>
+
+    <td width="25%" align="center" valign="middle">
+      {% set qr_path = 'qr/' ~ unit.rid ~ '.png' %}
+      <img
+        src="{{ url_for('static', filename=qr_path) }}"
+        width="120"
+        height="120"
+        style="border:1px solid #ccc;padding:4px;"
+      >
+      <div style="margin-top:6px;font-size:13px;font-weight:600;">
+        {{ unit.rid }}
+      </div>
+    </td>
+  </tr>
+</table>
+
+
+
+
+  <!-- ================= HISTORY ================= -->
+   
+<div class="section-title">Traveller History</div>
+  <table class="history-table">
+    <tr>
+      <th>Station</th>
+      <th>User</th>
+      <th>Remarks</th>
+      <th>Date</th>
+    </tr>
+    {% for h in history %}
+    <tr>
+      <td>{{ h.station }}</td>
+      <td>{{ h.user }}</td>
+      <td>{{ h.remarks }}</td>
+      <td>{{ h.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- <div class="section-title">Traveller History</div>
+<div style="
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  padding:14px;
+  background:#ffffff;
+">
+  <table class="history-table">
+    <tr>
+      <th>Station</th>
+      <th>User</th>
+      <th>Remarks</th>
+      <th>Date</th>
+    </tr>
+    {% for h in history %}
+    <tr>
+      <td>{{ h.station }}</td>
+      <td>{{ h.user }}</td>
+      <td>{{ h.remarks }}</td>
+      <td>{{ h.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>-->
+
+
+  <!-- ================= FOOTER ================= -->
+  <div class="traveller-footer">
+    <div>
+      Document: Incoming Traveller<br>
+      RID: {{ unit.rid }}
+    </div>
+    <div>
+      Page 1 of 1
+    </div>
+  </div>
+</div>
+  <!-- ================= PRINT ================= -->
+  <div class="print-actions">
+    <p style="font-size:12px;color:#555;margin-bottom:6px;">
+  Tip: In print dialog, choose <b>Save as PDF</b> if printer is not available.
+</p>
+<a
+  href="{{ url_for('incoming_preview_pdf', rid=unit.rid) }}"
+  class="pdf-btn">
+  Download Traveller PDF
+</a>
+
+
+
+        
+
+
+
+  </div>
+
+</div>
+<script>
+function printTraveller(url) {
+  if (url) {
+    window.location.href = url;
+  } else {
+    window.print();
+  }
+}
+</script>
+
+<script>
+  window.onload = () => {
+    window.location.href =
+      "{{ url_for('incoming_preview_pdf', rid=unit.rid) }}";
+  };
+</script>
+
+
+{% endblock %}

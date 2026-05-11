@@ -1,0 +1,811 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-shell">
+
+  <!-- ================= HEADER ================= -->
+  <div class="doc-header">
+    <div class="header-center">
+      <h1 class="rc-title">RC OPERATIONS DASHBOARD</h1>
+      <div class="rc-name">Repair Center – Live Overview</div>
+    </div>
+  </div>
+
+  <!-- ================= KPI STRIP ================= -->
+  <div class="kpi-row modern-kpis">
+    
+
+  <div class="kpi-card accent-blue">
+    <div class="kpi-label">Total Units</div>
+    
+    <div class="kpi-value">{{ stats.total }}</div>
+    <div class="kpi-sub">Registered</div>
+  </div>
+
+  <div class="kpi-card accent-orange">
+    <div class="kpi-label">In Progress</div>
+    <div class="kpi-value">{{ stats.in_progress }}</div>
+    <div class="kpi-sub">Active Units</div>
+  </div>
+
+  <div class="kpi-card accent-green">
+    <div class="kpi-label">Completed</div>
+    <div class="kpi-value">{{ stats.completed }}</div>
+    <div class="kpi-sub">Closed</div>
+  </div>
+
+</div>
+
+
+  <!-- ================= STATION COUNTS ================= -->
+  <div class="station-pipeline">
+
+  <div class="stage">
+    <span>RC IN</span>
+    <b>{{ stats.rc_in }}</b>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <div class="stage active">
+    <span>VISUAL</span>
+    <b>{{ stats.visual }}</b>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <div class="stage active">
+    <span>DIAGNOSIS</span>
+    <b>{{ stats.diagnosis }}</b>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <div class="stage">
+    <span>REPAIR</span>
+    <b>{{ stats.repair }}</b>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <div class="stage">
+    <span>QA</span>
+    <b>{{ stats.qa }}</b>
+  </div>
+
+  <div class="flow-arrow"></div>
+
+  <div class="stage">
+    <span>RC OUT</span>
+    <b>{{ stats.rc_out }}</b>
+  </div>
+
+</div>
+
+
+
+  <!-- ================= OPERATIONS ================= -->
+  <div class="ops-section">
+
+  <div class="ops-header">
+    <h3>Operations Panel</h3>
+    <span>Quick actions & navigation</span>
+  </div>
+
+  <div class="ops-grid modern-ops">
+
+    <a href="/incoming" class="ops-tile primary">
+      <div class="ops-title">RC IN</div>
+      <div class="ops-sub">Register Unit</div>
+    </a>
+
+    <a href="/visual-inspection" class="ops-tile">
+      <div class="ops-title">Visual</div>
+      <div class="ops-sub">Inspection</div>
+    </a>
+
+    <a href="/diagnosis" class="ops-tile">
+      <div class="ops-title">Diagnosis</div>
+      <div class="ops-sub">Incoming Tests</div>
+    </a>
+
+    <a href="/repair" class="ops-tile">
+      <div class="ops-title">Repair</div>
+      <div class="ops-sub">Component Fix</div>
+    </a>
+
+    <a href="/qa" class="ops-tile">
+      <div class="ops-title">QA</div>
+      <div class="ops-sub">Quality Check</div>
+    </a>
+
+    <a href="/rc-out" class="ops-tile danger">
+      <div class="ops-title">RC OUT</div>
+      <div class="ops-sub">Dispatch</div>
+    </a>
+
+    <a href="/map" class="ops-tile ghost">
+      <div class="ops-title">Unit Map</div>
+      <div class="ops-sub">Live Location</div>
+    </a>
+
+    <a href="/analytics" class="ops-tile ghost">
+      <div class="ops-title">Analytics</div>
+      <div class="ops-sub">SLA / TAT</div>
+    </a>
+
+    <a href="/export/full-traveller" class="ops-tile ghost">
+      <div class="ops-title">Excel</div>
+      <div class="ops-sub">Traveller Export</div>
+    </a>
+
+  </div>
+</div>
+
+
+  <!-- ================= LIVE TABLE ================= -->
+  <h3 class="section-title">Live Unit Tracking</h3>
+
+  <div class="form-card dashboard-card">
+
+  <table class="rc-table rc-table-modern">
+    <thead>
+      <tr>
+        <th>RID</th>
+        <th>Customer</th>
+        <th>Current Station</th>
+        <th>Status</th>
+        <th>Report</th>
+        <th>ETA</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for u in units %}
+      <tr class="customer-{{ u.customer | lower }}">
+        <td class="center mono">{{ u.rid }}</td>
+
+        <td class="center bold">
+          {{ u.customer | upper }}
+        </td>
+
+        <td class="center">
+          {{ u.current_station }}
+        </td>
+
+        <td class="center">
+          <span class="status-pill in-progress">
+            {{ u.status.replace("_", " ") }}
+          </span>
+        </td>
+
+        <td class="center">
+          <select
+            class="report-btn"
+            onchange="openPreview(this, '{{ u.rid }}')"
+          >
+            <option value="">Report ▾</option>
+            <option value="incoming">Incoming</option>
+
+            {% if u.current_station not in ["Visual Inspection", "RC IN"] %}
+              <option value="visual">Visual</option>
+            {% endif %}
+          </select>
+        </td>
+
+        <td class="center muted">
+          {{ u.eta or "—" }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+
+</div>
+
+<!-- AUTO REFRESH -->
+<script>
+setInterval(() => {
+  window.location.reload();
+}, 15000);
+</script>
+<style>
+  .traveller-preview-btn {
+  padding: 6px 12px;
+  background: #0b3c8c;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.traveller-preview-btn:hover {
+  background: #072b63;
+}
+
+</style>
+<style>
+.preview-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.preview-select:hover {
+  border-color: #0b3c8c;
+}
+
+/* ===============================
+   DASHBOARD PREVIEW ACTION
+   =============================== */
+
+.preview-action {
+  display: inline-flex;
+  align-items: center;
+}
+
+.preview-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  padding: 6px 34px 6px 14px;
+  border-radius: 10px;
+  border: 1px solid #dbe3f3;
+
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0b3c8c;
+
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230b3c8c'%3E%3Cpath d='M6 9L1 3h10L6 9z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preview-select:hover {
+  border-color: #0b3c8c;
+  background-color: #f6f9ff;
+}
+
+.preview-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 60, 140, 0.15);
+}
+
+
+/* ===============================
+   DASHBOARD – MODERN RC THEME
+   =============================== */
+
+.dashboard-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* TABLE RESET */
+.rc-table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* HEADER */
+.rc-table-modern thead th {
+  text-align: center;
+  padding: 14px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #d81313;
+  background: #b8bcc1;
+  border-bottom: 1px solid #e5e7eb;
+  shape: round;
+}
+
+/* ROWS */
+.rc-table-modern tbody tr {
+  height: 56px;
+  transition: background 0.15s ease;
+}
+
+.rc-table-modern tbody tr:hover {
+  background: #f6f9ff;
+}
+
+/* CELLS */
+.rc-table-modern td {
+  padding: 12px;
+  font-size: 13.5px;
+  color: #111827;
+  border-bottom: 1px solid #edf2f7;
+}
+
+/* ALIGN HELPERS */
+.center {
+  text-align: center;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.muted {
+  color: #64748b;
+}
+
+/* ===============================
+   STATUS PILLS
+   =============================== */
+
+.status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill.in-progress {
+  background: #e0ecff;
+  color: #0b3c8c;
+}
+
+/* ===============================
+   REPORT BUTTON (UNIFIED)
+   =============================== */
+
+.report-btn {
+  appearance: none;
+  -webkit-appearance: none;
+
+  padding: 6px 34px 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #c7d7f5;
+
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0b3c8c;
+
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230b3c8c'%3E%3Cpath d='M6 9L1 3h10L6 9z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.report-btn:hover {
+  background-color: #f0f6ff;
+  border-color: #0b3c8c;
+}
+
+.report-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(11, 60, 140, 0.18);
+}
+
+/* ===============================
+   KPI – ENERGETIC
+   =============================== */
+
+.modern-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.kpi-card {
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+}
+
+.accent-blue::before { background: #0b3c8c; }
+.accent-orange::before { background: #f59e0b; }
+.accent-green::before { background: #16a34a; }
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.kpi-value {
+  font-size: 34px;
+  font-weight: 700;
+  margin: 6px 0;
+  color: #0f172a;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+/* ===============================
+   OPS PANEL – COMMAND CENTER
+   =============================== */
+
+.modern-ops {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.ops-btn {
+  padding: 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: all 0.15s ease;
+}
+
+.ops-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+}
+
+.ops-btn.primary {
+  background: #0b3c8c;
+  color: #ffffff;
+}
+
+.ops-btn.danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.ops-btn.ghost {
+  background: #f8fafc;
+  color: #0b3c8c;
+}
+/* ===============================
+   STATION PIPELINE (FINAL)
+   =============================== */
+
+.station-pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 18px 22px;
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+  margin-bottom: 32px;
+}
+
+/* EACH STATION */
+.station-step {
+  text-align: center;
+  min-width: 90px;
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.step-count {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+/* ACTIVE STATIONS */
+.station-step.active .step-count {
+  color: #0b5ed7;
+}
+
+/* MUTED (RC OUT) */
+.station-step.muted .step-count {
+  color: #9ca3af;
+}
+
+/* DIVIDER LINE */
+.pipeline-divider {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    #e5e7eb,
+    #c7d2fe,
+    #e5e7eb
+  );
+  margin: 0 10px;
+}
+
+/* ===============================
+   OPERATIONS PANEL – FINAL
+   =============================== */
+
+.ops-section {
+  margin: 36px 0;
+}
+
+.ops-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #0b3c8c;
+}
+
+.ops-header span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.modern-ops {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+
+.ops-tile {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 18px;
+  text-decoration: none;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+  transition: all 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ops-tile::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #c7d2fe;
+}
+
+.ops-tile.primary::before { background: #0b3c8c; }
+.ops-tile.danger::before { background: #dc2626; }
+
+.ops-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ops-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ops-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.12);
+}
+
+.ops-tile.ghost {
+  background: #f8fafc;
+}
+/* ===============================
+   LIVE ANIMATIONS (SUBTLE)
+   =============================== */
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(11,60,140,0.15); }
+  70% { box-shadow: 0 0 0 12px rgba(11,60,140,0); }
+  100% { box-shadow: 0 0 0 0 rgba(11,60,140,0); }
+}
+
+.kpi-card {
+  animation: pulse 3.5s infinite;
+}
+
+/* PIPELINE SHIMMER */
+.pipeline-divider {
+  background-size: 200% 100%;
+  animation: shimmer 2.8s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+/* ===============================
+   GLOBAL SYSTEM BREATHING
+   =============================== */
+
+@keyframes systemBreath {
+  0%   { background-color: #f8fafc; }
+  50%  { background-color: #f3f6fb; }
+  100% { background-color: #f8fafc; }
+}
+
+body {
+  animation: systemBreath 12s ease-in-out infinite;
+}
+.station-pipeline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0;
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.06);
+}
+
+.stage {
+  min-width: 80px;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  position: relative;
+}
+
+.stage span {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.stage b {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0b3c8c;
+}
+
+/* ACTIVE STAGES */
+.stage.active {
+  background: #eef2ff;
+  animation: stagePulse 2.8s infinite;
+}
+
+@keyframes stagePulse {
+  0% { box-shadow: 0 0 0 0 rgba(11,60,140,0.25); }
+  70% { box-shadow: 0 0 0 10px rgba(11,60,140,0); }
+  100% { box-shadow: 0 0 0 0 rgba(11,60,140,0); }
+}
+
+/* FLOW ARROW */
+.flow-arrow {
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #c7d2fe,
+    #0b3c8c,
+    #c7d2fe
+  );
+  background-size: 200% 100%;
+  animation: flowMove 2s linear infinite;
+}
+
+@keyframes flowMove {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.form-card {
+  position: relative;
+  overflow: hidden;
+}
+
+
+
+@keyframes scanSweep {
+  0% { left: -100%; }
+  100% { left: 120%; }
+}
+.ops-tile:active {
+  transform: scale(0.97);
+}
+
+.traveller-preview-btn {
+  transition: all 0.15s ease;
+}
+
+.traveller-preview-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(11,60,140,0.25);
+}
+
+
+</style>
+<script>
+setInterval(() => {
+  document.body.classList.toggle("live-pulse");
+}, 3000);
+</script>
+
+<style>
+body.live-pulse .rc-title {
+  text-shadow: 0 0 8px rgba(11,60,140,0.25);
+}
+</style>
+
+<script>
+document.querySelectorAll(".kpi-number").forEach(el => {
+  const target = parseInt(el.dataset.value || 0);
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 20));
+
+  const tick = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(tick);
+    }
+    el.innerText = current;
+  }, 40);
+});
+</script>
+
+<script>
+setInterval(() => {
+  document.body.classList.toggle("live-tick");
+}, 2000);
+</script>
+
+<script>
+function openPreview(selectEl, rid) {
+  const val = selectEl.value;
+  if (!val) return;
+
+  let url = null;
+
+  if (val === "incoming") {
+    url = `/incoming/preview/${rid}`;
+  } 
+  else if (val === "visual") {
+    url = `/visual/${rid}/preview`;
+  }
+
+  if (url) {
+    window.open(url, "_blank");
+  }
+
+  // reset dropdown back
+  selectEl.value = "";
+}
+</script>
+
+
+{% endblock %}

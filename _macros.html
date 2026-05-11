@@ -1,0 +1,33 @@
+{% macro station_history_block(history) %}
+{% if history and history|length > 0 %}
+<div class="history-strip">
+  <h4>Traveller History (Read-Only)</h4>
+
+  <table class="history-table">
+    <thead>
+      <tr>
+        <th>Station</th>
+        <th>User</th>
+        <th>Remarks</th>
+        <th>Date / Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.station }}</td>
+        <td>{{ h.user }}</td>
+        <td>{{ h.remarks }}</td>
+        <td>{{ h.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+
+
+
+
+{% endmacro %}

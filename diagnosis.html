@@ -1,0 +1,6050 @@
+{% extends "base.html" %}
+{% set body_class = "station" %}
+{% from "_macros.html" import station_history_block %}
+{% from "_scan_cta.html" import scan_cta %}
+
+
+{# ================= GLOBAL SERVER ERROR ================= #}
+{% if error %}
+<div class="alert alert-danger">
+  <b>Error:</b> {{ error }}
+</div>
+{% endif %}
+
+{% block content %}
+<div class="page-shell">
+
+  {# ================= CLIENT VALIDATION WARNING ================= #}
+  <div
+    id="diagWarning"
+    class="alert alert-danger"
+    style="display:none; margin-bottom:16px;"
+  >
+    <b>Cannot submit diagnosis.</b><br>
+    Please complete all mandatory fields highlighted below.
+  </div>
+
+  {# ================= SUCCESS (JUST SAVED) ================= #}
+  {% if success %}
+  <div class="success-banner">
+    <span class="check">✔</span>
+    <div class="text">
+      <b>Diagnosis Saved Successfully</b><br>
+      You may preview or print the report.
+    </div>
+
+    <div class="actions">
+      <a
+        class="btn btn-preview"
+        href="{{ url_for('diagnosis_preview', rid=unit.rid) }}"
+
+        target="_blank"
+      >
+        Preview
+      </a>
+    </div>
+  </div>
+
+  {# ================= ALREADY DIAGNOSED (LOCKED) ================= #}
+  {% elif diagnosis_exists %}
+  <div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between;">
+  <div>
+    <b>Diagnosis already completed for this unit.</b><br>
+    Editing is disabled. You may preview or print the report below.
+  </div>
+
+  <div>
+    <a
+      class="btn btn-preview"
+      href="{{ url_for('diagnosis_preview', rid=unit.rid) }}"
+      target="_blank"
+      style="margin-left:16px;"
+    >
+      Preview
+    </a>
+  </div>
+</div>
+
+  {% endif %}
+
+  {# ================= LOCK FORM WHEN DIAGNOSED ================= #}
+  {% if diagnosis_exists and not success %}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .querySelectorAll(
+          "#diagnosisForm input, \
+           #diagnosisForm select, \
+           #diagnosisForm textarea, \
+           #diagnosisForm button"
+        )
+        .forEach(el => el.disabled = true);
+    });
+    
+
+  </script>
+  <div class="alert-actions">
+  <button
+    type="button"
+    class="btn btn-secondary btn-small"
+    id="unlockDiagnosisBtn"
+  >
+    Edit Anyway
+  </button>
+</div>
+<style>.alert-actions {
+  margin-top: 10px;
+}
+
+.btn-small {
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.btn-secondary {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #1d4ed8;
+}
+
+.btn-secondary:hover {
+  background: #e0e7ff;
+}
+</style>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("unlockDiagnosisBtn");
+  if (!btn) return;
+
+  btn.onclick = () => {
+    document
+      .querySelectorAll("#diagnosisForm [disabled]")
+      .forEach(el => el.disabled = false);
+  };
+});
+</script>
+
+  {% endif %}
+
+  
+
+  <!-- ================= HEADER ================= -->
+
+  <div class="doc-header header-3col">
+
+
+    <!-- LEFT: NOKIA + DISPATCH (STACKED) -->
+  <div class="header-left">
+    <div class="left-stack">
+      <img
+        src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+        class="traveller-nokia-logo"
+        alt="Nokia"
+      >
+      <div class="dispatch-block">
+        <div class="dispatch-label">DISPATCH</div>
+        <div class="dispatch-date">
+          {% if unit and unit.dispatch_date %}
+            {% set parts = unit.dispatch_date.split('-') %}
+            {{ parts[2] }}.{{ parts[1] }}.{{ parts[0] }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+    <!-- CENTER: TITLE -->
+
+    <div class="header-center">
+      <h1 class="rc-title">DIAGNOSIS / INCOMING TEST</h1>
+      <div class="rc-name">RC Station – Diagnosis</div>
+    </div>
+
+     <!-- RIGHT: LABEL + QR (STACKED) -->
+  <div class="header-right">
+    {% if unit %}
+<!-- ================= DEBUG: FAILURE DATA DUMP ================= -->
+
+<!-- ================= END DEBUG ================= -->
+
+    <div class="right-stack">
+      <div class="qr-caption">Unit QR</div>
+      <div class="header-qr">
+        {% if unit %}
+  <img src="{{ url_for('static', filename='qr/' ~ unit.rid ~ '.png') }}"
+       alt="QR Code"
+       style="width:140px;height:140px;">
+      
+
+    {% endif %}
+
+        <div class="header-qr-label">{{ unit.rid }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  </div>
+
+  <!-- ================= CARD ================= -->
+  <div class="form-card">
+
+    <!-- ===== SCAN ROW ===== -->
+   <form method="POST" id="scanForm">
+
+
+  <div class="form-row scan-row">
+    <div class="field">
+      <label>Scan/ Enter RFID</label>
+      <input
+  name="rfid"
+  id="scanRfid"
+  placeholder="Scan RFID"
+  required
+>
+
+    </div>
+
+    <div class="field">
+      <label>Engineer Name</label>
+      <input name="user" required>
+    </div>
+
+    <!-- ================= SCAN UNIT (QR / JSON) ================= -->
+<!-- ================= SCAN UNIT CTA (SINGLE SOURCE) ================= -->
+
+<div class="field scan-field">
+ {{ scan_cta(
+  id="unitScanBtn",
+  title="Scan Unit",
+  subtitle="QR / RFID",
+  anim_id="scanUnitAnim"
+) }}
+
+</div>
+
+
+
+ 
+
+
+
+
+  </div>
+</form>
+
+
+
+{% if unit %}
+<form method="POST" id="diagnosisForm" novalidate>
+  <input type="hidden" name="action" value="save">
+  <input type="hidden" name="save" value="1">
+  <input type="hidden" name="rid" value="{{ unit.rid }}">
+  <input type="hidden" name="rfid" value="{{ request.form.rfid }}">
+
+  <input type="hidden" name="user" value="{{ request.form.user }}">
+
+
+
+<div id="viExpanded">
+
+
+  
+    <!-- EVERYTHING BELOW stays EXACTLY SAME -->
+
+
+    <!-- ================= UNIT SUMMARY ================= -->
+    <!-- CUSTOMER LOGO BELONGS HERE (NOT HEADER) -->
+    <div class="unit-summary-card">
+  <div class="unit-summary-grid">
+
+    <div class="us-item">
+      <span class="us-label">RID</span>
+      <span class="us-value">{{ unit.rid }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Family</span>
+      <span class="us-value">{{ unit.family }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Model</span>
+      <span class="us-value">{{ unit.model }}</span>
+    </div>
+
+   <div class="us-item us-customer">
+      <span class="us-label">Customer</span>
+      <span class="us-value">
+        {{ unit.customer }}
+        <img id="customerLogoInline" class="customer-logo-inline">
+      </span>
+    </div>
+
+    <div class="us-item us-full">
+      <span class="us-label">Complaint</span>
+      <span class="us-value">{{ unit.complaint }}</span>
+    </div>
+<div class="us-item">
+  <span class="us-label">Unit Type</span>
+  <span class="us-value">
+    {% if unit.is_overseas == 1 %}
+      Overseas
+    {% else %}
+      Domestic
+    {% endif %}
+  </span>
+</div>
+
+    <div class="us-item">
+      <span class="us-label">Country</span>
+      <span class="us-value">{{ unit.country }}</span>
+    </div>
+    
+    <div class="us-item">
+      <span class="us-label">Dispatch</span>
+      <span class="us-value">{{ unit.dispatch_date }}</span>
+
+    </div>
+    
+  </div>
+</div>
+
+    <!-- ================= TRAVELLER HISTORY + VISUAL INSPECTION ================= -->
+
+
+{% if history and history|length > 0 %}
+<div class="traveller-history">
+
+  <h4>Unit Traveller History</h4>
+
+  <table class="traveller-table">
+    <thead>
+      <tr>
+        <th>Station</th>
+        <th>User</th>
+        <th>Remarks</th>
+        <th>Date & Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.station }}</td>
+        <td>{{ h.user }}</td>
+        <td>{{ h.remarks }}</td>
+        <td>{{ h.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  
+</div> 
+{% endif %}
+
+<!--<div class="history-card visual-readonly">-->
+
+  {% if visual %}
+<div class="history-card visual-readonly">
+
+  <div class="history-header">
+    <span class="history-icon">🔍</span>
+    <span class="history-title">Visual Inspection</span>
+    <span class="history-sub">(Read Only)</span>
+  </div>
+
+  <div class="vi-meta">
+    <div><b>Engineer:</b> {{ visual.engineer or "—" }}</div>
+    <div><b>Decision:</b> {{ visual.admin_decision or "—" }}</div>
+    <div><b>Incoming IP Test:</b> {{ visual.incoming_ip_test or "—" }}</div>
+    <div><b>Warranty Label:</b> {{ visual.warranty_label or "—" }}</div>
+    {% if visual.is_locked %}
+      <span class="badge locked">Locked</span>
+    {% endif %}
+  </div>
+
+  <div class="caps-grid">
+  {% for name, data in caps.items() %}
+    {% set status = data.status if data.status else "NA" %}
+    {% set count = data.count if data.count is not none else 0 %}
+
+    <div class="cap-pill {{ status|lower }}">
+      <span class="cap-name">
+        {{ name.upper().replace("_", " ") }}
+      </span>
+
+      <span class="cap-status">
+        {{ status }}
+        {% if status != "NA" %}
+          ({{ count }})
+        {% endif %}
+      </span>
+    </div>
+
+  {% endfor %}
+</div>
+
+  {% if visual.pre_diag_note or visual.sanity_note %}
+  <div class="vi-notes">
+    {% if visual.pre_diag_note %}
+      <div><b>Pre-Diagnosis Note:</b> {{ visual.pre_diag_note }}</div>
+    {% endif %}
+    {% if visual.sanity_note %}
+      <div><b>Sanity Check:</b> {{ visual.sanity_note }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if visual.remarks %}
+  <div class="history-remarks">
+    <b>Remarks:</b> {{ visual.remarks }}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+
+   
+
+
+
+
+
+
+   {#<!-- ===== HISTORY ===== .-->
+    {{ # station_history_block(history) }}
+      #}
+    <hr>
+
+    <!-- ===== DIAGNOSIS FORM ===== -->
+    
+      
+        <!-- ================= PRE-SCREENING ================= -->
+<h3><span class="section-title">Pre-Screening</span></h3>
+
+<div class="diag-card">
+  <div class="diag-left">
+    <label>Pre-Screening Status</label>
+    <select name="pre_screening">
+      <option value="">Select</option>
+      <option>PASS</option>
+      <option>FAIL</option>
+      <option>NA</option>
+    </select>
+  </div>
+
+  <div class="diag-right hint">
+    Quick physical & boot sanity before diagnostics
+  </div>
+</div>
+
+
+
+<!-- ================= RAP TEST ================= -->
+  
+<!-- ================= RAP TEST ================= -->
+<h3><span class="section-title">RAP Incoming</span></h3>
+
+<div class="diag-card rap-grid">
+
+  <!-- RAP Result -->
+  <div class="field">
+    <label>RAP Result</label>
+    <select id="rap_result" name="rap_result">
+      <option value="">Select</option>
+      <option value="PASS">PASS</option>
+      <option value="FAIL">FAIL</option>
+      <option value="N/A">N/A</option>
+    </select>
+  </div>
+
+  <!-- Failure Category -->
+  <div class="field rap-only" style="display:none;">
+    <label>Failure Category</label>
+    <select id="rap_category">
+      <option value="">Select Category</option>
+      {% for cat in rap_failures.keys() %}
+        <option value="{{ cat }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Failure IDs (CUSTOM DROPDOWN) -->
+  <div class="field rap-only" style="display:none;">
+    <label>Failure ID(s)</label>
+
+    <div class="dropdown" id="rapFailureDropdown">
+      <div class="dropdown-input" id="rapFailureInput">
+        Select Failure IDs
+      </div>
+
+      <div class="dropdown-menu">
+        <input
+          type="text"
+          class="dropdown-search"
+          placeholder="Search failure ID…"
+          id="rapFailureSearch"
+        >
+
+        <div class="dropdown-options" id="rapFailureOptions"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= RAP FAILURE STACK (READ ONLY VIEW) ================= -->
+<div id="rapStack" class="rap-stack"></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ================= UNIT TEST ================= -->
+<!-- ================= UNIT TEST ================= -->
+<h3><span class="section-title">Unit Incoming Test</span></h3>
+
+<div class="diag-card rap-grid">
+
+  <!-- Unit Result -->
+  <div class="field">
+    <label>Unit Result</label>
+    <select id="unit_result" name="unit_result">
+      <option value="">Select</option>
+      <option value="PASS">PASS</option>
+      <option value="FAIL">FAIL</option>
+      <option value="N/A">N/A</option>
+    </select>
+  </div>
+
+  <!-- Category -->
+  <div class="field unit-only" style="display:none;">
+    <label>Failure Category</label>
+    <select id="unit_category">
+      <option value="">Select Category</option>
+      {% for cat in unit_failures.keys() %}
+        <option value="{{ cat }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Failure IDs -->
+  <div class="field unit-only" style="display:none;">
+    <label>Failure ID(s)</label>
+
+    <div class="dropdown" id="unitFailureDropdown">
+      <div class="dropdown-input" id="unitFailureInput">
+        Select Failure IDs
+      </div>
+
+      <div class="dropdown-menu">
+        <input
+          class="dropdown-search"
+          id="unitFailureSearch"
+          placeholder="Search failure ID…"
+        >
+        <div class="dropdown-options" id="unitFailureOptions"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="unitStack" class="rap-stack"></div>
+
+
+
+
+<!-- ================= DISASSEMBLY ================= -->
+<h3><span class="section-title">Disassembly</span></h3>
+
+<div class="disassembly-layout">
+
+  <!-- ================= LEFT COLUMN ================= -->
+  <div class="disassembly-left">
+
+    <div class="diag-card">
+      <div class="diag-left">
+        <label>Disassembly Status</label>
+        <select id="disassembly_status" name="disassembly_status">
+          <option value="">Select</option>
+          <option value="DONE">DONE</option>
+          <option value="NOT_REQUIRED">NOT REQUIRED</option>
+        </select>
+      </div>
+
+      <div class="diag-right hint">
+        Unit is disassembled into modules for fault isolation
+      </div>
+    </div>
+
+    <!-- SCAN BUTTON -->
+    <div class="scan-cta-wrap">
+      <button
+  type="button"
+  id="moduleScanBtn"
+  class="scan-cta-btn"
+  
+>
+
+        <!-- INNER LOTTIE BADGE -->
+        <span class="scan-video-fab">
+          <span
+            class="scan-lottie"
+            id="scanLottie"
+            aria-hidden="true"
+          ></span>
+        </span>
+
+        <!-- TEXT -->
+        <span class="scan-text">
+          <span class="title">Scan Module</span>
+          <span class="sub">QR / RFID</span>
+        </span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ================= RIGHT COLUMN ================= -->
+  <div class="disassembly-right">
+
+    <!-- FAN MODULE -->
+    <div class="module-card" data-module="fan">
+      <div class="module-header">
+        <span>FAN Module</span>
+        <button type="button" class="module-add">ADD</button>
+      </div>
+
+      <div class="module-rows">
+        <div class="module-row" data-base="1">
+  <div class="field">
+    <label>Part Number</label>
+    <input name="fan_part_no[]">
+  </div>
+  <div class="field">
+    <label>Serial Number</label>
+    <input name="fan_serial_no[]">
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <!-- PSU MODULE -->
+    <div class="module-card" data-module="psu">
+      <div class="module-header">
+        <span>PSU Module</span>
+        <button type="button" class="module-add">ADD</button>
+      </div>
+
+      <div class="module-rows">
+        <div class="module-row" data-base="1">
+          <div class="field">
+            <label>Part Number</label>
+            <input name="psu_part_no[]">
+          </div>
+          <div class="field">
+            <label>Serial Number</label>
+            <input name="psu_serial_no[]">
+          </div>
+          
+      </div>
+    </div>
+    </div>
+    <!-- TRX MODULE -->
+    <div class="module-card" data-module="trx">
+      <div class="module-header">
+        <span>TRX Module</span>
+        <button type="button" class="module-add">ADD</button>
+      </div>
+
+      <div class="module-rows">
+        <div class="module-row" data-base="1">
+          <div class="field">
+            <label>Part Number</label>
+            <input name="trx_part_no[]">
+          </div>
+          <div class="field">
+            <label>Serial Number</label>
+            <input name="trx_serial_no[]">
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+</div>
+</div>
+
+
+
+
+<!-- ================= MODULE LEVEL TESTING ================= -->
+<div class="section-highlight">
+  <h3><span class="section-title">Module Level Testing</span></h3>
+</div>
+
+
+<div class="diag-card rap-grid">
+
+  <!-- FAN -->
+  <div class="field">
+    <label>FAN Module</label>
+    <select name="fan_result">
+      <option value="">Select</option>
+      <option>PASS</option>
+      <option>FAIL</option>
+      <option>N/A</option>
+    </select>
+  </div>
+
+  <!-- PSU -->
+  <div class="field">
+    <label>PSU Module</label>
+    <select name="psu_result">
+      <option value="">Select</option>
+      <option>PASS</option>
+      <option>FAIL</option>
+      <option>N/A</option>
+    </select>
+  </div>
+
+  <!-- TRX (HIGH LEVEL) -->
+  <div class="field">
+    <label>TRX Module</label>
+    <select id="trx_module_result" name="trx_module_result">
+
+
+      <option value="">Select</option>
+      <option>PASS</option>
+      <option>FAIL</option>
+      <option>N/A</option>
+    </select>
+  </div>
+
+</div>
+
+<!-- ================= TRX TEST ================= -->
+<!-- ================= TRX BSCAN TEST ================= -->
+<!-- ================= TRX B SCAN ================= -->
+ <div id="trx-bscan-section" style="display:none;">
+<h3><span class="section-title">TRX B Scan</span></h3>
+
+<div class="diag-card rap-grid">
+
+  <div class="field">
+    <label>B_Scan Result</label>
+    <select id="trx_result" name="trx_result">
+      <option value="">Select</option>
+      <option value="PASS">PASS</option>
+      <option value="FAIL">FAIL</option>
+      <option value="N/A">N/A</option>
+    </select>
+  </div>
+
+  <div class="field trx-only" style="display:none;">
+    <label>Failure Category</label>
+    <select id="trx_category">
+      <option value="">Select Category</option>
+      {% for cat in trx_failures.keys() %}
+        <option value="{{ cat }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field trx-only" style="display:none;">
+    <label>Failure ID(s)</label>
+
+    <div class="dropdown" id="trxFailureDropdown">
+      <div class="dropdown-input" id="trxFailureInput">
+        Select Failure IDs
+      </div>
+
+      <div class="dropdown-menu">
+        <input
+          class="dropdown-search"
+          id="trxFailureSearch"
+          placeholder="Search failure ID…"
+        >
+        <div class="dropdown-options" id="trxFailureOptions"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="trxStack" class="rap-stack"></div>
+ </div>
+
+
+
+<!-- ================= TRX PA TEST ================= -->
+<!-- ================= TRX PA ================= -->
+ <div id="trx-pa-section" style="display:none;">
+<h3><span class="section-title">TRX PA</span></h3>
+
+<div class="diag-card rap-grid">
+
+  <div class="field">
+    <label>PA Result</label>
+    <select id="pa_result" name="pa_result">
+      <option value="">Select</option>
+      <option value="PASS">PASS</option>
+      <option value="FAIL">FAIL</option>
+      <option value="N/A">N/A</option>
+    </select>
+  </div>
+
+  <div class="field pa-only" style="display:none;">
+    <label>Failure Category</label>
+    <select id="pa_category">
+      <option value="">Select Category</option>
+      {% for cat in pa_failures.keys() %}
+        <option value="{{ cat }}">{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field pa-only" style="display:none;">
+    <label>Failure ID(s)</label>
+
+    <div class="dropdown" id="paFailureDropdown">
+      <div class="dropdown-input" id="paFailureInput">
+        Select Failure IDs
+      </div>
+
+      <div class="dropdown-menu">
+        <input
+          class="dropdown-search"
+          id="paFailureSearch"
+          placeholder="Search failure ID…"
+        >
+        <div class="dropdown-options" id="paFailureOptions"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="paStack" class="rap-stack"></div>
+</div>
+
+<!-- ================= MODULE DETAILS ================= -->
+<!-- ================= MODULE DETAILS ================= -->
+<!-- ================= MODULE DETAILS ================= -->
+<div id="faulty-module-section" style="display:none;">
+
+  <h3><span class="section-title">Faulty Module Details</span></h3>
+
+  
+    <!-- TRX module content (UNCHANGED) -->
+<div class="module-card" data-faulty="trx">
+  <div class="module-header">
+    <span>TRX Module</span>
+    <button type="button" class="module-add">ADD</button>
+  </div>
+
+  <div class="module-rows">
+    <!-- BASE ROW (NON-DELETABLE) -->
+    <div class="module-row" data-base="1">
+      <div class="field">
+        <label>Part Number</label>
+        <input name="trx_part_no[]">
+      </div>
+      <div class="field">
+        <label>Serial Number</label>
+        <input name="trx_serial_no[]">
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input name="trx_location[]">
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- PSU module content (UNCHANGED) -->
+<div class="module-card" data-faulty="psu">
+  <div class="module-header">
+    <span>PSU Module</span>
+    <button type="button" class="module-add">ADD</button>
+  </div>
+
+  <div class="module-rows">
+    <div class="module-row" data-base="1">
+      <div class="field">
+        <label>Part Number</label>
+        <input name="psu_part_no[]">
+      </div>
+      <div class="field">
+        <label>Serial Number</label>
+        <input name="psu_serial_no[]">
+      </div>
+      <div class="field">
+        <label> Location</label>
+        <input name="psu_location[]">
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+  
+    <!-- PA module content (UNCHANGED) -->
+<div class="module-card" data-faulty="fan">
+  <div class="module-header">
+    <span>FAN Module</span>
+    <button type="button" class="module-add">ADD</button>
+  </div>
+
+  <div class="module-rows">
+    <div class="module-row" data-base="1">
+      <div class="field">
+        <label>Part Number</label>
+        <input name="fan_part_no[]">
+      </div>
+      <div class="field">
+        <label>Serial Number</label>
+        <input name="fan_serial_no[]">
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input name="fan_location[]">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+
+
+
+
+
+<!-- ========= MODULE DETAILS END ========= -->
+
+      <h3>
+        <span class="section-title">FSPX / FEPB</span>
+      </h3>
+      <div class="form-row">
+        <div class="field">
+          <label>FSPX Test</label>
+          <select name="fspx_test">
+            <option>PASS</option>
+            <option>FAIL</option>
+            <option>N/A</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>FEPB Test</label>
+          <select name="fepb_test">
+            <option>PASS</option>
+            <option>FAIL</option>
+            <option>N/A</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>
+        <span class="section-title">Tuning / External Fan</span>
+      </h3>
+      <div class="form-row">
+        <div class="field">
+          <label>Tuning Status</label>
+          <select name="tuning_status">
+            <option>DONE</option>
+            <option>PENDING</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>External Fan</label>
+          <select name="external_fan">
+            <option>OK</option>
+            <option>FAULTY</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>
+        <span class="section-title">Overall Result</span>
+      </h3>
+      <div class="form-row">
+        <div class="field">
+          <select name="overall_result">
+            <option>PASS</option>
+            <option>FAIL</option>
+            <option>N/A</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row single">
+        <div class="field">
+          <label>Remarks</label>
+          <textarea name="remarks"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+  <button type="submit" id="diagnosisSubmitBtn">Submit Diagnosis</button>
+
+
+{% if error %}
+<div class="alert alert-danger">
+  {{ error }}
+</div>
+{% endif %}
+
+</div>
+</form>
+
+
+    
+    
+
+  </div>
+  
+</div>
+
+
+<!-- ================= UNIVERSAL SCAN MODAL ================= -->
+<!-- ================= UNIVERSAL SCAN MODAL (CLEAN) ================= -->
+<div id="scanModal" class="scan-modal" style="display:none;">
+  <div class="scan-panel" id="scanPanel">
+
+    <!-- HEADER -->
+    <div class="scan-header">
+      <span id="scanTitle">Scan</span>
+      <button type="button" id="scanCloseBtn" class="scan-close">×</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="scan-body scan-grid">
+
+      <!-- LEFT -->
+      <div class="scan-left">
+        <p class="scan-hint" id="scanHint">
+          Scan QR / RFID and press Enter
+        </p>
+
+        <input
+          id="scanInputUniversal"
+          autocomplete="off"
+          placeholder="Scan here…"
+        >
+
+        <!-- MODULE TYPE -->
+        <div id="moduleTypeSelect" style="display:none;">
+          <label>Select Module Type</label>
+          <div class="module-choice-grid">
+            <button type="button" class="module-choice" data-type="fan">FAN</button>
+            <button type="button" class="module-choice" data-type="psu">PSU</button>
+            <button type="button" class="module-choice" data-type="trx">TRX</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="scan-right">
+        <div class="scan-anim-box">
+          <div id="scanLottieBox" class="scan-lottie"></div>
+        </div>
+        <div class="scan-anim-label" id="scanStatus">
+          Waiting for scan
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   SINGLE CLEAN SCAN ENGINE + TAG ANIMATION
+   ===================================================== */
+
+let SCAN_MODE = null;      // "UNIT" | "MODULE"
+let MODULE_TYPE = null;
+let tagAnim = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal   = document.getElementById("scanModal");
+  const panel   = document.getElementById("scanPanel");
+  const input   = document.getElementById("scanInputUniversal");
+  const title   = document.getElementById("scanTitle");
+  const hint    = document.getElementById("scanHint");
+  const status  = document.getElementById("scanStatus");
+  const close   = document.getElementById("scanCloseBtn");
+  const modUI   = document.getElementById("moduleTypeSelect");
+  const animBox = document.getElementById("scanLottieBox");
+
+  const unitBtn   = document.getElementById("unitScanBtn");
+  const moduleBtn = document.getElementById("moduleScanBtn");
+
+  if (!modal || !input) return;
+
+  /* ---------- LOAD TAG ANIMATION ONCE ---------- */
+  function ensureTagAnimation() {
+    if (!window.lottie || !animBox) return;
+
+    if (!tagAnim) {
+      tagAnim = lottie.loadAnimation({
+        container: animBox,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='video/tag.json') }}"
+      });
+    } else {
+      tagAnim.play();
+    }
+  }
+
+  /* ---------- OPEN ---------- */
+  function openScan(mode) {
+    SCAN_MODE = mode;
+    MODULE_TYPE = null;
+
+    title.textContent =
+      mode === "UNIT"
+        ? "Scan Unit RFID / QR"
+        : "Scan Module QR / RFID";
+
+    hint.textContent =
+      mode === "UNIT"
+        ? "Scan unit and press Enter"
+        : "Select module type, then scan QR / RFID";
+
+    modUI.style.display = mode === "MODULE" ? "block" : "none";
+    status.textContent = "Waiting for scan";
+
+    modal.style.display = "flex";
+    input.value = "";
+
+    ensureTagAnimation();
+
+    setTimeout(() => input.focus(), 80);
+  }
+
+  /* ---------- CLOSE ---------- */
+  function closeScan() {
+    modal.style.display = "none";
+    input.value = "";
+    status.textContent = "Waiting for scan";
+    SCAN_MODE = null;
+    MODULE_TYPE = null;
+
+    if (tagAnim) tagAnim.pause();
+  }
+
+  /* ---------- BUTTONS ---------- */
+  unitBtn?.addEventListener("click", () => openScan("UNIT"));
+  moduleBtn?.addEventListener("click", () => openScan("MODULE"));
+
+  close.addEventListener("click", closeScan);
+
+  /* CLICK OUTSIDE CLOSE */
+  modal.addEventListener("click", e => {
+    if (e.target === modal) closeScan();
+  });
+
+  panel.addEventListener("click", e => e.stopPropagation());
+
+  /* ---------- MODULE TYPE ---------- */
+  document.querySelectorAll(".module-choice").forEach(btn => {
+    btn.addEventListener("click", () => {
+      MODULE_TYPE = btn.dataset.type;
+      status.textContent =
+        `Selected ${MODULE_TYPE.toUpperCase()} — scan now`;
+      input.focus();
+    });
+  });
+
+  /* ---------- INPUT ---------- */
+  input.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    if (SCAN_MODE === "UNIT") {
+      const rfid = document.getElementById("scanRfid");
+      const form = document.getElementById("scanForm");
+      if (rfid && form) {
+        rfid.value = raw;
+        closeScan();
+        form.submit();
+      }
+    }
+
+    if (SCAN_MODE === "MODULE") {
+      if (!MODULE_TYPE) {
+        alert("Select module type first");
+        return;
+      }
+      injectModuleByType(MODULE_TYPE, raw);
+      status.textContent = "Module added";
+      setTimeout(closeScan, 300);
+    }
+  });
+});
+</script>
+
+
+
+<script>
+/* =====================================================
+   UNIT SCAN — SINGLE SOURCE OF TRUTH (FINAL)
+   ===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("unitScanBtn");
+
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    openScan("UNIT");
+  });
+});
+</script>
+
+<style>/* ================= MODULE SELECT UI ================= */
+
+.module-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.module-choice {
+  background: linear-gradient(135deg, #e8f7f1, #f4fcf9);
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 14px;
+  padding: 18px 12px;
+  cursor: pointer;
+  text-align: center;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.module-choice:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(34,197,94,0.25);
+}
+
+.mc-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.mc-sub {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+  margin-top: 4px;
+}
+
+/* === scan animation container === */
+.scan-anim-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f3f6f8, #ffffff);
+  border: 1px solid rgba(148,163,184,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.module-choice {
+  color: #064e3b;
+  font-weight: 700;
+}
+
+</style>
+<script>
+let SELECTED_MODULE_TYPE = null;
+
+/* ================= OPEN MODULE SELECT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const openBtn  = document.getElementById("moduleScanBtn");
+  const modal    = document.getElementById("moduleScanModal");
+  const closeBtn = document.getElementById("moduleScanClose");
+
+  if (!openBtn || !modal) return;
+
+  openBtn.onclick = () => {
+    modal.style.display = "flex";
+  };
+
+  closeBtn.onclick = () => modal.style.display = "none";
+});
+
+/* ================= SELECT MODULE ================= */
+document.querySelectorAll(".module-choice").forEach(btn => {
+  btn.addEventListener("click", () => {
+    SELECTED_MODULE_TYPE = btn.dataset.module;
+
+    document.getElementById("moduleScanModal").style.display = "none";
+    document.getElementById("moduleScanInputModal").style.display = "flex";
+
+    document.getElementById("moduleScanTitle").textContent =
+      `Scan ${SELECTED_MODULE_TYPE.toUpperCase()} Module`;
+
+    setTimeout(() => {
+      document.getElementById("moduleScanInput").focus();
+    }, 80);
+  });
+});
+
+/* ================= SCAN INPUT ================= */
+document.getElementById("moduleScanInput").addEventListener("keydown", async e => {
+  if (e.key !== "Enter") return;
+
+  const raw = e.target.value.trim();
+  if (!raw || !SELECTED_MODULE_TYPE) return;
+
+  try {
+    injectModuleByType(SELECTED_MODULE_TYPE, raw);
+
+    showModuleToast(
+      `${SELECTED_MODULE_TYPE.toUpperCase()} module attached successfully`
+    );
+
+    e.target.value = "";
+    document.getElementById("moduleScanInputModal").style.display = "none";
+  } catch (err) {
+    alert(err);
+  }
+});
+
+/* ================= CLOSE ================= */
+document.getElementById("moduleScanInputClose").onclick = () => {
+  document.getElementById("moduleScanInputModal").style.display = "none";
+};
+
+/* ================= CORE INJECTION ================= */
+function injectModuleByType(type, raw) {
+  const data = {};
+  raw.split("|").forEach(p => {
+    const [k,v] = p.split("=");
+    if (k && v) data[k.trim()] = v.trim();
+  });
+
+  if (!data.PN || !data.SN) {
+    throw "Invalid QR / RFID format";
+  }
+
+  const card = document.querySelector(
+    `.module-card[data-module="${type}"]`
+  );
+  if (!card) throw "Module section missing";
+
+  const rows = card.querySelector(".module-rows");
+  const base = rows.querySelector(".module-row[data-base='1']");
+
+  for (const i of rows.querySelectorAll('input[name$="_serial_no[]"]')) {
+    if (i.value === data.SN) throw "Module already added";
+  }
+
+  const row = base.cloneNode(true);
+  row.removeAttribute("data-base");
+
+  const inputs = row.querySelectorAll("input");
+  inputs[0].value = data.PN;
+  inputs[1].value = data.SN;
+
+  const del = document.createElement("span");
+  del.className = "module-row-delete";
+  del.textContent = "×";
+  del.onclick = () => row.remove();
+  row.appendChild(del);
+
+  rows.appendChild(row);
+}
+
+/* ================= TOAST ================= */
+function showModuleToast(msg) {
+  const t = document.createElement("div");
+  t.className = "module-toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+
+  setTimeout(() => t.classList.add("show"), 10);
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => t.remove(), 300);
+  }, 2200);
+}
+</script>
+
+<script>
+/* =====================================================
+   SCAN ENGINE (CLEAN + SINGLE SOURCE OF TRUTH)
+   ===================================================== */
+
+let SCAN_MODE = null;     // "UNIT" | "MODULE"
+let MODULE_TYPE = null;  // fan | psu | trx
+let scanAnim = null;
+
+/* ---------- OPEN ---------- */
+function openScan(mode) {
+  SCAN_MODE = mode;
+  MODULE_TYPE = null;
+
+  const modal = document.getElementById("scanModal");
+  const title = document.getElementById("scanTitle");
+  const hint  = document.getElementById("scanHint");
+  const input = document.getElementById("scanInputUniversal");
+  const modUI = document.getElementById("moduleTypeSelect");
+
+  title.textContent = mode === "UNIT" ? "Scan Unit RFID / QR" : "Scan Module";
+  hint.textContent  = mode === "UNIT"
+    ? "Scan Unit RFID / QR and press Enter"
+    : "Select module type, then scan QR / RFID";
+
+  modUI.style.display = mode === "MODULE" ? "block" : "none";
+  modal.style.display = "flex";
+
+  setTimeout(() => input.focus(), 80);
+}
+
+/* ---------- CLOSE ---------- */
+function closeScan() {
+  document.getElementById("scanModal").style.display = "none";
+  document.getElementById("scanInputUniversal").value = "";
+  document.getElementById("scanStatus").textContent = "Waiting for scan";
+}
+
+/* ---------- LOTTIE ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("scanLottieBox");
+  if (box && window.lottie) {
+    scanAnim = lottie.loadAnimation({
+      container: box,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: "{{ url_for('static', filename='video/tag.json') }}"
+    });
+  }
+});
+
+/* ---------- BUTTON WIRING ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("unitScanBtn")?.addEventListener("click", () => {
+    openScan("UNIT");
+  });
+
+  document.getElementById("moduleScanBtn")?.addEventListener("click", () => {
+    openScan("MODULE");
+  });
+
+  document.getElementById("scanCloseBtn").onclick = closeScan;
+  document.getElementById("scanModal").onclick = e => {
+    if (e.target.id === "scanModal") closeScan();
+  };
+
+  /* MODULE TYPE SELECT */
+  document.querySelectorAll(".module-choice").forEach(btn => {
+    btn.onclick = () => {
+      MODULE_TYPE = btn.dataset.type;
+      document.getElementById("scanStatus").textContent =
+        `Selected ${MODULE_TYPE.toUpperCase()}, waiting for scan`;
+      document.getElementById("scanInputUniversal").focus();
+    };
+  });
+
+  /* INPUT HANDLER */
+  document.getElementById("scanInputUniversal")
+    .addEventListener("keydown", e => {
+      if (e.key !== "Enter") return;
+
+      const val = e.target.value.trim();
+      if (!val) return;
+
+      if (SCAN_MODE === "UNIT") {
+        document.getElementById("scanRfid").value = val;
+        document.getElementById("scanForm").submit();
+      }
+
+      if (SCAN_MODE === "MODULE") {
+        if (!MODULE_TYPE) {
+          alert("Select module type first");
+          return;
+        }
+        injectModule(MODULE_TYPE, val);
+      }
+
+      closeScan();
+    });
+});
+
+/* ---------- MODULE INJECT ---------- */
+function injectModule(type, raw) {
+  const data = {};
+  raw.split("|").forEach(p => {
+    const [k,v] = p.split("=");
+    if (k && v) data[k] = v;
+  });
+
+  if (!data.PN || !data.SN) {
+    alert("Invalid module format");
+    return;
+  }
+
+  const card = document.querySelector(`.module-card[data-module="${type}"]`);
+  const rows = card.querySelector(".module-rows");
+  const base = rows.querySelector(".module-row[data-base='1']");
+
+  for (const i of rows.querySelectorAll("input[name$='_serial_no[]']")) {
+    if (i.value === data.SN) {
+      alert("Module already added");
+      return;
+    }
+  }
+
+  const row = base.cloneNode(true);
+  row.removeAttribute("data-base");
+  const inputs = row.querySelectorAll("input");
+  inputs[0].value = data.PN;
+  inputs[1].value = data.SN;
+
+  const del = document.createElement("span");
+  del.className = "module-row-delete";
+  del.textContent = "×";
+  del.onclick = () => row.remove();
+  row.appendChild(del);
+
+  rows.appendChild(row);
+}
+</script>
+
+
+<!-- ================= CUSTOMER + OVERSEAS LOGIC ================= -->
+
+
+
+
+
+<style>
+/* ===============================
+   INLINE CUSTOMER LOGO — DIAGNOSIS
+   =============================== */
+
+.customer-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-logo-inline {
+  height: 28px;
+  max-width: 90px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* Ensure card gets themed */
+.form-card.customer-bharti,
+.form-card.customer-jio,
+.form-card.customer-vi,
+.form-card.customer-bsnl {
+  border-left-width: 6px;
+  border-left-style: solid;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+
+.vi-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #333;
+}
+
+.vi-notes {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f6f9fc;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.cap-pill.pass {
+  background: #e6f7ec;
+  color: #0f5132;
+}
+
+.cap-pill.fail {
+  background: #fdeaea;
+  color: #842029;
+}
+
+.cap-pill.na {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+/* ===== ALIGN LOGO + DISPATCH LIKE VISUAL INSPECTION ===== */
+
+body.station .header-left {
+  padding-top: 0 !important;
+}
+
+body.station .left-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0 !important;
+}
+
+/* Push logo down */
+body.station .traveller-nokia-logo {
+  margin-top: 110px !important;   /* matches Visual Inspection */
+  margin-bottom: 20px !important;
+  height: 30px !important;
+}
+
+/* Remove artificial gap above dispatch */
+body.station .dispatch-block {
+  margin-top: 0 !important;
+}
+/* ===== MOVE DIAGNOSIS CENTER TITLE DOWN (ONLY THIS PAGE) ===== */
+
+body.station .header-center {
+  padding-top: 120px !important;   /* adjust 100–140px if needed */
+}
+
+/* ===============================
+   DIAGNOSIS — TRAVELLER HISTORY
+   (MATCH VISUAL INSPECTION STYLE)
+   =============================== */
+
+/* Card wrapper */
+.history-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  margin: 22px 0;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e6edf7;
+}
+
+/* Header row */
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9eef5;
+}
+
+.history-icon {
+  font-size: 16px;
+  color: #0b3c8c;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+/* Table base */
+.traveller-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+
+/* Header cells */
+.traveller-table thead th {
+  text-align: left;
+  padding: 10px 12px;
+  font-weight: 600;
+  color: #4a5b78;
+  background: #f4f8ff;
+  border-bottom: 1px solid #e3ebf6;
+}
+
+/* Rounded header corners */
+.traveller-table thead th:first-child {
+  border-top-left-radius: 10px;
+}
+.traveller-table thead th:last-child {
+  border-top-right-radius: 10px;
+}
+
+/* Body cells */
+.traveller-table tbody td {
+  padding: 10px 12px;
+  color: #2e3642;
+  border-bottom: 1px solid #edf1f7;
+}
+
+/* Zebra striping */
+.traveller-table tbody tr:nth-child(even) {
+  background: #fafcff;
+}
+
+/* Hover effect */
+.traveller-table tbody tr:hover {
+  background: #eef5ff;
+  transition: background 0.2s ease;
+}
+
+/* Station badge feel */
+.traveller-table td:first-child {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+/* Date column lighter */
+.traveller-table td:last-child {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* Responsive safety */
+@media (max-width: 768px) {
+  .traveller-table thead {
+    display: none;
+  }
+
+  .traveller-table,
+  .traveller-table tbody,
+  .traveller-table tr,
+  .traveller-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .traveller-table tr {
+    margin-bottom: 14px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+
+  .traveller-table td {
+    padding: 6px 0;
+    border: none;
+  }
+
+  .traveller-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #0b3c8c;
+    display: block;
+    margin-bottom: 2px;
+  }
+}
+
+
+
+
+/* ================= DIAGNOSIS FLOW UI ================= */
+
+.diag-card {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 16px;
+  background: #f9fbff;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  border: 1px solid #e3ebf6;
+}
+
+.diag-left label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.diag-left select {
+  width: 100%;
+}
+
+.diag-right {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.diag-right.fail-zone {
+  display: none;
+}
+
+.diag-right.fail-zone label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #842029;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.diag-right select[multiple] {
+  min-height: 90px;
+}
+/* ================= SEARCHABLE FAILURE SELECT ================= */
+
+.fail-select {
+  background: #ffffff;
+  border: 1px solid #e3ebf6;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.fail-search {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.fail-options {
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.fail-options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.fail-options label:hover {
+  background: #f1f5ff;
+}
+
+.fail-summary {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #374151;
+  font-style: italic;
+}
+.fail-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 10px;
+}
+
+.fail-selected {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fail-selected span {
+  background: #fee2e2;
+  color: #7f1d1d;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ================= RAP INLINE GRID ================= */
+
+.rap-grid {
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr;
+  gap: 14px;
+  align-items: end;
+}
+
+.rap-grid .field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.rap-grid select {
+  width: 100%;
+  min-width: 0;
+}
+/* ==== FIX DROPDOWN CLIPPING (Safari + Grid) ==== */
+.diag-card,
+.rap-grid,
+.form-card {
+  overflow: visible !important;
+}
+
+select {
+  position: relative;
+  z-index: 10;
+}
+/* === RAP: 3 equal columns === */
+.rap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.rap-grid .field {
+  width: 100%;
+}
+
+.rap-grid select {
+  width: 100%;
+}
+.rap-dropdown {
+  position: relative;
+}
+
+#rapInput {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.rap-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  z-index: 999;
+}
+
+.rap-option {
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rap-option:hover {
+  background: #f1f5ff;
+}
+
+.rap-search {
+  padding: 6px 8px;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  outline: none;
+}
+.rap-options {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #e3ebf6;
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+}
+
+.rap-options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.rap-options label:hover {
+  background: #f1f5ff;
+}
+
+.rap-selected {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rap-selected span {
+  background: #fee2e2;
+  color: #7f1d1d;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.rap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.rap-grid .field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 6px;
+  display: block;
+}
+/* ===== DROPDOWN BASE (CATEGORY + FAILURE SAME STYLE) ===== */
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dropdown-input:hover {
+  border-color: #2563eb;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 105%;
+  left: 0;
+  right: 0;
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 260px;
+  overflow: hidden;
+  display: none;
+  z-index: 1000;
+}
+
+/* search */
+.dropdown-search {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  font-size: 12px;
+}
+
+/* options */
+.dropdown-options {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dropdown-options label:hover {
+  background: #1f2937;
+}
+
+/* ===============================
+   HIDE NA CAPS — DIAGNOSIS
+   =============================== */
+
+</style>
+
+
+<style>
+.rap-card {
+  align-items: start;
+}
+
+.rap-field {
+  margin-bottom: 14px;
+}
+
+.ts-control {
+  min-height: 42px;
+  border-radius: 6px;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  background: #0b5ed7;
+  color: #fff;
+}
+</style>
+
+
+<style>
+/* ===== RAP CONDITIONAL VISIBILITY ===== */
+#rap-conditional {
+  display: contents; /* allows grid alignment */
+}
+
+.rap-hidden {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+
+.rap-visible {
+  visibility: visible;
+  height: auto;
+}
+
+/* ===== RAP GRID ===== */
+.rap-row {
+  display: grid;
+  grid-template-columns: 220px 320px 1fr;
+  gap: 18px;
+  align-items: end;
+}
+
+
+
+
+
+
+
+/* ===== FAILURE DROPDOWN FIX ===== */
+
+.failure-box {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px;
+  background: #fff;
+}
+
+#rap_search {
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+#rap_failures {
+  width: 100%;
+  min-height: 120px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+#rap_failures option {
+  padding: 6px 8px;
+  white-space: normal;
+}
+
+
+/* ===== TOMSELECT — FAILURE IDS (MATCH CATEGORY LOOK) ===== */
+
+.ts-control {
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.ts-wrapper.multi .ts-control {
+  padding: 4px 6px;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  background: #0b5ed7;
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 12px;
+  margin: 3px;
+}
+
+.ts-wrapper.multi .ts-control > div .remove {
+  color: #ffffff;
+  margin-left: 6px;
+}
+
+.ts-dropdown {
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.ts-dropdown .option {
+  padding: 8px 10px;
+}
+
+.ts-dropdown .option:hover {
+  background: #f1f5ff;
+}
+
+
+
+
+/* ===== MATCH CATEGORY & FAILURE DROPDOWNS ===== */
+
+.ts-control {
+  min-height: 40px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.ts-dropdown {
+  border-radius: 8px;
+}
+
+.ts-dropdown .option {
+  padding: 8px 10px;
+}
+
+.ts-wrapper.multi .ts-control > div {
+  background: #0b5ed7;
+  color: #fff;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.ts-wrapper.multi .ts-control > div .remove {
+  color: #fff;
+}
+
+
+
+/* ===== FIX DEAD CLICK SPACE IN MULTI SELECT ===== */
+
+.ts-wrapper.multi .ts-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  cursor: text;
+}
+
+.ts-wrapper.multi .ts-control::after {
+  display: none !important;
+}
+
+/* Make input ALWAYS available */
+.ts-wrapper.multi .ts-control input {
+  flex: 1 1 120px;
+  min-width: 120px;
+  margin: 2px;
+  font-size: 13px;
+  cursor: text;
+}
+/* ===== FAILURE DROPDOWN VISUAL FIX ===== */
+
+.ts-dropdown {
+  background: #505357;              /* dark like category */
+  color: #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  border: none;
+  overflow: hidden;
+}
+
+.ts-dropdown .option {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+  background: #7687ac;
+  color: #fff;
+}
+
+/* FULL HEIGHT + SCROLL */
+.ts-dropdown-content {
+  max-height: 320px;   /* IMPORTANT */
+  overflow-y: auto;
+}
+/* Limit chip rows visually */
+.ts-wrapper.multi .ts-control {
+  max-height: 88px;
+  overflow-y: auto;
+}
+
+
+/* ================= RAP TOMSELECT (CATEGORY + FAILURE SAME LOOK) ================= */
+
+.ts-control {
+  min-height: 42px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.ts-wrapper.multi .ts-control {
+  padding: 6px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: text;
+}
+
+/* Selected chips */
+.ts-wrapper.multi .ts-control > div {
+  background: #0b5ed7;
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.ts-wrapper.multi .ts-control > div .remove {
+  color: #ffffff;
+  margin-left: 6px;
+}
+
+/* Dropdown menu */
+.ts-dropdown {
+  background: #505357;
+  color: #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+  border: none;
+}
+
+/* Dropdown options */
+.ts-dropdown .option {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+  background: #7687ac;
+  color: #ffffff;
+}
+
+/* Search box inside dropdown */
+.ts-dropdown .ts-dropdown-input {
+  background: #374151;
+  color: #ffffff;
+  border-radius: 6px;
+  margin: 8px;
+}
+
+/* Fix tight click space */
+.ts-wrapper.multi .ts-control input {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Limit height so it doesn’t explode */
+.ts-wrapper.multi .ts-control {
+  max-height: 90px;
+  overflow-y: auto;
+}
+/* ================= RAP – CLEAN MULTI SELECT ================= */
+
+/* Prevent dropdown covering entire page */
+.rap-grid,
+.diag-card {
+  overflow: visible;
+}
+
+/* TomSelect input box */
+.ts-control {
+  min-height: 42px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  cursor: text;
+}
+
+/* Limit chip height so it doesn't eat page */
+.ts-wrapper.multi .ts-control {
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+/* Chips */
+.ts-wrapper.multi .ts-control > div {
+  background: #0b5ed7;
+  color: #fff;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+/* Remove ugly caret */
+.ts-wrapper.multi .ts-control::after {
+  display: none !important;
+}
+
+/* Dropdown menu (same look as category) */
+.ts-dropdown {
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  border: none;
+  z-index: 1000;
+}
+
+/* Dropdown options */
+.ts-dropdown .option {
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* Scroll inside dropdown only */
+.ts-dropdown-content {
+  max-height: 260px;
+  overflow-y: auto;
+}
+/* ================= RAP SUMMARY ================= */
+
+.rap-summary {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: #f9fbff;
+  border: 1px solid #e3ebf6;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.rap-summary-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.rap-summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.rap-summary-cat {
+  font-weight: 600;
+  color: #0b3c8c;
+  min-width: 160px;
+}
+
+.rap-summary-ids {
+  color: #111827;
+  word-break: break-word;
+}
+/* ===== RAP SUMMARY ===== */
+.rap-summary {
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.rap-summary-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  margin-bottom: 6px;
+}
+
+.rap-summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.rap-summary-cat {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+.rap-summary-ids {
+  color: #111827;
+}
+
+/* ===== DROPDOWN (MATCH CATEGORY) ===== */
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-input {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 10px;
+  padding: 8px;
+  max-height: 280px;
+  display: none;
+  z-index: 9999;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.dropdown-search {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.dropdown-options {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.dropdown-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dropdown-options label:hover {
+  background: #1f2937;
+}
+
+/* ===== SUMMARY ===== */
+
+.rap-summary {
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.rap-summary-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  margin-bottom: 6px;
+}
+
+.rap-summary-cat {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+.rap-summary {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.rap-summary-row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.rap-summary-row span:first-child {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+/* ================= RAP SUMMARY (MINIMAL, READ-ONLY) ================= */
+
+.rap-summary {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  max-width: 420px;
+}
+
+.rap-summary-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.rap-summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.rap-summary-row span:first-child {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+
+/* ================= RAP FAILURE STACK ================= */
+
+.rap-stack {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.rap-stack-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.rap-stack-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 6px;
+}
+
+.rap-stack-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rap-pill {
+  background: #e0e7ff;
+  color: #8a391e;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.rap-pill:hover {
+  background: #c7d2fe;
+}
+/* ================= RAP FAILURE DROPDOWN – HARD FIX ================= */
+
+/* Match category dropdown behaviour */
+#rapFailureDropdown .dropdown-menu {
+  max-height: 260px;
+  overflow: hidden;              /* IMPORTANT */
+}
+
+/* Scroll happens INSIDE */
+#rapFailureDropdown .dropdown-options {
+  max-height: 210px;
+  overflow-y: auto;
+}
+
+/* Option styling (same feel as category) */
+#rapFailureDropdown .dropdown-option {
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;               /* FIX text cursor */
+  user-select: none;             /* FIX text highlight */
+}
+
+/* Hover feel */
+#rapFailureDropdown .dropdown-option:hover {
+  background: #1f2937;
+}
+
+/* Prevent I-beam cursor anywhere inside */
+#rapFailureDropdown * {
+  cursor: pointer;
+}
+/* ================= RAP FAILURE DROPDOWN – FINAL FIX ================= */
+
+#rapFailureDropdown .dropdown-menu {
+  max-height: 320px;
+  overflow: hidden;
+}
+
+#rapFailureDropdown .dropdown-options {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Option row */
+#rapFailureDropdown .dropdown-option {
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Hover */
+#rapFailureDropdown .dropdown-option:hover {
+  background: #1f2937;
+}
+
+/* Force pointer cursor (kill text cursor) */
+#rapFailureDropdown * {
+  cursor: pointer !important;
+}
+/* === RAP FAILURE DROPDOWN SIZE FIX === */
+#rapFailureDropdown .dropdown-menu {
+  max-height: min(320px, 60vh);   /* 🔑 adaptive */
+  overflow: hidden;
+}
+
+#rapFailureDropdown .dropdown-options {
+  max-height: calc(60vh - 50px);  /* search included */
+  overflow-y: auto;
+}
+
+/* No text cursor anywhere */
+#rapFailureDropdown,
+#rapFailureDropdown * {
+  cursor: pointer !important;
+}
+
+/* Prevent text selection */
+#rapFailureDropdown .dropdown-option {
+  user-select: none;
+  white-space: nowrap;
+}
+/* ================= RAP FAILURE STACK — COMPACT GRID ================= */
+
+.rap-stack {
+  margin-top: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+
+/* Individual category card */
+.rap-stack-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Category title */
+.rap-stack-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed #dbe4f0;
+  padding-bottom: 4px;
+}
+
+/* Failure list */
+.rap-stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Each failure row */
+.rap-stack-row {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #eef2ff;
+  border-radius: 6px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.rap-stack-row:hover {
+  background: #dbeafe;
+}
+/* ================= RAP FAILURE PANEL (COMPACT + RED TONE) ================= */
+
+/* ================= RAP FAILURE STACK — FULL WIDTH ================= */
+
+.rap-stack {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Force stack to occupy full row */
+.diag-card + .rap-stack {
+  grid-column: 1 / -1;
+}
+
+
+/* Category block */
+.rap-stack-group {
+  background: #fff;
+  border: 1px solid #f1c2c2;
+  border-left: 4px solid #dc2626; /* red indicator */
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Category title */
+.rap-stack-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed #f3b4b4;
+}
+
+/* Failure list */
+.rap-stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Failure row */
+.rap-stack-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+  background: #fff1f2;        /* soft red */
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #7f1d1d;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Hover */
+.rap-stack-row:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* Arrow marker */
+.rap-stack-row::before {
+  content: "⛔";
+  font-size: 11px;
+  color: #dc2626;
+}
+@media (max-width: 900px) {
+  .rap-stack {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 1200px) {
+  .rap-stack {
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+  }
+}
+
+/* === FORCE DROPDOWN VISIBILITY FIX === */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown.open .dropdown-menu {
+  display: block;
+}
+
+/* ===== FAILURE DROPDOWN – HOVER + NO LAYOUT SHIFT ===== */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  display: none;
+  z-index: 9999;
+}
+
+.dropdown.open .dropdown-menu {
+  display: block;
+}
+
+/* Ensure stacks don’t push layout */
+.rap-stack {
+  position: relative;
+}
+/* ================= FORCE UNIT / TRX / PA DROPDOWNS VISIBLE ================= */
+
+
+
+
+/* ===============================
+   FAILURE ID DROPDOWN FIX
+   =============================== */
+
+.failure-dropdown {
+  position: absolute;
+  z-index: 50;
+  width: 100%;
+  max-width: 100%;
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+  box-sizing: border-box;
+}
+
+.failure-dropdown .options {
+  max-height: 220px;          /* prevents runaway height */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* option item */
+.failure-dropdown .option {
+  white-space: normal;        /* allow wrapping */
+  word-break: break-word;     /* break long tokens */
+  line-height: 1.4;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* hover */
+.failure-dropdown .option:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+
+/* ===============================
+   FAILURE STACK FIX
+   =============================== */
+
+.rap-stack,
+.unit-stack,
+.trx-stack,
+.pa-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.failure-pill {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.3;
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+.field {
+  position: relative;
+}
+/* ================= FAILURE ID DROPDOWN — HARD LIMIT ================= */
+
+.dropdown-menu {
+  max-height: 280px;           /* 👈 controls dropdown height */
+  overflow: hidden;
+}
+
+.dropdown-options {
+  max-height: 220px;           /* 👈 scroll only options */
+  overflow-y: auto;
+}
+
+/* Prevent long text breaking layout */
+.dropdown-option,
+.dropdown-options label {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Keep dropdown above cards, not page */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 9999;
+}
+/* ================= FAILURE STACK WRAP FIX ================= */
+
+.rap-stack-row,
+.rap-stack-list div {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+/* ================= FAILURE ID DROPDOWN ================= */
+
+.failure-dropdown,
+.dropdown-menu {
+  max-height: 260px;
+  overflow: hidden;
+}
+
+.dropdown-options {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Prevent text overflow */
+.dropdown-option,
+.dropdown-options label {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Ensure dropdown overlays UI properly */
+.dropdown-menu {
+  position: absolute;
+  z-index: 9999;
+}
+/* ================= FAILURE STACK ================= */
+
+.rap-stack-list,
+.rap-stack-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rap-stack-row div {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.rap-stack-row {
+  display: flex;
+  align-items: center;     /* 🔑 FIX */
+  gap: 8px;
+}
+
+.failure-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.failure-pill {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a8a;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .failure-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.part-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr auto;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.part-row button {
+  border: none;
+  background: #0b3c8c;
+  color: #fff;
+  border-radius: 8px;
+  width: 36px;
+  cursor: pointer;
+}
+
+/* ================= RAP FAILURE STACK – CARD GRID ================= */
+
+.rap-stack {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr)); /* 👈 3 per row */
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .rap-stack {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .rap-stack {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================= CATEGORY CARD ================= */
+
+.rap-stack-group {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  border: 1px solid #f1c2c2;
+  border-left: 5px solid #dc2626;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* Hover animation (same family as visual_inspection caps) */
+.rap-stack-group:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+}
+
+/* ================= CATEGORY TITLE ================= */
+
+.rap-stack-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #f3b4b4;
+}
+
+/* ================= FAILURE LIST ================= */
+
+.rap-stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ================= FAILURE ROW ================= */
+
+.rap-stack-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #7f1d1d;
+  white-space: normal;
+  word-break: break-word;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+/* Hover on individual failure */
+.rap-stack-row:hover {
+  background: #fee2e2;
+  transform: translateX(2px);
+}
+
+/* Icon */
+/* Fail icon before number */
+.rap-stack-row::before {
+  content: "⛔";
+  font-size: 12px;
+  color: #dc2626;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.rap-stack-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* ================= CAPS HOVER ANIMATION (DIAGNOSIS) ================= */
+
+/* Base cap styling enhancement */
+.cap-pill {
+  transition: 
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+  cursor: default;
+}
+
+/* Hover effect – SAME FEEL AS VISUAL INSPECTION */
+.cap-pill:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+}
+
+/* PASS hover refinement */
+.cap-pill.pass:hover {
+  background: #dcfce7; /* slightly richer green */
+}
+
+/* FAIL hover refinement */
+.cap-pill.fail:hover {
+  background: #fee2e2; /* slightly richer red */
+}
+
+/* NA hover (very subtle) */
+.cap-pill.na:hover {
+  background: #f3f4f6;
+}
+/* Rounded card feel like Visual Inspection */
+.cap-pill {
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+/* ================= MODULE DETAILS ================= */
+
+.module-block {
+  margin-bottom: 18px;
+}
+
+.module-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 8px;
+}
+
+.module-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 1.4fr auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.module-row input {
+  width: 100%;
+}
+
+.row-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.row-btn.add {
+  background: #0b3c8c;
+  color: #fff;
+}
+
+.row-btn.remove {
+  background: #dc2626;
+  color: #fff;
+}
+
+.row-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* ================= MODULE DETAILS ================= */
+
+.module-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.module-card {
+  background: #ffffff;
+  border: 1px solid #e3ebf6;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+.module-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.module-row.base {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.module-row .field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.module-row input {
+  width: 100%;
+}
+
+/* ===== ICON BUTTONS ===== */
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #e6efff;
+  color: #0b3c8c;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background: #dbe7ff;
+}
+
+/* Remove (X) */
+.remove-btn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.remove-btn:hover {
+  background: #fecaca;
+}
+
+/* ================= MODULE UI ================= */
+
+.module-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.module-card {
+  background: #f9fbff;
+  border: 1px solid #e3ebf6;
+  border-radius: 16px;
+  padding: 18px 20px;
+}
+
+/* Header */
+.module-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+/* ADD button */
+.add-btn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #dbe4f0;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-btn:hover {
+  background: #eef5ff;
+  border-color: #c7d2fe;
+}
+
+/* Rows container */
+.module-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Row */
+.module-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  position: relative;
+}
+
+/* Added rows get card feel */
+.module-row.added {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* Remove button (REAL element) */
+.remove-btn {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Show only on hover */
+.module-row.added:hover .remove-btn {
+  display: flex;
+}
+
+/* Labels */
+.module-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+  display: block;
+}
+.module-row {
+  position: relative;   /* 🔑 THIS IS THE FIX */
+}
+.remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 6px 14px rgba(220,38,38,0.25);
+  transition: all 0.15s ease;
+}
+
+/* Only show on hover */
+.module-row:not(:first-child) .remove-btn {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.module-row.added:hover .remove-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Hover feedback */
+.remove-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.1);
+}
+.module-card {
+  background: #f8fbff;
+  border: 1px solid #e3ebf6;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 10px;
+}
+
+.add-btn {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #1d4ed8;
+  border-radius: 18px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #e0e7ff;
+}
+
+.module-row {
+  position: relative; /* 🔑 REQUIRED */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.module-row:not(.base) {
+  background: #ffffff;
+  border: 1px dashed #e5e7eb;
+  margin-top: 10px;
+}
+
+/* ❌ DELETE BUTTON — FINAL CORRECT */
+.remove-row {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #dc2626;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+}
+
+.module-row:not(.base):hover .remove-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-row:hover {
+  background: #fee2e2;
+}
+/* 🔥 HARD KILL ALL LEGACY DELETE BUTTONS */
+.row-btn,
+.remove-btn,
+.icon-btn,
+button.row-btn,
+button.remove-btn {
+  display: none !important;
+}
+.module-row {
+  position: relative;
+}
+
+/* CLEAN, NORMAL DELETE ❌ */
+.remove-row {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 18px;
+  cursor: pointer;
+  display: none;
+}
+
+/* Show only on hover */
+.module-row:not(.base):hover .remove-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-row:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+/* ================= MODULE DETAILS (CLEAN) ================= */
+
+.module-card {
+  background: #f9fbff;
+  border: 1px solid #e3ebf6;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin-bottom: 10px;
+}
+
+/* ADD pill */
+.module-add {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #dbe4f0;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.module-add:hover {
+  background: #eef5ff;
+}
+
+/* Rows */
+.module-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.module-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.module-row:not([data-base="1"]) {
+  background: #ffffff;
+  border: 1px dashed #e5e7eb;
+}
+
+/* DELETE ICON — ONE CLASS ONLY */
+.module-row-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  display: none;
+  user-select: none;
+}
+
+/* Show ONLY on hover, NEVER on base row */
+.module-row:not([data-base="1"]):hover .module-row-delete {
+  display: block;
+}
+
+.module-row-delete:hover {
+  color: #111827;
+}
+/* ===== MODULE SCANNER ===== */
+
+.scan-btn {
+  margin-left: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.scan-btn:hover {
+  background: #e0e7ff;
+}
+
+/* Modal */
+.scan-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.scan-panel {
+  background: #ffffff;
+  border-radius: 14px;
+  width: 420px;
+  max-width: 90%;
+  padding: 16px 18px 18px;
+}
+
+.scan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+.scan-header button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.scan-body {
+  margin-top: 14px;
+}
+
+.scan-hint {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+#scanInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+/* ===============================
+   DIAGNOSIS – MODULE SCAN BUTTON
+   =============================== */
+
+.module-scan-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 18px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  border: 1px solid #c7d2fe;
+
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+  overflow: hidden;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* hover lift (subtle, premium) */
+.module-scan-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+}
+
+/* icon */
+.ms-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* scan line animation */
+.ms-scan-line {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(37, 99, 235, 0.28) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: moduleScanMove 2.4s infinite;
+  pointer-events: none;
+}
+
+/* soft breathing outline */
+.module-scan-pill::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  animation: moduleScanPulse 2.4s infinite;
+}
+
+/* animations */
+
+
+/* ===============================
+   MINI QR SCANNER BUTTON (DIAGNOSIS)
+   =============================== */
+
+.scan-qr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 8px 18px 8px 10px;
+  border-radius: 999px;
+
+  border: 1px solid #c7d2fe;
+  background: linear-gradient(90deg, #eef2ff, #f8fbff);
+
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d4ed8;
+
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scan-qr-btn:hover {
+  background: linear-gradient(90deg, #e0e7ff, #f1f5ff);
+  box-shadow: 0 6px 18px rgba(29, 78, 216, 0.18);
+}
+
+/* ==== QR BOX ==== */
+.qr-box {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #c7d2fe;
+
+  position: relative;
+  overflow: hidden;
+
+  /* QR look */
+  background-image:
+    linear-gradient(#1e3a8a 0 0),
+    linear-gradient(#1e3a8a 0 0),
+    linear-gradient(#1e3a8a 0 0),
+    linear-gradient(#1e3a8a 0 0);
+  background-size: 6px 6px;
+  background-position:
+    4px 4px,
+    calc(100% - 10px) 4px,
+    4px calc(100% - 10px),
+    calc(100% - 10px) calc(100% - 10px);
+  background-repeat: no-repeat;
+}
+
+/* ==== SCANNING LINE ==== */
+.qr-scan-line {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: -6px;
+  height: 4px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #f59e0b,
+    transparent
+  );
+
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+
+  animation: qr-scan 1.6s ease-in-out infinite;
+}
+
+/* ==== TEXT ==== */
+.scan-text {
+  white-space: nowrap;
+}
+
+/* ==== KEYFRAMES ==== */
+
+
+/* ===============================
+   DIAGNOSIS – VIDEO SCAN BUTTON
+   =============================== */
+
+.scan-video-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 16px 6px 8px;
+  border-radius: 999px;
+
+  background: linear-gradient(90deg, #eef2ff, #f8fbff);
+  border: 1px solid #c7d2fe;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d4ed8;
+
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.scan-video-btn:hover {
+  background: linear-gradient(90deg, #e0e7ff, #f1f5ff);
+  box-shadow: 0 8px 22px rgba(29, 78, 216, 0.2);
+}
+
+/* === VIDEO CONTAINER (KEY PART) === */
+.scan-video-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+
+  background: #ffffff;
+  border: 1px solid #c7d2fe;
+
+  overflow: hidden;            /* 🔑 prevents spill */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;              /* 🔑 keeps button compact */
+}
+
+/* === VIDEO ITSELF === */
+.scan-video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;           /* 🔑 no stretch */
+  pointer-events: none;        /* 🔑 click goes to button */
+}
+
+/* === TEXT === */
+.scan-label {
+  white-space: nowrap;
+}
+
+
+
+/* ===============================
+   DIAGNOSIS – PREMIUM SCAN BUTTON
+   =============================== */
+
+.scan-video-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 6px 18px 6px 10px;
+  border-radius: 999px;
+
+  background: linear-gradient(90deg, #eef2ff, #f8fbff);
+  border: 1.5px solid #b7c5ff;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e40af;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scan-video-btn:hover {
+  background: linear-gradient(90deg, #e0e7ff, #f1f5ff);
+  box-shadow:
+    0 6px 20px rgba(30, 64, 175, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.6);
+}
+
+/* === VIDEO HOLDER === */
+.scan-video-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+
+  background: #ffffff;
+  border: 1px solid #c7d2fe;
+
+  overflow: hidden;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.6);
+}
+
+/* === VIDEO === */
+.scan-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* === TEXT === */
+.scan-label {
+  white-space: nowrap;
+}
+/* ===============================
+   SCAN CTA – MODERN / FINTECH
+   =============================== */
+
+.scan-cta-wrap {
+  position: relative;
+  display: inline-block;
+  margin-top: 16px;
+}
+
+/* ===== BUTTON ===== */
+.scan-cta-btn {
+  padding: 16px 26px 16px 64px;
+  border-radius: 18px;
+  border: none;
+
+  background: linear-gradient(135deg, #6ee7b7, #60a5fa);
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow:
+    0 14px 32px rgba(96, 165, 250, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.6);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 18px 40px rgba(96, 165, 250, 0.45),
+    inset 0 0 0 1px rgba(255,255,255,0.7);
+}
+
+/* ===== TEXT ===== */
+.scan-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.scan-text .title {
+  font-size: 15px;
+}
+
+.scan-text .sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* ===== VIDEO BADGE ===== */
+.scan-video-badge {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+
+  background: #ffffff;
+  overflow: hidden;
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.18),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+/* ===== VIDEO ===== */
+.scan-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.scan-video-fab {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+
+  background: #ffffff;
+  overflow: hidden;
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.35),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== VIDEO ===== */
+.scan-video-fab video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+/* ===============================
+   MODULE SCAN CTA (FINAL)
+   =============================== */
+
+.scan-cta-wrap {
+  display: inline-block;
+  margin-top: 14px;
+  position: relative;
+}
+
+/* OUTER BUTTON */
+.scan-cta-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 14px 24px 14px 64px;
+  border-radius: 16px;
+  border: none;
+
+  background: linear-gradient(135deg, #eef2ff, #f8fbff);
+  color: #0b3c8c;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow:
+    0 12px 28px rgba(11, 60, 140, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.65);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 36px rgba(11, 60, 140, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.75);
+}
+
+/* TEXT */
+.scan-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.scan-text .title {
+  font-size: 14px;
+}
+
+.scan-text .sub {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* VIDEO BADGE (INNER BUTTON FEEL) */
+.scan-video-fab {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+
+  background: #ffffff;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.25),
+    inset 0 0 0 1px rgba(0,0,0,0.06);
+
+  pointer-events: none; /* 🔑 click passes to button */
+}
+
+/* VIDEO */
+.scan-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.scan-video-fab::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #2563eb,
+    transparent
+  );
+  animation: scanLine 1.6s infinite;
+}
+
+
+/* ===== SCAN CTA – LIGHT GREENISH (APPROVED) ===== */
+.scan-cta-btn {
+  background: linear-gradient(
+    135deg,
+    #e8f7f1,
+    #f4fcf9
+  );
+  color: #064e3b; /* deep teal-green text */
+}
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 36px rgba(34, 197, 94, 0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.75);
+}
+.scan-video-fab {
+  background: #ffffff;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+
+/* LOTTIE CONTAINER */
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+}
+.scan-video-fab {
+  width: 42px;
+  height: 42px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+}
+/* 🔥 HARD REMOVE LEGACY FAKE SCAN LINE */
+.scan-video-fab::after {
+  display: none !important;
+  content: none !important;
+}
+.scan-cta-btn {
+  background: linear-gradient(
+    135deg,
+    #e8f7f1,
+    #f4fcf9
+  );
+  color: #030113;
+}
+.scan-cta-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 32px rgba(2, 31, 79, 0.28),
+    inset 0 0 0 1px rgba(255,255,255,0.85);
+}
+.scan-video-fab {
+  background: #f8f5f5;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+}
+
+
+/* ===== SCAN MODAL GRID ===== */
+.scan-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.scan-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scan-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* VISUAL BLOCK */
+.scan-anim-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e8f7f1, #f4fcf9);
+  border: 1px dashed rgba(34, 197, 94, 0.35);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-anim-label {
+  font-size: 12px;
+  color: #475569;
+}
+
+/* LOTTIE */
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+}
+.scan-anim-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
+
+  background: linear-gradient(
+    135deg,
+    #f8fafc,
+    #ffffff
+  );
+
+  border: 1px solid rgba(148, 163, 184, 0.35);
+
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+/* ===============================
+   DISASSEMBLY LAYOUT
+   =============================== */
+
+.disassembly-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.disassembly-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.disassembly-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Mobile fallback */
+@media (max-width: 900px) {
+  .disassembly-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* FIX: Contain Disassembly Status area */
+.disassembly-left {
+  width: 260px;
+  min-width: 260px;
+}
+
+/* Ensure dropdown does not overflow into module area */
+.disassembly-left select {
+  width: 100%;
+}
+/* Add breathing room between status card and modules */
+.disassembly-layout {
+  column-gap: 28px;
+}
+/* 🔑 HARD FIX — LOTTIE VISIBILITY */
+.scan-video-fab {
+  width: 42px;
+  height: 42px;
+}
+
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+  min-width: 42px;
+  min-height: 42px;
+}
+/* 🔒 FINAL AUTHORITY — DO NOT DUPLICATE */
+.scan-lottie {
+  width: 100% !important;
+  height: 100% !important;
+}
+/* 🔒 HARD FIX — DISASSEMBLY SCAN BUTTON STABILITY */
+.disassembly-left {
+  position: relative;
+}
+
+.scan-cta-wrap {
+  width: 100%;
+  display: block;
+}
+
+.scan-cta-btn {
+  width: 100%;
+  max-width: 240px;   /* keeps it compact */
+}
+/* ===============================
+   DISASSEMBLY STATUS – HARD FIX
+   =============================== */
+
+/* Only affect disassembly block */
+.disassembly-left .diag-card {
+  display: flex;                 /* 🔑 NOT grid */
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Select stays contained */
+.disassembly-left .diag-left {
+  width: 100%;
+}
+
+/* Hint text wraps normally */
+.disassembly-left .diag-right {
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+  white-space: normal;           /* 🔑 THIS FIXES TEXT */
+}
+
+/* Select cannot overflow */
+.disassembly-left select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.scan-lottie {
+  width: 100%;
+  height: 100%;
+  min-width: 80px;
+  min-height: 80px;
+}
+.field-error {
+  border: 2px solid #dc2626 !important;
+  background: #fff5f5;
+}
+
+/* ================= DIAGNOSIS VALIDATION ================= */
+
+.field-error select,
+.field-error input,
+.field-error textarea {
+  border: 2px solid #dc2626 !important;
+  background: #fff5f5;
+}
+
+.field-error label {
+  color: #991b1b;
+}
+
+.alert.alert-danger {
+  background: #fdeaea;
+  border: 1px solid #f5c2c7;
+  color: #842029;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+/* ================= MODULE ROW – 2 COLUMN ================= */
+
+.module-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+
+/* ===============================
+   FAULTY MODULE DETAILS — FORCE 3 COLUMNS
+   =============================== */
+
+#faulty-module-section .module-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+/* DELETE ICON */
+.module-row-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  color: #6b7280;
+  cursor: pointer;
+  display: none;
+}
+
+/* show only for added rows */
+.module-row:not([data-base="1"]):hover .module-row-delete {
+  display: block;
+}
+.scan-block {
+  margin-bottom: 20px;
+}
+
+.scan-row {
+  display: flex;
+  gap: 12px;
+}
+
+.scan-input {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn-scan {
+  background: #0b5ed7;
+  color: #fff;
+  padding: 0 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-scan:hover {
+  background: #084298;
+}
+
+.tag-preview {
+  margin-top: 12px;
+  width: 100%;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.scan-modal {
+  z-index: 2147483647 !important; /* highest possible */
+}
+/* 🔑 HARD FIX — MODULE SCAN MODAL */
+#moduleScanModal {
+  z-index: 2147483647 !important;
+}
+/* ===== SCAN UNIT CTA (MODULE-STYLE) ===== */
+
+.scan-module-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 14px 20px;
+  min-width: 280px;
+
+  border-radius: 18px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f8fffb);
+  box-shadow:
+    0 14px 32px rgba(2,31,79,.18),
+    inset 0 0 0 1px rgba(34,197,94,.25);
+
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.scan-module-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 36px rgba(2,31,79,.22),
+    inset 0 0 0 1px rgba(34,197,94,.35);
+}
+
+/* QR BOX */
+.scan-qr {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  position: relative;
+  box-shadow: inset 0 0 0 1px #d1fae5;
+}
+
+.scan-qr-frame {
+  position: absolute;
+  inset: 6px;
+  border: 2px solid #22c55e;
+  border-radius: 6px;
+  animation: scanFrame 1.8s linear infinite;
+}
+
+/* TEXT */
+.scan-text-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.scan-sub {
+  font-size: 12px;
+  color: #16a34a;
+}
+
+/* PULSE DOT */
+.scan-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  margin-left: auto;
+  box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+  animation: pulse 1.8s infinite;
+}
+
+/* ANIMATIONS */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34,197,94,.6); }
+  70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+@keyframes scanFrame {
+  0% { opacity: .2; }
+  50% { opacity: 1; }
+  100% { opacity: .2; }
+}
+/* ===============================
+   SCAN UNIT CTA — FINAL AUTHORITY
+   =============================== */
+
+.scan-unit-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 280px;
+
+  padding: 14px 18px;
+  border-radius: 18px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f8fffb);
+  color: #064e3b;
+
+  box-shadow:
+    0 14px 32px rgba(2, 31, 79, 0.18),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.25);
+
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.scan-unit-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 36px rgba(2, 31, 79, 0.22),
+    inset 0 0 0 1px rgba(34, 197, 94, 0.35);
+}
+
+/* QR box */
+.scan-unit-qr {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ffffff;
+  position: relative;
+  box-shadow: inset 0 0 0 1px #d1fae5;
+}
+
+.scan-unit-frame {
+  position: absolute;
+  inset: 6px;
+  border: 2px solid #22c55e;
+  border-radius: 6px;
+  animation: scanFrame 1.8s linear infinite;
+}
+
+/* Text */
+.scan-unit-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-unit-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.scan-unit-sub {
+  font-size: 12px;
+  color: #16a34a;
+}
+
+/* Pulse dot */
+.scan-unit-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  margin-left: auto;
+  box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.6); }
+  70%  { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+@keyframes scanFrame {
+  0%   { opacity: .2; }
+  50%  { opacity: 1; }
+  100% { opacity: .2; }
+}
+/* =========================================
+   SHARED SCAN CTA (MODULE + UNIT)
+   ========================================= */
+
+.scan-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 16px 22px;
+  border-radius: 20px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf9);
+  box-shadow:
+    0 18px 40px rgba(2, 31, 79, 0.18),
+    inset 0 0 0 1px rgba(34,197,94,0.25);
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.scan-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 46px rgba(2, 31, 79, 0.24),
+    inset 0 0 0 1px rgba(34,197,94,0.35);
+}
+
+.scan-qr-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+.scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-cta-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.scan-cta-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+}
+/* =========================================
+   SCAN CTA — SINGLE SOURCE OF TRUTH
+   ========================================= */
+
+.scan-cta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 18px 24px;
+  border-radius: 22px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf9);
+  box-shadow:
+    0 18px 40px rgba(2, 31, 79, 0.18),
+    inset 0 0 0 1px rgba(34,197,94,0.25);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.scan-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 48px rgba(2, 31, 79, 0.26),
+    inset 0 0 0 1px rgba(34,197,94,0.35);
+}
+
+/* ICON BOX */
+.scan-cta-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(15,23,42,0.08),
+    0 6px 14px rgba(2,31,79,0.12);
+}
+
+/* TEXT */
+.scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.scan-cta-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #064e3b;
+}
+
+.scan-cta-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: #059669;
+}
+
+</style>
+<script>
+/* =====================================================
+   SINGLE SCAN ENGINE — FINAL & CLEAN
+   ===================================================== */
+
+let SCAN_MODE = null; // "UNIT" | "MODULE"
+let MODULE_TYPE = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const scanModal   = document.getElementById("scanModal");
+  const scanInput   = document.getElementById("scanInputUniversal");
+  const scanTitle   = document.getElementById("scanTitle");
+  const scanHint    = document.getElementById("scanHint");
+  const scanStatus  = document.getElementById("scanStatus");
+  const closeBtn    = document.getElementById("scanCloseBtn");
+
+  const unitBtn     = document.getElementById("unitScanBtn");
+  const moduleBtn   = document.getElementById("moduleScanBtn");
+  const scanForm    = document.getElementById("scanForm");
+  const scanRfid    = document.getElementById("scanRfid");
+
+  if (!scanModal || !scanInput) return;
+
+  /* ---------- OPEN ---------- */
+  function openScan(mode) {
+    SCAN_MODE = mode;
+    MODULE_TYPE = null;
+
+    scanTitle.textContent =
+      mode === "UNIT" ? "Scan Unit RFID / QR" : "Scan Module QR / RFID";
+
+    scanHint.textContent =
+      mode === "UNIT"
+        ? "Scan Unit and press Enter"
+        : "Select module type, then scan";
+
+    scanStatus.textContent = "Waiting for scan";
+    scanModal.style.display = "flex";
+
+    document.getElementById("moduleTypeSelect").style.display =
+      mode === "MODULE" ? "block" : "none";
+
+    scanInput.value = "";
+    setTimeout(() => scanInput.focus(), 80);
+  }
+
+  /* ---------- CLOSE ---------- */
+  function closeScan() {
+    scanModal.style.display = "none";
+    scanInput.value = "";
+  }
+
+  /* ---------- BUTTONS ---------- */
+  unitBtn?.addEventListener("click", () => openScan("UNIT"));
+  moduleBtn?.addEventListener("click", () => openScan("MODULE"));
+
+  closeBtn?.addEventListener("click", closeScan);
+  scanModal.addEventListener("click", e => {
+    if (e.target === scanModal) closeScan();
+  });
+
+  /* ---------- MODULE TYPE ---------- */
+  document.querySelectorAll(".module-choice").forEach(btn => {
+    btn.addEventListener("click", () => {
+      MODULE_TYPE = btn.dataset.type;
+      scanStatus.textContent =
+        `Selected ${MODULE_TYPE.toUpperCase()} — scan now`;
+      scanInput.focus();
+    });
+  });
+
+  /* ---------- INPUT ---------- */
+  scanInput.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+
+    const val = scanInput.value.trim();
+    if (!val) return;
+
+    if (SCAN_MODE === "UNIT") {
+      scanRfid.value = val;
+      closeScan();
+      scanForm.submit(); // 🔑 THIS LOADS UNIT
+      return;
+    }
+
+    if (SCAN_MODE === "MODULE") {
+      if (!MODULE_TYPE) {
+        alert("Select module type first");
+        return;
+      }
+      injectModule(MODULE_TYPE, val);
+      scanStatus.textContent = "Module added";
+      setTimeout(closeScan, 300);
+    }
+  });
+});
+
+/* ---------- MODULE INJECT ---------- */
+function injectModule(type, raw) {
+  const data = {};
+  raw.split("|").forEach(p => {
+    const [k,v] = p.split("=");
+    if (k && v) data[k.trim()] = v.trim();
+  });
+
+  if (!data.PN || !data.SN) {
+    alert("Invalid module QR format");
+    return;
+  }
+
+  const card = document.querySelector(
+    `.module-card[data-module="${type}"]`
+  );
+  if (!card) {
+    alert("Module section missing");
+    return;
+  }
+
+  const rows = card.querySelector(".module-rows");
+  const base = rows.querySelector(".module-row[data-base='1']");
+
+  for (const i of rows.querySelectorAll("input[name$='_serial_no[]']")) {
+    if (i.value === data.SN) {
+      alert("Module already added");
+      return;
+    }
+  }
+
+  const row = base.cloneNode(true);
+  row.removeAttribute("data-base");
+
+  const inputs = row.querySelectorAll("input");
+  inputs[0].value = data.PN;
+  inputs[1].value = data.SN;
+
+  const del = document.createElement("span");
+  del.className = "module-row-delete";
+  del.textContent = "×";
+  del.onclick = () => row.remove();
+  row.appendChild(del);
+
+  rows.appendChild(row);
+}
+</script>
+
+{% endif %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn   = document.getElementById("unitScanBtn");
+  const modal = document.getElementById("unitScanModal");
+  const close = document.getElementById("unitScanClose");
+  const input = document.getElementById("unitScanInput");
+  const rfid  = document.getElementById("scanRfid");
+  const form  = document.getElementById("scanForm");
+
+  if (!btn || !modal || !input || !rfid || !form) return;
+
+  btn.onclick = () => {
+    modal.style.display = "flex";
+    setTimeout(() => input.focus(), 80);
+  };
+
+  close.onclick = () => modal.style.display = "none";
+  modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+
+  input.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+
+    const val = input.value.trim();
+    if (!val) return;
+
+    rfid.value = val;          // 🔑 fill RFID
+    input.value = "";
+
+    modal.style.display = "none";
+    form.submit();             // 🔑 THIS LOADS UNIT
+  });
+});
+</script>
+
+<script>
+/* =========================================================
+   GLOBAL STATE
+   ========================================================= */
+let scanAnim  = null;
+let modalAnim = null;
+let CURRENT_RID = "{{ unit.rid if unit else '' }}";
+
+/* =========================================================
+   CTA BUTTON LOTTIE
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("scanLottie");
+  if (!container || !window.lottie) return;
+
+  scanAnim = lottie.loadAnimation({
+    container,
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: "{{ url_for('static', filename='video/qr-code-scanner.json') }}"
+  });
+
+  scanAnim.addEventListener("DOMLoaded", () => {
+    scanAnim.goToAndPlay(10, true);
+  });
+});
+
+/* =========================================================
+   MODAL OPEN / CLOSE
+   ========================================================= */
+function openScanModal() {
+  const modal = document.getElementById("moduleScanModal");
+  const box   = document.getElementById("modalScanLottie");
+  const input = document.getElementById("scanInput");
+  if (!modal || !box) return;
+
+  modal.style.display = "flex";
+  setScanState("waiting");
+
+  setTimeout(() => {
+    if (!modalAnim && window.lottie) {
+      modalAnim = lottie.loadAnimation({
+        container: box,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='video/tag.json') }}"
+      });
+    } else if (modalAnim) {
+      modalAnim.play();
+    }
+  }, 60);
+
+  setTimeout(() => input && input.focus(), 80);
+}
+
+function closeScanModal() {
+  const modal = document.getElementById("moduleScanModal");
+  if (!modal) return;
+  modal.style.display = "none";
+  if (modalAnim) modalAnim.pause();
+}
+
+function setScanState(state) {
+  const label = document.querySelector(".scan-anim-label");
+  if (!label) return;
+  if (state === "waiting") label.textContent = "Waiting for module";
+  if (state === "reading") label.textContent = "Reading module…";
+  if (state === "done")    label.textContent = "Module registered";
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn   = document.getElementById("moduleScanBtn");
+  const modal = document.getElementById("moduleScanModal");
+  const close = document.getElementById("scanClose");
+  const input = document.getElementById("scanInput");
+
+  if (!btn || !modal || !input) return;
+
+  btn.onclick = () => openScanModal();
+  close.onclick = () => closeScanModal();
+
+  modal.onclick = e => {
+    if (e.target === modal) closeScanModal();
+  };
+
+  input.addEventListener("keydown", async e => {
+    if (e.key !== "Enter") return;
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    try {
+      setScanState("reading");
+      await handleModuleScan(raw);
+      setScanState("done");
+      input.value = "";
+      setTimeout(closeScanModal, 400);
+    } catch (err) {
+      alert(err);
+      setScanState("waiting");
+    }
+  });
+});
+
+async function handleModuleScan(text) {
+  if (!CURRENT_RID) throw "Parent RID missing";
+
+  const parts = text.split("|");
+  const type  = parts[0].toUpperCase();
+  if (!["FAN","PSU","TRX"].includes(type)) {
+    throw "Invalid module type";
+  }
+
+  const data = {};
+  parts.slice(1).forEach(p => {
+    const [k,v] = p.split("=");
+    if (k && v) data[k] = v;
+  });
+
+  if (!data.PN || !data.SN) throw "Invalid module QR format";
+
+  injectIntoForm(type, data);
+
+  const res = await fetch("/api/register-module", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    parent_rid: CURRENT_RID,
+    module_type: type,
+    product_id: data.PID || null,
+    part_no: data.PN,
+    serial_no: data.SN,
+    user: "{{ request.form.get('user','') }}"
+  })
+});
+
+
+  if (!res.ok) throw await res.text();
+}
+
+function injectIntoForm(type, data) {
+  const card = document.querySelector(`.module-card[data-module="${type.toLowerCase()}"]`);
+  if (!card) throw "Module section missing";
+
+  const rows = card.querySelector(".module-rows");
+  const base = rows.querySelector(".module-row[data-base='1']");
+
+  for (const i of rows.querySelectorAll("input[name$='_serial_no[]']")) {
+    if (i.value === data.SN) throw "Module already added";
+  }
+
+  const row = base.cloneNode(true);
+  row.removeAttribute("data-base");
+
+  const inputs = row.querySelectorAll("input");
+inputs[0].value = data.PN;
+inputs[1].value = data.SN;
+// inputs[2] (location) left EMPTY for manual entry
+
+
+  const del = document.createElement("span");
+  del.className = "module-row-delete";
+  del.textContent = "×";
+  row.appendChild(del);
+
+  rows.appendChild(row);
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.querySelectorAll(".module-add").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".module-card");
+      if (!card) return;
+
+      const rows = card.querySelector(".module-rows");
+      const base = rows.querySelector(".module-row[data-base='1']");
+      if (!base) return;
+
+      const clone = base.cloneNode(true);
+      clone.removeAttribute("data-base");
+
+      // clear inputs
+      clone.querySelectorAll("input").forEach(i => i.value = "");
+
+      // add delete button
+      const del = document.createElement("span");
+      del.className = "module-row-delete";
+      del.textContent = "×";
+      del.onclick = () => clone.remove();
+
+      clone.appendChild(del);
+      rows.appendChild(clone);
+    });
+  });
+
+});
+</script>
+
+<script>
+function initFailureController(cfg) {
+  const {
+    resultId, categoryId, dropdownId,
+    inputId, searchId, optionsId,
+    stackId, onlyClass, hiddenName, data
+  } = cfg;
+
+  const resultEl  = document.getElementById(resultId);
+  const category  = document.getElementById(categoryId);
+  const dropdown  = document.getElementById(dropdownId);
+  const input     = document.getElementById(inputId);
+  const search    = document.getElementById(searchId);
+  const options   = document.getElementById(optionsId);
+  const stack     = document.getElementById(stackId);
+  const onlyEls   = document.querySelectorAll("." + onlyClass);
+
+  if (!resultEl) return;
+  const selected = {};
+  const globalIndex = [];
+
+  Object.entries(data || {}).forEach(([cat, arr]) => {
+    arr.forEach(label => {
+      globalIndex.push({
+        category: cat,
+        label,
+        id: label.split(" - ")[0]
+      });
+    });
+  });
+
+  resultEl.addEventListener("change", () => {
+    const show = resultEl.value === "FAIL";
+    onlyEls.forEach(el => el.style.display = show ? "block" : "none");
+    dropdown.classList.remove("open");
+
+    if (!show) {
+      stack.innerHTML = "";
+      Object.keys(selected).forEach(k => delete selected[k]);
+      document.querySelectorAll(`input[name="${hiddenName}"]`).forEach(i => i.remove());
+    }
+  });
+
+  category.addEventListener("change", () => rebuild(false));
+  input.addEventListener("click", e => {
+    e.stopPropagation();
+    if (!category.value) return;
+    dropdown.classList.toggle("open");
+  });
+
+  search.addEventListener("input", () => rebuild(true));
+
+  function rebuild(searchMode) {
+    options.innerHTML = "";
+    let src = [];
+
+    if (searchMode && search.value) {
+      src = globalIndex.filter(x =>
+        x.label.toLowerCase().includes(search.value.toLowerCase())
+      );
+    } else {
+      if (!category.value || !data[category.value]) return;
+      selected[category.value] ||= [];
+      src = data[category.value]
+        .filter(l => !selected[category.value].includes(l))
+        .map(l => ({ category: category.value, label: l, id: l.split(" - ")[0] }));
+    }
+
+    src.forEach(item => {
+      const d = document.createElement("div");
+      d.className = "dropdown-option";
+      d.textContent = item.label;
+      d.onclick = () => {
+        selected[item.category] ||= [];
+        selected[item.category].push(item.label);
+
+        const h = document.createElement("input");
+        h.type = "hidden";
+        h.name = hiddenName;
+        h.value = item.id;
+        h.dataset.val = item.label;
+        document.getElementById("diagnosisForm").appendChild(h);
+
+        render();
+        dropdown.classList.remove("open");
+      };
+      options.appendChild(d);
+    });
+  }
+
+  function render() {
+    stack.innerHTML = "";
+    Object.entries(selected).forEach(([cat, items]) => {
+      if (!items.length) return;
+      const g = document.createElement("div");
+      g.className = "rap-stack-group";
+      g.innerHTML = `<div class="rap-stack-title">${cat}</div>`;
+      const l = document.createElement("div");
+      l.className = "rap-stack-list";
+
+      items.forEach(label => {
+        const r = document.createElement("div");
+        r.className = "rap-stack-row";
+        r.textContent = label;
+        r.onclick = () => {
+          selected[cat] = selected[cat].filter(x => x !== label);
+          document.querySelectorAll(
+            `input[name="${hiddenName}"][data-val="${label}"]`
+          ).forEach(i => i.remove());
+          render();
+        };
+        l.appendChild(r);
+      });
+
+      g.appendChild(l);
+      stack.appendChild(g);
+    });
+  }
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const trxModule = document.getElementById("trx_module_result");
+  const bscan     = document.getElementById("trx-bscan-section");
+  const pa        = document.getElementById("trx-pa-section");
+
+  function syncTRX() {
+    const show = trxModule.value === "FAIL";
+    bscan.style.display = show ? "block" : "none";
+    pa.style.display    = show ? "block" : "none";
+
+    // 🔥 CRITICAL FIX — retrigger controller
+    if (show) {
+      const trxFail = document.getElementById("trx_result");
+      if (trxFail) trxFail.dispatchEvent(new Event("change"));
+    }
+  }
+
+  trxModule.addEventListener("change", syncTRX);
+  syncTRX();
+
+  initFailureController({
+    resultId: "rap_result",
+    categoryId: "rap_category",
+    dropdownId: "rapFailureDropdown",
+    inputId: "rapFailureInput",
+    searchId: "rapFailureSearch",
+    optionsId: "rapFailureOptions",
+    stackId: "rapStack",
+    onlyClass: "rap-only",
+    hiddenName: "rap_fail_ids[]",
+    data: {{ rap_failures | tojson }}
+  });
+
+  initFailureController({
+    resultId: "unit_result",
+    categoryId: "unit_category",
+    dropdownId: "unitFailureDropdown",
+    inputId: "unitFailureInput",
+    searchId: "unitFailureSearch",
+    optionsId: "unitFailureOptions",
+    stackId: "unitStack",
+    onlyClass: "unit-only",
+    hiddenName: "unit_fail_ids[]",
+    data: {{ unit_failures | tojson }}
+  });
+
+  initFailureController({
+    resultId: "trx_result",
+    categoryId: "trx_category",
+    dropdownId: "trxFailureDropdown",
+    inputId: "trxFailureInput",
+    searchId: "trxFailureSearch",
+    optionsId: "trxFailureOptions",
+    stackId: "trxStack",
+    onlyClass: "trx-only",
+    hiddenName: "trx_fail_ids[]",
+    data: {{ trx_failures | tojson }}
+  });
+
+  initFailureController({
+    resultId: "pa_result",
+    categoryId: "pa_category",
+    dropdownId: "paFailureDropdown",
+    inputId: "paFailureInput",
+    searchId: "paFailureSearch",
+    optionsId: "paFailureOptions",
+    stackId: "paStack",
+    onlyClass: "pa-only",
+    hiddenName: "pa_fail_ids[]",
+    data: {{ pa_failures | tojson }}
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("diagnosisForm");
+  const warn = document.getElementById("diagWarning");
+
+  if (!form) return;
+
+  form.addEventListener("submit", e => {
+    let valid = true;
+    warn.style.display = "none";
+
+    // clear old errors
+    document.querySelectorAll(".field-error").forEach(el =>
+      el.classList.remove("field-error")
+    );
+
+    /* ========= BASIC REQUIRED ========= */
+
+    function req(name) {
+      const el = form.querySelector(`[name="${name}"]`);
+      if (!el || !el.value) {
+        el?.closest(".field")?.classList.add("field-error");
+        valid = false;
+      }
+    }
+
+    req("pre_screening");
+    req("disassembly_status");
+
+    req("overall_result");
+
+    /* ========= FAILURE DEPENDENCIES ========= */
+
+    function requireFailure(resultId, hiddenName, sectionSelector) {
+      const result = document.getElementById(resultId);
+      if (!result || result.value !== "FAIL") return;
+
+      const selected = form.querySelectorAll(
+        `input[name="${hiddenName}"]`
+      );
+
+      if (selected.length === 0) {
+        valid = false;
+        document
+          .querySelectorAll(sectionSelector)
+          .forEach(el => el.classList.add("field-error"));
+      }
+    }
+
+    requireFailure("rap_result",  "rap_fail_ids[]",  ".rap-only");
+    requireFailure("unit_result", "unit_fail_ids[]", ".unit-only");
+    requireFailure("trx_result",  "trx_fail_ids[]",  ".trx-only");
+    requireFailure("pa_result",   "pa_fail_ids[]",   ".pa-only");
+
+    /* ========= FINAL ========= */
+
+    if (!valid) {
+      e.preventDefault();
+      warn.style.display = "block";
+      warn.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const faultySection = document.getElementById("faulty-module-section");
+
+  const controls = [
+    { key: "fan", el: document.querySelector('[name="fan_result"]') },
+    { key: "psu", el: document.querySelector('[name="psu_result"]') },
+    { key: "trx", el: document.getElementById("trx_module_result") }
+  ];
+
+  function syncFaultyModules() {
+    let anyFail = false;
+
+    controls.forEach(({ key, el }) => {
+      const card = document.querySelector(
+        `.module-card[data-faulty="${key}"]`
+      );
+
+      if (!el || !card) return;
+
+      if (el.value === "FAIL") {
+        card.style.display = "block";
+        anyFail = true;
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    faultySection.style.display = anyFail ? "block" : "none";
+  }
+
+  controls.forEach(c => {
+    if (c.el) {
+      c.el.addEventListener("change", syncFaultyModules);
+    }
+  });
+
+  // run once on load (refresh safe)
+  syncFaultyModules();
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const rfid = document.getElementById("scanRfid");
+
+  if (!rfid) return;
+
+  // Autofocus so USB scanner works immediately
+  rfid.focus();
+
+  // Allow Enter to submit scanForm
+  rfid.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.target.form.submit();
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn   = document.getElementById("moduleScanBtn");
+  const modal = document.getElementById("moduleScanModal");
+  const close = document.getElementById("scanClose");
+  const input = document.getElementById("scanInput");
+
+  if (!btn || !modal || !close || !input) return;
+
+  btn.addEventListener("click", () => {
+    modal.style.display = "flex";
+
+    // focus for USB scanner
+    setTimeout(() => input.focus(), 50);
+
+    // start animation safely
+    const box = document.getElementById("modalScanLottie");
+    if (box && window.lottie && !box.dataset.loaded) {
+      lottie.loadAnimation({
+        container: box,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "{{ url_for('static', filename='video/tag.json') }}"
+      });
+      box.dataset.loaded = "1";
+    }
+  });
+
+  close.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.style.display = "none";
+  });
+});
+</script>
+
+<script>
+/* =========================================================
+   HARD OVERRIDE — VISUAL INSPECTION STYLE SCAN ENGINE
+   ---------------------------------------------------------
+   - Kills all legacy scan logic
+   - Uses form submit only
+   - DOM-driven, predictable
+   ========================================================= */
+
+(function () {
+  "use strict";
+
+  /* -------------------------------------------------------
+     1. HARD RESET GLOBALS (neutralize old engines)
+     ------------------------------------------------------- */
+  window.openScan = function () {};
+  window.closeScan = function () {};
+  window.openScanModal = function () {};
+  window.SCAN_MODE = null;
+  window.MODULE_TYPE = null;
+
+  /* -------------------------------------------------------
+     2. DOM READY
+     ------------------------------------------------------- */
+  document.addEventListener("DOMContentLoaded", () => {
+
+    /* ---------- REQUIRED ELEMENTS ---------- */
+    const scanForm = document.getElementById("scanForm");
+    const rfidInput = scanForm?.querySelector('input[name="rfid"]');
+    const scanBtn = document.getElementById("scanBtn");
+
+    const expandedSection =
+      document.getElementById("viExpanded") ||
+      document.getElementById("diagnosisExpanded");
+
+    if (!scanForm || !rfidInput) {
+      console.warn("Override scan: required elements missing");
+      return;
+    }
+
+    /* ---------------------------------------------------
+       3. FORCE VISUAL-STYLE INPUT BEHAVIOUR
+       --------------------------------------------------- */
+
+    // Scanner sends ENTER → submit form
+    rfidInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        scanForm.submit();
+      }
+    });
+
+    // Button click = submit form
+    if (scanBtn) {
+      scanBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        scanForm.submit();
+      });
+    }
+
+    /* ---------------------------------------------------
+       4. SHOW CONTENT AFTER LOAD (SERVER-DRIVEN)
+       --------------------------------------------------- */
+
+    // If server rendered unit → show expanded section
+    if (expandedSection) {
+      const hasUnit =
+        document.body.innerHTML.includes("unit-summary-card") ||
+        document.body.innerHTML.includes("UNIT SUMMARY");
+
+      if (hasUnit) {
+        expandedSection.style.display = "block";
+      }
+    }
+
+    /* ---------------------------------------------------
+       5. SAFETY: DISABLE ALL OTHER SCAN BUTTONS
+       --------------------------------------------------- */
+    [
+      "unitScanBtn",
+      "moduleScanBtn",
+      "scanInputUniversal",
+      "scanModal"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      el.onclick = null;
+      el.onkeydown = null;
+    });
+
+    /* ---------------------------------------------------
+       6. UX POLISH (MATCH VISUAL INSPECTION)
+       --------------------------------------------------- */
+    rfidInput.setAttribute("autocomplete", "off");
+    rfidInput.focus();
+
+    console.log("✔ Visual-style scan override active");
+  });
+})();
+</script>
+<script>
+/* =========================================================
+   FINAL VISUAL-STYLE SCAN OVERRIDE (DIAGNOSIS)
+   ========================================================= */
+(function () {
+  "use strict";
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const scanForm = document.getElementById("scanForm");
+    const rfidInput = scanForm?.querySelector('input[name="rfid"]');
+    const engineerInput = scanForm?.querySelector('input[name="user"]');
+
+    if (!scanForm || !rfidInput) {
+      console.error("Scan override: scanForm or rfid missing");
+      return;
+    }
+
+    /* 🔑 ENTER KEY SUBMITS FORM (USB SCANNER SAFE) */
+    rfidInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        scanForm.submit();
+      }
+    });
+
+    /* OPTIONAL: focus engineer only if RFID present */
+    if (engineerInput) {
+      rfidInput.addEventListener("change", () => {
+        if (rfidInput.value.trim()) {
+          engineerInput.focus();
+        }
+      });
+    }
+
+    /* HARD KILL OLD SCAN JS */
+    [
+      "openScan",
+      "openScanModal",
+      "closeScan",
+      "SCAN_MODE",
+      "MODULE_TYPE"
+    ].forEach(k => {
+      try { window[k] = null; } catch {}
+    });
+
+    console.log("✅ Diagnosis scan: Visual-style submit active");
+  });
+})();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const scanBtn  = document.getElementById("unitScanBtn");
+  const scanForm = document.getElementById("scanForm");
+  const rfidInp  = document.getElementById("scanRfid");
+
+  if (!scanBtn || !scanForm || !rfidInp) return;
+
+  // Click = submit
+  scanBtn.addEventListener("click", () => {
+    if (!rfidInp.value.trim()) {
+      rfidInp.focus();
+      return;
+    }
+    scanForm.submit();
+  });
+
+  // Enter key safety (USB scanners)
+  rfidInp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      scanForm.submit();
+    }
+  });
+});
+if (window.lottie) {
+  lottie.loadAnimation({
+    container: document.getElementById("scanUnitAnim"),
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: "/static/video/qr-code-scanner.json"
+  });
+  
+}
+
+</script>
+<script>lottie.loadAnimation({
+  container: document.getElementById("scanUnitAnim"),
+  renderer: "svg",
+  loop: true,
+  autoplay: true,
+  path: "/static/video/qr-code-scanner.json"
+});
+</script>
+<script>document.addEventListener("DOMContentLoaded", () => {
+
+  if (window.lottie) {
+
+    const unitAnim = document.getElementById("scanUnitAnim");
+    if (unitAnim) {
+      lottie.loadAnimation({
+        container: unitAnim,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        path: "/static/video/qr-code-scanner.json"
+      });
+    }
+    
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const scanCTA = document.getElementById("scanUnitCTA");
+  const rfidInp = document.getElementById("scanRfid");
+  const form    = document.getElementById("scanForm");
+
+  if (!scanCTA || !rfidInp || !form) return;
+
+  /* CLICK = submit */
+  scanCTA.addEventListener("click", () => {
+    if (!rfidInp.value.trim()) {
+      rfidInp.focus();
+      return;
+    }
+    form.submit();
+  });
+
+  /* USB scanner safety */
+  rfidInp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      form.submit();
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.lottie) return;
+
+  const anim = document.getElementById("scanUnitAnim");
+  if (!anim) return;
+
+  lottie.loadAnimation({
+    container: anim,
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: "{{ url_for('static', filename='video/qrd-code-scanner.json') }}"
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const scanForm = document.getElementById("scanForm");
+  const scanBtn  = document.querySelector(".scan-cta-btn");
+  const rfid     = document.querySelector('input[name="rfid"]');
+  const user     = document.querySelector('input[name="user"]');
+
+  if (!scanForm || !scanBtn || !rfid || !user) return;
+
+  scanBtn.addEventListener("click", () => {
+    // validation (same as Enter)
+    if (!rfid.value.trim()) {
+      rfid.focus();
+      return;
+    }
+    if (!user.value.trim()) {
+      user.focus();
+      return;
+    }
+
+    // ✅ SUBMIT FORM
+    scanForm.submit();
+  });
+});
+</script>
+<script>
+async function injectModuleByType(type, raw) {
+  const data = {};
+
+  raw.split("|").forEach(p => {
+    const [k, v] = p.split("=");
+    if (k && v) data[k.trim()] = v.trim();
+  });
+
+  if (!data.PN || !data.SN) {
+    alert("Invalid module QR format");
+    return;
+  }
+
+  const rid = "{{ unit.rid if unit else '' }}";
+  const user = "{{ request.form.get('user','') }}";
+
+  if (!rid) {
+    alert("Parent RID missing. Scan unit first.");
+    return;
+  }
+
+  /* ================= UI INJECTION (UNCHANGED LOGIC) ================= */
+
+  const card = document.querySelector(`.module-card[data-module="${type}"]`);
+  if (!card) {
+    alert("Module section missing in UI");
+    return;
+  }
+
+  const rows = card.querySelector(".module-rows");
+  const base = rows.querySelector(".module-row[data-base='1']");
+
+  for (const i of rows.querySelectorAll("input[name$='_serial_no[]']")) {
+    if (i.value === data.SN) {
+      alert("Module already added");
+      return;
+    }
+  }
+
+  const row = base.cloneNode(true);
+  row.removeAttribute("data-base");
+
+  const inputs = row.querySelectorAll("input");
+  inputs[0].value = data.PN;
+  inputs[1].value = data.SN;
+
+  const del = document.createElement("span");
+  del.className = "module-row-delete";
+  del.textContent = "×";
+  del.onclick = () => row.remove();
+  row.appendChild(del);
+
+  rows.appendChild(row);
+
+  /* ================= DB REGISTRATION (THE MISSING PIECE) ================= */
+
+  try {
+    const res = await fetch("/api/register-module", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        parent_rid: rid,
+        module_type: type.toUpperCase(),
+        product_id: data.PID || null,
+        part_no: data.PN,
+        serial_no: data.SN,
+        location: data.LOC || null,
+        user: user
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      alert("Module registration failed: " + err);
+    }
+
+  } catch (e) {
+    alert("Network error while registering module");
+    console.error(e);
+  }
+}
+</script>
+
+{% endblock %}

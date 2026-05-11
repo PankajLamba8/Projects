@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>TAT & SLA Dashboard</h2>
+
+<h3>Completed Units</h3>
+<table>
+  <tr>
+    <th>RID</th>
+    <th>TAT (Days)</th>
+  </tr>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.rid }}</td>
+    <td>{{ "%.2f"|format(r.tat_days) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3 style="color:red;">SLA Breaches (>10 days)</h3>
+<ul>
+  {% for r in breached %}
+    <li>{{ r.rid }} – {{ "%.2f"|format(r.tat_days) }} days</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,997 @@
+Incoming {% extends "base.html" %}
+{% from "_scan_cta.html" import scan_cta %}
+{% set body_class = "rc-in" %}
+{{ unit.rid if unit }}
+{{ unit.rid if unit else "" }}
+{% if unit %}
+  {{ unit.rid }}
+{% endif %}
+
+
+{% block content %}
+{% if success %}
+<div class="success-banner">
+  <span class="check">✔</span>
+  <div class="text">
+    <b>Unit Registered Successfully</b><br>
+    Traveller & QR generated. You can preview or print the traveller sheet.
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-preview"
+       href="{{ url_for('incoming_preview', rid=unit.rid) }}"
+       target="_blank">
+      Preview
+    </a>
+
+    <a class="btn btn-print"
+       href="{{ url_for('incoming_preview', rid=unit.rid) }}"
+       rel="noopener noreferrer"
+       download="traveller-{{ unit.rid }}.pdf"
+       target="_blank"
+       onclick="setTimeout(() => window.print(), 300)">
+      Print
+    </a>
+
+  </div>
+</div>
+{% endif %}
+
+
+
+<div class="page-shell print-safe">
+
+  <!-- ================= HEADER ================= -->
+  <div class="doc-header header-line">
+
+    <!-- LEFT -->
+    <div class="header-left">
+      <img
+        src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+        class="traveller-nokia-logo"
+      >
+
+      <div class="dispatch-line">
+        <div class="dispatch-label">DISPATCH</div>
+        <div class="dispatch-date">{{ dispatch_date }}</div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+      <h1 class="rc-title">RC IN – UNIT REGISTRATION</h1>
+      <div class="rc-name">NOKIA REPAIR CENTER – GURGAON</div>
+      <div class="rc-address">
+        Plot 25, 21, Tenon Ln, Electronic City, Phase IV,<br>
+        Udyog Vihar, Sector 18, Gurugram, Haryana 122015
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+      <div class="service-box" id="serviceBox" style="display:none;">
+        <div class="service-type" id="serviceTypeLabel"></div>
+        <div class="service-date" id="serviceDate"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= MAIN CARD ================= -->
+  <div class="form-card elevated" id="formCard">
+
+    <form method="POST">
+
+      <!-- ===== SCAN ===== -->
+      <!-- ===== SCAN (REBUILT CLEAN) ===== -->
+             <div class="form-row scan-clean">
+
+           <!-- ROW 1 -->
+                   <div class="field">
+                 <label for="rfidInput">Scan / Enter RFID</label>
+                 <input type="text" id="rfidInput" name="rfid" placeholder="Scan or enter RFID">
+                </div>
+
+         <div class="field">
+          <label>Operator / Engineer Name</label>
+            <input name="user" placeholder="Enter name" required>
+             </div>
+
+            <div class="scan-cta-wrap">
+  {{ scan_cta(
+      "rcin-scan",
+      "Scan Unit",
+      "QR / RFID",
+      "scanUnitAnim"
+  ) }}
+ 
+
+</div>
+
+
+
+  <!-- ROW 2 -->
+  <div class="field">
+    <label for="ridInput">RID</label>
+    <input type="text" id="ridInput" name="rid" placeholder="Enter RID">
+  </div>
+
+  <div class="field">
+    <label for="rmaInput">RMA</label>
+    <input type="text" id="rmaInput" name="rma" placeholder="Enter RMA number">
+  </div>
+
+  <div class="field">
+    <label for="unitSerialInput">Unit Serial</label>
+    <input type="text" id="unitSerialInput" name="unit_serial" placeholder="HW / Customer Serial">
+  </div>
+
+</div>
+<!-- ===== BASIC ===== -->
+     <div class="form-row">
+  <div class="field"><label for="familyInput">Family</label><input type="text" id="familyInput" name="family" placeholder="Enter family"></div>
+        
+  <div class="field"><label for="modelInput">Model</label><input type="text" id="modelInput" name="model" placeholder="Enter model"></div>
+        <div class="field">
+          <label for="customerSelect">Customer ID</label>
+          <select id="customerSelect" name="customer">
+            <option value="">Select</option>
+            <option value="bharti">Airtel</option>
+            <option value="jio">Jio</option>
+            <option value="vi">VI</option>
+            <option value="bsnl">BSNL</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="serviceType">Service Type</label>
+          <select id="serviceType" name="service_type">
+            <option value="">Select</option>
+            <option value="Swap">Swap</option>
+            <option value="Retrofit">Retrofit</option>
+            <option value="Repair">Repair & Return</option>
+            <!-- <option value="Return">Return</option> -->
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="unitType">Unit Type</label>
+          <select id="unitType" name="unit_type">
+            <option value="Domestic">Domestic</option>
+            <option value="Overseas">Overseas</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="countryInput">Country (If Overseas)</label>
+          <input type="text" id="countryInput" name="country" placeholder="Enter country name">
+        </div>
+      </div>
+
+      <div class="form-row single">
+        <div class="field">
+          <label for="complaint">Customer Failure Description</label>
+          <textarea id="complaint" name="complaint" placeholder="Describe the customer-reported issue"></textarea>
+        </div>
+      </div>
+
+      <!-- ================= EXPANDS AFTER SCAN ================= -->
+      <div id="expandedSection" style="display:none;">
+
+        <div class="section-title">Received Item Information</div>
+        <!-- <h4>Received Item Information</h4> -->
+
+        <div class="form-row">
+          <div class="field"><label>Material Code</label><input id="materialInput" name="material_code"></div>
+          <div class="field"><label>Item Name</label><input id="itemInput" name="item_name"></div>
+          <div class="field"><label>Repair Count</label><input id="repairInput" name="repair_count" type="number"></div>
+        </div>
+
+        <!-- ===== QR BLOCK ===== -->
+        <div class="scanner-box">
+
+          <!-- LEFT -->
+          <div class="scanner-left">
+            <canvas id="qrCanvas"></canvas>
+            <div id="serialText" class="qr-serial"></div>
+          </div>
+
+          <!-- CENTER -->
+          <div class="scanner-center">
+            <div><b>Serial No.</b> : <span id="qrSerial">—</span></div>
+            <div><b>RFID</b> : <span id="qrRfid">—</span></div>
+            <div><b>RID</b> : <span id="qrRid">—</span></div>
+            <div><b>Family</b> : <span id="qrFamily">—</span></div>
+            <div><b>Model</b> : <span id="qrModel">—</span></div>
+            <div><b>Material</b> : <span id="qrMaterial">—</span></div>
+            <div><b>Item Name</b> : <span id="qrItem">—</span></div>
+            <div><b>Repair Count</b> : <span id="qrRepair">—</span></div>
+          </div>
+
+          <!-- RIGHT -->
+          <div class="scanner-right">
+            <img id="receivedCustomerLogo">
+          </div>
+
+        </div>
+
+        <div class="section-title">Swap Item Information</div>
+        <!--<h4>Swap Item Information</h4>-->
+
+        <div class="form-row">
+          <div class="field"><label>Material Code</label><input></div>
+          <div class="field"><label>Item Name</label><input></div>
+          <div class="field"><label>Serial Number</label><input></div>
+        </div>
+
+        <div class="section-title"> Update / Upgrade</div>
+        <!--<h4>Update / Upgrade Description</h4>-->
+        <textarea rows="2"></textarea>
+        <div class="section-title">Repair Information (Received Item)</div>
+        <!--<h4>Repair Information (Received Item)</h4>-->
+        <div class="form-row">
+          <div class="field"><label>Repair Status</label><input></div>
+          <div class="field"><label>Fault Code</label><input></div>
+          <div class="field"><label>Faulty Code Details</label><input></div>
+        </div>
+
+        <div class="form-row single">
+          <div class="field">
+            <label>Repair Description</label>
+            <textarea rows="2"></textarea>
+          </div>
+        </div>
+        <div class="section-title">Changed Components</div>
+        <!--<<h4>Changed Components</h4>-->
+        <div class="form-row">
+          <div class="field"><label>Module Code</label><input></div>
+          <div class="field"><label>Component ID</label><input></div>
+          <div class="field"><label>Component Code</label><input></div>
+          <div class="field"><label>Value / Type</label><input></div>
+          <div class="field"><label>Fault Code</label><input></div>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+
+  {% if not success %}
+    <!-- NORMAL SUBMIT -->
+   <button type="submit" class="primary-scan-btn">
+
+      Register & Assign RFID
+    </button>
+  {% else %}
+    <!-- SUCCESS MODE 
+    <div class="success-box">
+      ✅ Unit Registered Successfully
+    </div>
+
+    <div class="after-success-actions">
+      <button type="button" onclick="previewIncoming()">
+        👁 Preview Incoming
+      </button>
+
+      {% if unit %}
+<button
+  onclick="window.location.href='{{ url_for('incoming_preview_pdf', rid=unit.rid) }}'">
+  Download Traveller PDF
+</button>
+
+
+{% endif %}-->
+
+
+
+
+    </div>
+  {% endif %}
+
+</div>
+
+
+    </form>
+
+  </div>
+</div>
+<!-- ================= QR LIB ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+
+<!--<script>
+function previewIncoming() {
+  // Show full page cleanly (same as print but without dialog)
+  document.body.classList.add("preview-mode");
+  alert("Preview mode enabled. Use Print when ready.");
+}
+
+function printIncoming() {
+  window.print();
+}
+</script>-->
+
+
+<!--{% if success %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('input, textarea, select').forEach(function (el) {
+    // disable controls to prevent edits after successful submit
+    el.setAttribute('disabled', 'disabled');
+    // readonly for inputs/textareas to avoid changing value in some browsers
+    if (el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') {
+      el.setAttribute('readonly', 'readonly');
+    }
+  });
+});
+</script>
+{% endif %}-->
+
+
+<script>
+/* ================= HEADER LOGIC ================= */
+const serviceType = document.getElementById('serviceType');
+const serviceBox = document.getElementById('serviceBox');
+const serviceTypeLabel = document.getElementById('serviceTypeLabel');
+const serviceDate = document.getElementById('serviceDate');
+const unitType = document.getElementById('unitType');
+
+const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+
+serviceType.onchange = () => {
+  if (!serviceType.value) return serviceBox.style.display = 'none';
+  serviceBox.style.display = 'block';
+  serviceTypeLabel.textContent = serviceType.value.toUpperCase();
+  serviceDate.textContent = today;
+};
+
+unitType.onchange = () =>
+  document.body.classList.toggle('overseas', unitType.value === 'Overseas');
+
+/* ================= CUSTOMER HEART ================= */
+const customerSelect = document.getElementById('customerSelect');
+const formCard = document.getElementById('formCard');
+const receivedCustomerLogo = document.getElementById('receivedCustomerLogo');
+
+const CUSTOMER_CLASSES = ['customer-bharti','customer-jio','customer-vi','customer-bsnl'];
+const logoMap = {
+  bharti:'/static/img/customers/Bharti_logo.svg',
+  jio:'/static/img/customers/Jio_logo.svg',
+  vi:'/static/img/customers/VI_logo.svg',
+  bsnl:'/static/img/customers/BSNL_logo.svg'
+};
+
+customerSelect.onchange = () => {
+  CUSTOMER_CLASSES.forEach(c => {
+    formCard.classList.remove(c);
+    document.body.classList.remove(c);
+  });
+  if (!customerSelect.value) return;
+  const cls = 'customer-' + customerSelect.value;
+  formCard.classList.add(cls);
+  document.body.classList.add(cls);
+  receivedCustomerLogo.src = logoMap[customerSelect.value];
+};
+
+/* ================= BULLETPROOF QR ================= */
+const rfidInput = document.getElementById('rfidInput');
+const ridInput = document.getElementById('ridInput');
+const rmaInput = document.getElementById('rmaInput');
+const unitSerialInput = document.getElementById('unitSerialInput');
+const familyInput = document.getElementById('familyInput');
+const modelInput = document.getElementById('modelInput');
+const materialInput = document.getElementById('materialInput');
+const itemInput = document.getElementById('itemInput');
+const repairInput = document.getElementById('repairInput');
+const countryInput = document.getElementById('countryInput');
+const dispatchDateEl = document.querySelector('.dispatch-date');
+
+
+const qrSerial = document.getElementById('qrSerial');
+const qrRfid = document.getElementById('qrRfid');
+const qrRid = document.getElementById('qrRid');
+
+const qrFamily = document.getElementById('qrFamily');
+const qrModel = document.getElementById('qrModel');
+const qrMaterial = document.getElementById('qrMaterial');
+const qrItem = document.getElementById('qrItem');
+const qrRepair = document.getElementById('qrRepair');
+
+const expandedSection = document.getElementById('expandedSection');
+const scanBtn = document.getElementById('scanBtn');
+const qrCanvas = document.getElementById('qrCanvas');
+const serialText = document.getElementById('serialText');
+
+
+let qr = null;
+let serial = null;
+
+function ensureSerial() {
+  if (!serial) {
+    serial = 'EA' + Math.floor(100000000 + Math.random()*900000000);
+    serialText.textContent = serial;
+    qrSerial.textContent = serial;
+  }
+}
+function ensureSerial() {
+  // If user entered Unit Serial → use it everywhere
+  if (unitSerialInput.value) {
+    serial = unitSerialInput.value.trim();
+  }
+
+  // Else generate fallback only once
+  if (!serial) {
+    serial = 'EA' + Math.floor(100000000 + Math.random() * 900000000);
+  }
+
+  // Sync everywhere
+  serialText.textContent = serial;
+  qrSerial.textContent = serial;
+}
+
+function updateQR() {
+  ensureSerial();
+
+  qrRfid.textContent = rfidInput.value || '—';
+  qrRid.textContent = ridInput.value || '—';
+  qrSerial.textContent = unitSerialInput.value || serial || '—';
+  qrFamily.textContent = familyInput.value || '—';
+  qrModel.textContent = modelInput.value || '—';
+  qrMaterial.textContent = materialInput.value || '—';
+  qrItem.textContent = itemInput.value || '—';
+  qrRepair.textContent = repairInput.value || '—';
+
+  const payload = JSON.stringify({
+  rid: ridInput.value || null,
+  rfid: rfidInput.value || null,
+  unitSerial: unitSerialInput.value || null,
+  family: familyInput.value || null,
+  model: modelInput.value || null,
+  customer: customerSelect.value || null,
+  complaint: document.getElementById('complaint').value || null,
+
+  unitType: unitType.value === "Overseas" ? "Overseas" : "Domestic",
+  country: countryInput ? countryInput.value : null,
+  dispatchDate: dispatchDateEl ? dispatchDateEl.textContent.trim() : null
+});
+
+
+
+  if (!qr) qr = new QRious({ element: qrCanvas, value: payload, size: 140 });
+  else qr.set({ value: payload });
+}
+
+function triggerScan() {
+  expandedSection.style.display = 'block';
+  updateQR();
+  document.body.classList.add('scan-complete');
+}
+document.addEventListener("click", function (e) {
+  const cta = e.target.closest(".scan-cta-btn");
+  if (!cta) return;
+
+  if (!document.body.classList.contains("rc-in")) return;
+
+  triggerScan();
+});
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const rfidInput = document.getElementById("rfidInput");
+  const userInput = document.querySelector('input[name="user"]');
+
+  function tryScan(e) {
+    if (e.key !== "Enter") return;
+
+    if (!rfidInput.value.trim() || !userInput.value.trim()) return;
+
+    e.preventDefault();
+    triggerScan();
+  }
+
+  rfidInput.addEventListener("keydown", tryScan);
+  userInput.addEventListener("keydown", tryScan);
+});
+
+
+
+[
+  rfidInput, ridInput, rmaInput, unitSerialInput,
+  familyInput, modelInput,
+  materialInput, itemInput, repairInput
+].forEach(el => el.addEventListener('input', updateQR));
+
+</script>
+
+<script>
+/* 🔵 FORCE FLOATING SCAN BUTTON TO WORK */
+const scanBtnFloat = document.getElementById('scanBtnFloat');
+if (scanBtnFloat) {
+  scanBtnFloat.onclick = () => {
+    expandedSection.style.display = 'block';
+    updateQR();
+  };
+}
+</script>
+
+
+
+
+<style>
+/* RC-IN : FORCE BLUE SCAN BUTTON (LOCAL, SAFE) */
+body.rc-in .primary-scan-btn {
+  background: #0b5ed7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.rc-in .primary-scan-btn:hover {
+  background: #094bb5;
+}
+</style>
+
+<!-- Inline overrides to ensure RC-IN layout changes apply immediately (higher specificity) -->
+<style>
+  body.rc-in .form-card {
+    width: calc(100% - 48px) !important;
+    max-width: none !important;
+    margin: 0 24px !important;
+    padding: 20px !important;
+    box-shadow: none !important;
+  }
+
+  /* Make labels positioned correctly if for="..." is used */
+  body.rc-in .field { position: relative; }
+  body.rc-in label[for="ridInput"],
+  body.rc-in label[for="rmaInput"],
+  body.rc-in label[for="unitSerialInput"] {
+    position: absolute !important;
+    top: -25px !important;
+    left: 0 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    background: transparent !important;
+    padding: 0 4px !important;
+  }
+  body.rc-in .btn-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+</style>
+<style>
+/* ===============================
+   MOBILE SUPPORT — RC IN ONLY
+   =============================== */
+
+@media (max-width: 768px) {
+
+  /* Page padding */
+  body.rc-in .page-shell {
+    padding: 8px !important;
+  }
+
+  /* Card should fit phone */
+  body.rc-in .form-card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    border-radius: 12px;
+  }
+
+  /* HEADER STACK */
+  body.rc-in .doc-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  /* SCAN ROW STACK */
+  body.rc-in .scan-row,
+  body.rc-in .scan-clean,
+  body.rc-in .form-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Fields full width */
+  body.rc-in .field,
+  body.rc-in .btn-field {
+    width: 100% !important;
+  }
+
+  body.rc-in input,
+  body.rc-in select,
+  body.rc-in textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Scan button full width */
+  body.rc-in .primary-scan-btn,
+  /* RC-IN: DO NOT TOUCH SCAN CTA BUTTON */
+body.rc-in button:not(.scan-cta-btn) {
+  width: 100% !important;
+  height: 44px;
+  font-size: 16px;
+}
+
+  /* QR + scanner box stack */
+  body.rc-in .scanner-box {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Tables scroll instead of breaking */
+  body.rc-in table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+}
+
+/* ===============================
+   FIX SCAN GRID (CRITICAL)
+   =============================== */
+
+body.rc-in .scan-clean {
+  display: grid !important;
+  grid-template-columns: 2fr 2fr auto;
+  grid-auto-rows: minmax(72px, auto); /* 👈 THIS IS THE FIX */
+  gap: 16px 20px;
+}
+body.rc-in .scan-clean .btn-field {
+  display: flex;
+  align-items: center;   /* vertical */
+  justify-content: center;
+}
+
+body.rc-in #scanBtn {
+  height: 44px;
+  padding: 0 28px;
+  font-weight: 600;
+}
+/* ===============================
+   FIX: SCAN UNIT BUTTON (RC IN)
+   =============================== */
+
+
+
+body.rc-in #scanBtn:hover {
+  background: #094bb5;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+
+
+</style>
+<style>
+/* ================= PRINT: INCOMING ONLY ================= */
+@media print {
+
+  body {
+    background: white !important;
+  }
+
+  /* Hide buttons & scan controls */
+  button,
+  .primary-scan-btn,
+  .after-success-actions {
+    display: none !important;
+  }
+
+  /* Remove shadows & borders */
+  .form-card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Force page break control */
+  .page-shell {
+    page-break-inside: avoid;
+  }
+
+}
+
+
+
+/* RC-IN: host wrapper ONLY */
+body.rc-in .scan-cta-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Grid compatibility */
+body.rc-in .scan-clean .scan-cta-wrap {
+  height: 100%;
+}
+/* ===============================
+   RC-IN SCAN CTA FIX
+   =============================== */
+
+body.rc-in .scan-cta-wrap {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* prevent grid from crushing pill */
+body.rc-in .scan-clean {
+  align-items: center;
+}
+
+/* CTA must keep natural width */
+body.rc-in .scan-cta-btn {
+  width: auto !important;
+  min-width: 220px;
+}
+
+</style>
+<!-- <a href="/traveller/{{ unit.rid }}/pdf" target="_blank" class="scan-btn">
+  Download Traveller PDF
+</a>-->
+<div class="form-actions">
+
+  <!--{% if not success %}
+    <button type="submit" class="primary-scan-btn">
+      Register & Assign 3RFID
+    </button>
+  {% else %}
+    <div class="success-box">
+      ✅ Unit Registered Successfully
+    </div>
+
+    <div class="after-success-actions">
+      <a href="{{ url_for('incoming_preview', rid=last_rid) }}"
+         class="primary-scan-btn">
+        👁 Preview Incoming
+      </a>
+
+      <a href="{{ url_for('incoming_preview_pdf', rid=last_rid) }}">
+
+         class="primary-scan-btn">
+        🖨 Print Incoming
+      </a>
+    </div>
+  {% endif %}-->
+
+</div>
+
+<script>
+/* ===============================
+   RC-IN SCAN CONTEXT BRIDGE
+   =============================== */
+
+/* Intercept scan CTA clicks ONLY in RC-IN */
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".scan-cta-btn");
+  if (!btn) return;
+
+  /* RC-IN page only */
+  if (!document.body.classList.contains("rc-in")) return;
+
+  /* Force correct context */
+  window.__SCAN_CONTEXT = "RC_IN";
+});
+</script>
+
+<!-- <button onclick="window.print()">Print / Save as PDF</button> -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const modalInput    = document.getElementById("scanInputUniversal");
+  const modalEngineer = document.getElementById("scanEngineerName");
+
+  if (!modalInput) return;
+
+  modalInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+
+    const rfid     = modalInput.value.trim();
+    const engineer = modalEngineer?.value.trim();
+
+    if (!engineer || !rfid) return;
+
+    // fill page fields
+    document.getElementById("rfidInput").value = rfid;
+    document.querySelector('input[name="user"]').value = engineer;
+
+    if (typeof closeScan === "function") closeScan();
+
+    // 🔥 THIS WAS MISSING
+    triggerScan();
+  });
+
+});
+</script>
+
+<!--<script>
+/* =====================================================
+   RC-IN : EXPAND PAGE ON SCAN CTA CLICK
+   ===================================================== */
+
+document.addEventListener("click", function (e) {
+  const cta = e.target.closest(".scan-cta-btn");
+  if (!cta) return;
+
+  /* RC-IN page only */
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const legacyScanBtn = document.getElementById("scanBtn");
+  if (legacyScanBtn) {
+    legacyScanBtn.click();   // ✅ EXPANDS PAGE
+  }
+});
+</script>-->
+
+<script>
+/* =====================================================
+   RC-IN : ENTER KEY = SCAN (OLD BEHAVIOR RESTORED)
+   ===================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const rfidInput = document.getElementById("rfidInput");
+  const userInput = document.querySelector('input[name="user"]');
+  const scanBtn   = document.getElementById("scanBtn");
+
+  if (!rfidInput || !userInput || !scanBtn) return;
+
+  function tryScan(e) {
+    if (e.key !== "Enter") return;
+
+    const rfid = rfidInput.value.trim();
+    const user = userInput.value.trim();
+
+    if (!rfid || !user) return;
+
+    e.preventDefault();
+
+    scanBtn.click(); // 🔥 EXACT OLD BEHAVIOR
+  }
+
+  rfidInput.addEventListener("keydown", tryScan);
+  userInput.addEventListener("keydown", tryScan);
+
+});
+</script>
+<script>
+/* ===============================
+   NOKIA QR PARSER (GS1 FORMAT)
+   For: [)>061P476383A.108SK923230987218VLENSN4LIN10D2323
+   =============================== */
+
+function parseNokiaQR(raw) {
+  let partNo = null;
+  let serial = null;
+  let model  = "AQQJ"; // fixed as per your unit (can be dynamic later)
+
+  if (!raw) return { partNo, serial, model };
+
+  // Clean control chars
+  const text = raw.replace(/\[>\)/g, "").replace(/[\x00-\x1F]/g, "").trim();
+
+  // PART NO → after 1P
+  const partMatch = text.match(/1P([A-Z0-9\.]+)/i);
+  if (partMatch && partMatch[1]) {
+    partNo = partMatch[1];
+  }
+
+  // SERIAL → after S
+  const serialMatch = text.match(/S([A-Z0-9]+)/i);
+  if (serialMatch && serialMatch[1]) {
+    serial = serialMatch[1];
+  }
+
+  return { partNo, serial, model };
+}
+
+
+/* ===============================
+   APPLY TO PAGE
+   =============================== */
+
+function applyParsedQR(data) {
+  const { partNo, serial, model } = data;
+
+  if (model) {
+    const modelInput = document.getElementById("modelInput");
+    if (modelInput) modelInput.value = model;
+  }
+
+  if (partNo) {
+    const materialInput = document.getElementById("materialInput");
+    if (materialInput) materialInput.value = partNo;
+  }
+
+  if (serial) {
+    const unitSerialInput = document.getElementById("unitSerialInput");
+    if (unitSerialInput) unitSerialInput.value = serial;
+  }
+
+  // 🔥 Expand section
+  const expandedSection = document.getElementById("expandedSection");
+  if (expandedSection) expandedSection.style.display = "block";
+
+  // Update QR preview block
+  if (typeof updateQR === "function") updateQR();
+
+  document.body.classList.add("scan-complete");
+}
+
+
+/* ===============================
+   HOOK INTO RFID INPUT (SCANNER)
+   =============================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const rfidInput = document.getElementById("rfidInput");
+  if (!rfidInput) return;
+
+  rfidInput.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    const raw = rfidInput.value.trim();
+    if (!raw) return;
+
+    e.preventDefault();
+
+    const parsed = parseNokiaQR(raw);
+    applyParsedQR(parsed);
+  });
+});
+
+
+/* ===============================
+   HOOK INTO SCAN CTA BUTTON
+   =============================== */
+
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".scan-cta-btn");
+  if (!btn) return;
+
+  if (!document.body.classList.contains("rc-in")) return;
+
+  const rfidInput = document.getElementById("rfidInput");
+  if (!rfidInput || !rfidInput.value.trim()) return;
+
+  const raw = rfidInput.value.trim();
+  const parsed = parseNokiaQR(raw);
+  applyParsedQR(parsed);
+});
+</script>
+
+{% endblock %}
+

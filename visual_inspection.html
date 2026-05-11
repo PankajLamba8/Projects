@@ -1,0 +1,1427 @@
+{% extends "base.html" %}
+{% set body_class = "station" %}
+{% from "_macros.html" import station_history_block %}
+
+
+{% from "_scan_cta.html" import scan_cta %}
+
+
+
+
+{% block content %}
+
+
+{% if success %}
+<div class="success-banner">
+  <span class="check">✔</span>
+  <div class="text">
+    <b>Visual Inspection Saved Successfully</b><br>
+    You can preview or download the report.
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-preview"
+       href="{{ url_for('visual_preview', rid=unit.rid) }}"
+       target="_blank">
+      Preview
+    </a>
+
+    <a class="btn btn-print"
+       href="{{ url_for('visual_pdf', rid=unit.rid) }}">
+      Print
+    </a>
+  </div>
+</div>
+{% endif %}
+
+
+{% if error %}
+  <div class="alert alert-danger" role="alert" style="color:red">{{ error }}</div>
+{% endif %}
+
+{% if unit is defined and unit.current_station is defined and unit.current_station != "Visual Inspection" %}
+  <div class="alert alert-warning">
+  </div>
+{% endif %}
+
+
+
+<div class="page-shell print-safe">
+
+  <!-- ================= HEADER ================= -->
+  <!-- MATCHES RC IN HEADER (NO CUSTOMER LOGO RIGHT) -->
+  <div class="doc-header header-line">
+
+  <!-- LEFT: NOKIA + DISPATCH (STACKED) -->
+  <div class="header-left">
+    <div class="left-stack">
+      <img
+        src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+        class="traveller-nokia-logo"
+        alt="Nokia"
+      >
+      <div class="dispatch-block">
+        <div class="dispatch-label">DISPATCH</div>
+        <div class="dispatch-date">
+          {% if unit and unit.dispatch_date %}
+            {% set parts = unit.dispatch_date.split('-') %}
+            {{ parts[2] }}.{{ parts[1] }}.{{ parts[0] }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: TITLE -->
+  <div class="header-center">
+    <h1 class="rc-title">VISUAL INSPECTION</h1>
+    <div class="rc-name">RC Station – Visual Check</div>
+  </div>
+
+  <!-- RIGHT: LABEL + QR (STACKED) -->
+  <div class="header-right">
+    {% if unit %}
+    <div class="right-stack">
+      <div class="qr-caption">Unit QR</div>
+      <div class="header-qr">
+        {% if unit %}
+  <img src="{{ url_for('static', filename='qr/' ~ unit.rid ~ '.png') }}"
+       alt="QR Code"
+       style="width:140px;height:140px;">
+{% endif %}
+
+        <div class="header-qr-label">{{ unit.rid }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+
+
+
+  <!-- ================= MAIN CARD ================= -->
+  <div class="form-card elevated" id="formCard" style="margin-top: 0 !important;">
+  
+
+    <!--<div class="card-top-spacer"></div>-->
+
+    <!-- ================= SCAN ROW ================= -->
+<div class="card-top-row">
+  <form method="POST" id="scanForm">
+  <div class="scan-row-grid">
+
+  <div class="field">
+    <label>Scan / Enter RFID</label>
+    <input name="rfid" required>
+  </div>
+
+  <div class="field">
+    <label>Engineer Name</label>
+    <input name="user" value="{{ unit.user if unit and unit.user else '' }}" required>
+
+  </div>
+
+  <div class="scan-cta-wrap">
+    {{ scan_cta(
+      id="unitScanBtn",
+      title="Scan Unit",
+      subtitle="QR / RFID",
+      anim_id="scanUnitAnim"
+    ) }}
+  </div>
+
+</div>
+
+<!--<button type="submit" id="realScanSubmit" hidden></button>-->
+
+</form>
+
+
+
+
+</div>
+
+    <div class="qc-divider"></div> 
+
+    <div id="viExpanded" {% if not unit %}style="display:none;"{% endif %}>
+
+  {% if unit %}
+    <!-- EVERYTHING BELOW stays EXACTLY SAME -->
+
+
+    <!-- ================= UNIT SUMMARY ================= -->
+    <!-- CUSTOMER LOGO BELONGS HERE (NOT HEADER) -->
+    <div class="unit-summary-card">
+  <div class="unit-summary-grid">
+
+    <div class="us-item">
+      <span class="us-label">RID</span>
+      <span class="us-value">{{ unit.rid }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Family</span>
+      <span class="us-value">{{ unit.family }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Model</span>
+      <span class="us-value">{{ unit.model }}</span>
+    </div>
+
+    <div class="us-item us-customer">
+      <span class="us-label">Customer</span>
+      <span class="us-value">
+        {{ unit.customer }}
+        <img id="customerLogoInline" class="customer-logo-inline">
+      </span>
+    </div>
+
+    <div class="us-item us-full">
+      <span class="us-label">Complaint</span>
+      <span class="us-value">{{ unit.complaint }}</span>
+    </div>
+<div class="us-item">
+  <span class="us-label">Unit Type</span>
+  <span class="us-value">
+    {% if unit.is_overseas == 1 %}
+      Overseas
+    {% else %}
+      Domestic
+    {% endif %}
+  </span>
+</div>
+
+    <div class="us-item">
+      <span class="us-label">Country</span>
+      <span class="us-value">{{ unit.country }}</span>
+    </div>
+    
+    <div class="us-item">
+      <span class="us-label">Dispatch</span>
+      <span class="us-value" id="unit.dispatch_date">{{ unit.dispatch_date }}</span>
+    </div>
+    
+  </div>
+</div>
+
+
+{% if history and history|length > 0 %}
+<div class="traveller-history">
+
+  <h4>Unit Traveller History</h4>
+
+  <table class="traveller-table">
+    <thead>
+      <tr>
+        <th>Station</th>
+        <th>User</th>
+        <th>Remarks</th>
+        <th>Date & Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in history %}
+      <tr>
+        <td>{{ h.station }}</td>
+        <td>{{ h.user }}</td>
+        <td>{{ h.remarks }}</td>
+        <td>{{ h.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  
+</div> 
+{% endif %}
+    <!-- <div class="qc-divider"></div> -->
+
+  <!-- ================= VISUAL FORM ================= -->
+   {% if unit %}
+      <form method="POST" id="visualSaveForm" class="qc-form-flow">
+
+      <input type="hidden" name="rid" value="{{ unit.rid }}">
+      <input type="hidden" name="rfid" value="{{ unit.rfid if unit and unit.rfid else '' }}">
+
+      <input type="hidden" name="user" value="{{ unit.user if unit and unit.user else '' }}">
+
+      <!-- ================= ADMIN DECISION ================= -->
+
+  <div class="qc-spacer"></div>
+<h3 class="qc-section-title">Admin Decision</h3>
+
+      <input type="hidden" name="admin_decision" id="adminDecision" value="None">
+
+      <div class="admin-decision-row qc-pill-row">
+        <button type="button" class="admin-pill active" data-value="None">None</button>
+        <button type="button" class="admin-pill" data-value="SRR">SRR</button>
+        <button type="button" class="admin-pill" data-value="DOA">DOA</button>
+        <button type="button" class="admin-pill" data-value="Scrap Recovery">Scrap Recovery</button>
+      </div>
+
+      <!-- ===== BELOW THIS NOTHING WAS TOUCHED ===== -->
+
+      <div class="qc-spacer"></div>
+
+      <div class="form-row qc-row">
+  <div class="field">
+    <label>I/C Visual (Physical)</label>
+    <select name="visual_check">
+      <option>PASS</option>
+      <option>FAIL</option>
+      <option>NA</option>
+    </select>
+  </div>
+
+  <!-- ✅ NEW WARRANTY LABEL FIELD -->
+  <div class="field">
+    <label>Warranty Label</label>
+    <select name="warranty_label" required>
+      <option value="">Select</option>
+      <option value="In Order">In Order</option>
+      <option value="Broken">Broken</option>
+      <option value="No Label">No Label</option>
+    </select>
+  </div>
+</div>
+
+
+
+      <div class="qc-divider thin"></div>
+
+      <h3 class="section-title qc-section-title">Component / Caps Check</h3>
+
+      <div class="component-grid qc-component-grid">
+        {% macro comp(name, label) %}
+        <div class="component-item">
+          <div class="component-head">{{ label }}</div>
+          <div class="component-options">
+            <label class="opt pass">
+              <input type="radio" name="{{ name }}_status" value="PASS" required> Pass
+            </label>
+            <label class="opt fail">
+              <input type="radio" name="{{ name }}_status" value="FAIL"> Fail
+            </label>
+            <label class="opt na">
+              <input type="radio" name="{{ name }}_status" value="NA"> NA
+            </label>
+          </div>
+          <div class="component-count">
+  <button type="button" class="qty-btn minus">−</button>
+  <input
+    type="text"
+    name="{{ name }}_count"
+    class="qty-input"
+    value="0"
+    inputmode="numeric"
+  >
+  <button type="button" class="qty-btn plus">+</button>
+</div>
+
+        </div>
+        {% endmacro %}
+
+        {{ comp("e1f", "E1F") }}
+        {{ comp("lmp_cap", "LMP Cap") }}
+        {{ comp("eac_cap", "EAC Cap") }}
+        {{ comp("power_cap", "Power Cap") }}
+        {{ comp("ret_cap", "RET Cap") }}
+        {{ comp("rxo_cap", "RXO Cap") }}
+        {{ comp("fan", "Fan") }}
+        {{ comp("upper_mb", "Upper MB") }}
+        {{ comp("lower_mb", "Lower MB") }}
+        {{ comp("hdmi_cap", "HDMI Cap") }}
+        {{ comp("qsfp", "QSFP") }}
+        {{ comp("mecb", "MECB") }}
+
+      </div>
+
+      <div class="qc-divider thin"></div>
+
+<h3 class="section-title">Incoming IP Test</h3>
+
+<div class="form-row qc-row">
+  <div class="field">
+    <label>Incoming IP Test Result</label>
+    <select name="incoming_ip_test" required>
+      <option value="">Select</option>
+      <option value="PASS">PASS</option>
+      <option value="FAIL">FAIL</option>
+      <option value="NA">NA</option>
+    </select>
+  </div>
+  <div class="form-row single qc-row">
+        <div class="field">
+          <label>Remarks</label>
+          <textarea name="remarks"></textarea>
+        </div>
+      </div>
+</div>
+
+      <!--<div class="qc-divider"></div>-->
+
+      <h3 class="section-title">Pre-Diagnostic / Sanity</h3>
+
+      <div class="form-row qc-row">
+        <div class="field">
+          <label>Pre-Diagnostic (Vegas)</label>
+          <input name="pre_diag_note">
+        </div>
+        <div class="field">
+          <label>Sanity (FSMF)</label>
+          <input name="sanity_note">
+        </div>
+      </div>
+
+      <div class="form-row single qc-row">
+        <div class="field">
+          <label>Remarks</label>
+          <textarea name="pre_diag_remarks"></textarea>
+
+        </div>
+      </div>
+
+
+
+
+
+
+      <!-- ================= INCOMING IP TEST ================= -->
+
+
+      <!-- ✅ FINAL SUBMIT (FIXED & VISIBLE) -->
+<div style="
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #0848c8;
+  text-align: right;
+">
+  </div>
+<!-- ========== VISUAL FORM (ONLY SAVE) ========== -->
+
+
+
+  <!-- ALL CAPS FIELDS HERE -->
+  <!-- ALL COUNTS HERE -->
+  <!-- REMARKS HERE -->
+<!-- <p style="color:red;">SAVE FORM ACTIVE</p> -->
+
+  <div class="form-row scan-row visual-save-row">
+  <div class="field">
+    <label>&nbsp;</label>
+  </div>
+
+  <div class="field">
+    <label>&nbsp;</label>
+  </div>
+
+  <!-- ===== VISUAL SUBMIT FOOTER ===== -->
+<div class="visual-submit-footer">
+  <button
+    type="submit"
+    name="save"
+    class="scan-btn"
+  >
+    Submit Visual Inspection
+  </button>
+</div>
+</div>
+</form>
+{% endif %}
+
+
+
+
+<!-- ================= ADMIN DECISION SCRIPT ================= -->
+<script>
+document.querySelectorAll('.admin-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.admin-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('adminDecision').value = btn.dataset.value;
+  });
+});
+</script>
+
+<!-- ================= CUSTOMER THEME + LOGO (INLINE ONLY) ================= -->
+<script>
+const customer = "{{ unit.customer if unit else '' }}".toLowerCase();
+const unitType = "{{ unit.unit_type if unit else '' }}";
+
+const CLASS_MAP = {
+  bharti: "customer-bharti",
+  airtel: "customer-bharti",
+  jio: "customer-jio",
+  vi: "customer-vi",
+  bsnl: "customer-bsnl"
+};
+
+const LOGO_MAP = {
+  bharti: "/static/img/customers/Bharti_logo.svg",
+  jio: "/static/img/customers/Jio_logo.svg",
+  vi: "/static/img/customers/VI_logo.svg",
+  bsnl: "/static/img/customers/BSNL_logo.svg"
+};
+
+const card = document.getElementById("formCard");
+const logoInline = document.getElementById("customerLogoInline");
+
+if (CLASS_MAP[customer]) {
+  card.classList.add(CLASS_MAP[customer]);
+  document.body.classList.add(CLASS_MAP[customer]);
+}
+
+if (LOGO_MAP[customer] && logoInline) {
+  logoInline.src = LOGO_MAP[customer];
+}
+
+if (unitType === "Overseas") {
+  document.body.classList.add("overseas");
+}
+</script>
+
+<!-- ================= DISPATCH DATE AUTO ================= -->
+<script>
+(function () {
+  const el = document.getElementById("dispatchDate");
+  if (!el || el.textContent.trim()) return;
+
+  const d = new Date();
+  d.setDate(d.getDate() + 10);
+
+  el.textContent =
+    String(d.getDate()).padStart(2, "0") + "." +
+    String(d.getMonth() + 1).padStart(2, "0") + "." +
+    d.getFullYear();
+})();
+</script>
+
+
+
+
+
+
+<!-- FORCE input widths for RFID + Engineer name (paste near the end of visual_inspection.html) -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    // Target the two inputs (by name). If you used different attribute/ids, this still catches them.
+    const sel = 'input[name="rfid"], input[name="user"]';
+    const inputs = Array.from(document.querySelectorAll(sel));
+
+    if (inputs.length === 0) {
+      console.warn('Visual: no inputs found for selector', sel);
+    }
+
+    // Apply inline style with !important using setProperty (this will beat most CSS rules)
+    inputs.forEach(inp => {
+      inp.style.setProperty('width', '100%', 'important');
+      inp.style.setProperty('min-width', '0', 'important');
+      inp.style.setProperty('max-width', 'none', 'important');
+      inp.style.setProperty('box-sizing', 'border-box', 'important');
+      // small padding so it looks like other inputs
+      inp.style.setProperty('padding', '10px 12px', 'important');
+      inp.style.setProperty('height', '38px', 'important');
+      // ensure inputs don't overflow their columns
+      inp.style.setProperty('overflow', 'visible', 'important');
+    });
+
+    // also ensure the containing grid column allows expansion:
+    const grid = document.querySelector('.card-scan-full .form-row') ||
+                 document.querySelector('.card-scan .scan-row') ||
+                 document.querySelector('.scan-row');
+    if (grid) {
+      grid.style.setProperty('grid-template-columns', '2fr 2fr auto', 'important');
+      // keep the custom gap you already set
+      grid.style.setProperty('gap', '350px', 'important');
+    }
+  } catch (e) {
+    console.error('Visual: forcing widths failed', e);
+  }
+});
+</script>
+
+<script>
+/* ===== ADMIN DECISION BUTTON FIX (SAFARI SAFE) ===== */
+document.querySelectorAll('.admin-decision button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // remove selection from all
+   document.querySelectorAll('.admin-pill')
+
+       .forEach(b => b.classList.remove('selected'));
+
+    // mark clicked one
+    btn.classList.add('selected');
+  });
+});
+</script>
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const scanBtn = document.getElementById("scanBtn");
+  const expanded = document.getElementById("viExpanded");
+
+  if (scanBtn && expanded) {
+    scanBtn.addEventListener("click", () => {
+      expanded.style.display = "block";
+    });
+  }
+});
+</script>
+
+
+<script>
+(function () {
+  const scanBtn = document.getElementById("scanBtn");
+  const realSubmit = document.getElementById("realScanSubmit");
+  const expanded = document.getElementById("viExpanded");
+  if (!scanBtn) return;
+  scanBtn.addEventListener("click", function (e) {
+    // If expanded section already visible, trigger the hidden submit; otherwise do nothing here
+    if (expanded && expanded.style.display === "block" && realSubmit) {
+      realSubmit.click();
+    }
+  });
+})();
+</script>
+
+<style>/* ===== VISUAL INSPECTION HEADER SPACING FIX ===== */
+
+body.station .doc-header {
+  margin-bottom: 12px !important;   /* reduce gap to card */
+  padding-bottom: 8px !important;
+}
+
+body.station .header-center {
+  justify-content: flex-end !important;
+  padding-top: 16px !important;
+}
+body.station .header-center {
+  justify-content: flex-end !important;
+  padding-top: 140px !important;
+}
+body.station .traveller-nokia-logo {
+  height: 30px !important;          /* was too tall */
+  margin-top: 8px !important;
+}
+body.station .dispatch-block {
+  margin-top: 70px !important;
+}
+/* ===== FIX LOGO → DISPATCH GAP (VISUAL INSPECTION) ===== */
+
+body.station .left-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: -8px !important;   /* 👈 THIS is the main fix */
+}
+
+.header-left {
+  gap: 6px;
+}
+
+
+/* ===== FINAL LOGO ↔ DISPATCH FIX (DO NOT TOUCH ABOVE) ===== */
+
+body.station .left-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0 !important;              /* gap must be ZERO */
+}
+
+/* remove artificial spacing */
+body.station .dispatch-block {
+  margin-top: 0 !important;
+}
+
+body.station .traveller-nokia-logo {
+  margin-top: 110px !important;
+  margin-bottom: 20px !important;  /* tiny controlled spacing */
+}
+
+/* header padding cleanup */
+body.station .header-left {
+  padding-top: 0 !important;
+}
+/* ===== PLUS / MINUS COUNT CONTROL ===== */
+
+.component-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.qty-input {
+  width: 60px;
+  height: 34px;
+  text-align: center;
+  border: 1px solid #d0d7e2;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.qty-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #ffffff;
+  color: #0b5ed7;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px #d0d7e2;
+}
+
+.qty-btn:hover {
+  background: #eef4ff;
+}
+
+.qty-btn:active {
+  transform: scale(0.95);
+}
+/* ===== COUNT CONTROL (TIGHT ALIGNMENT) ===== */
+
+.component-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;                /* ⬅️ closer to input */
+}
+
+.qty-input {
+  width: 56px;
+  height: 32px;
+  text-align: center;
+  border: 1px solid #d0d7e2;
+  border-radius: 6px;
+  font-size: 14px;
+  margin:  2px;           /* tiny breathing space */
+}
+
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: #0b5ed7;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover {
+  background: #eef4ff;
+  border-radius: 50%;
+}
+
+/* ===== MICRO ALIGNMENT: COUNT ROW ===== */
+
+/* pull the whole count control slightly up */
+.component-count {
+  margin-top: 10px;     /* ⬅️ key line */
+}
+
+/* ensure buttons & input align on same baseline */
+.qty-btn,
+.qty-input {
+  vertical-align: middle;
+}
+
+/* tiny correction for minus (font baseline issue) */
+.qty-btn.minus {
+  transform: translateY(-1px);
+}
+
+/* tiny correction for plus */
+.qty-btn.plus {
+  transform: translateY(-1px);
+}
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+/* ===============================
+   FIX PLUS / MINUS ALIGNMENT (FINAL)
+   =============================== */
+
+.component-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;                 /* 🔴 tighten spacing */
+  margin-top: 6px;          /* keep it close to radios */
+}
+
+/* input box */
+.component-count .qty-input {
+  width: 44px;
+  height: 30px;
+  text-align: center;
+  border: 1px solid #d0d7e2;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 28px;
+  padding: 0;
+  margin: 0;
+}
+
+/* plus / minus buttons */
+.component-count .qty-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #0b5ed7;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* subtle hover – no jump */
+.component-count .qty-btn:hover {
+  background: #eef4ff;
+  border-radius: 50%;
+}
+
+/* micro baseline correction */
+.component-count .qty-btn.minus {
+  transform: translateY(-1px);
+}
+.component-count .qty-btn.plus {
+  transform: translateY(-1px);
+}
+/* ===============================
+   FIX COMPONENT CARD ALIGNMENT
+   =============================== */
+
+.component-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;          /* 🔑 center everything */
+  text-align: center;
+}
+
+/* radio row */
+.component-options {
+  display: flex;
+  justify-content: center;      /* center radios */
+  gap: 14px;
+  margin: 6px 0 8px;
+}
+/* keep count centered inside card */
+.component-count {
+  justify-content: center;
+}
+/* ===============================
+   VISUAL INSPECTION – SCAN CTA FIX
+   =============================== */
+
+.scan-cta-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 38px;                 /* match input height */
+}
+
+/* override any form constraints */
+.scan-cta-wrap .scan-pill {
+  height: 38px;
+  padding: 10px 18px 10px 56px;
+  min-width: 210px;
+  border-radius: 18px;
+
+  background: linear-gradient(135deg, #eefbf4, #f6fffa);
+  box-shadow:
+    0 12px 26px rgba(22, 163, 74, 0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.8);
+
+  cursor: pointer;
+}
+
+/* icon (QR animation) */
+.scan-cta-wrap .scan-pill-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  background: radial-gradient(circle, #ffffff 55%, #dcfce7);
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 10px 22px rgba(34,197,94,0.28);
+
+  position: absolute;
+  left: 10px;
+}
+
+/* make QR animation BIG like module scan */
+.scan-cta-wrap .scan-pill-icon svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* text */
+.scan-cta-wrap .scan-pill-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.scan-cta-wrap .scan-pill-text small {
+  font-size: 11px;
+  color: #166534;
+}
+.scan-row-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr auto;
+  gap: 24px;
+  align-items: center;   /* 🔑 THIS fixes vertical mismatch */
+}
+.scan-cta-wrap {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.scan-cta-wrap .scan-pill {
+  height: 40px;
+  padding: 10px 18px 10px 16px;
+  min-width: 220px;
+  border-radius: 18px;
+
+  background: linear-gradient(135deg, #eefbf4, #f6fffa);
+  box-shadow:
+    0 12px 28px rgba(22,163,74,0.18),
+    inset 0 0 0 1px rgba(255,255,255,0.85);
+}
+
+/* QR icon – SAME BEHAVIOUR AS MODULE */
+.scan-cta-wrap .scan-pill-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  background: radial-gradient(circle, #ffffff 55%, #dcfce7);
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 10px 22px rgba(34,197,94,0.28);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* BIG animation */
+.scan-cta-wrap .scan-pill-icon svg {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* text */
+.scan-cta-wrap .scan-pill-text b {
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.scan-cta-wrap .scan-pill-text small {
+  color: #166534;
+  font-size: 11px;
+}
+/* ===============================
+   SCAN CTA — FORCE MODULE STYLE
+   =============================== */
+
+.scan-cta-wrap button.scan-pill {
+  all: unset;                          /* 🔑 resets broken inherited styles */
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  height: 44px;
+  padding: 10px 18px;
+  min-width: 220px;
+
+  border-radius: 20px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  box-shadow:
+    0 14px 30px rgba(22,163,74,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.scan-cta-wrap button.scan-pill:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 40px rgba(22,163,74,0.32),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+/* ===== ICON ===== */
+
+.scan-cta-wrap .scan-pill-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+
+  background:
+    radial-gradient(circle, #ffffff 55%, #dcfce7);
+
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 10px 22px rgba(34,197,94,0.30);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* make QR animation BIG */
+.scan-cta-wrap .scan-pill-icon svg,
+.scan-cta-wrap .scan-pill-icon canvas {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* ===== TEXT ===== */
+
+.scan-cta-wrap .scan-pill-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+}
+
+.scan-cta-wrap .scan-pill-text small {
+  font-size: 11px;
+  color: #166534;
+}
+
+/* =====================================================
+   VISUAL INSPECTION — GREEN SCAN CTA (SAFE OVERRIDE)
+   ===================================================== */
+
+/* scope ONLY visual inspection */
+body.station .scan-cta-btn {
+  all: unset;
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  height: 44px;
+  padding: 10px 18px 10px 60px;
+  min-width: 220px;
+
+  border-radius: 20px;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  box-shadow:
+    0 14px 30px rgba(22,163,74,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+body.station .scan-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 40px rgba(22,163,74,0.32),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+/* QR ICON — BIG & FLOATING */
+body.station .scan-cta-icon {
+  position: absolute;
+  left: 10px;
+
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+
+  background:
+    radial-gradient(circle, #ffffff 55%, #dcfce7);
+
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 10px 22px rgba(34,197,94,0.30);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* QR animation size */
+body.station .scan-cta-icon svg,
+body.station .scan-cta-icon canvas {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* TEXT */
+body.station .scan-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+body.station .scan-cta-text b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #000000;
+}
+
+body.station .scan-cta-text small {
+  font-size: 11px;
+  color: #166534;
+}
+/* =====================================================
+   VISUAL INSPECTION — FORCE SCAN CTA STYLE (FINAL)
+   ===================================================== */
+
+body.station button.scan-cta-btn {
+  all: unset !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+
+  height: 44px !important;
+  padding: 10px 18px 10px 60px !important;
+  min-width: 220px !important;
+
+  border-radius: 20px !important;
+  cursor: pointer !important;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4) !important;
+  box-shadow:
+    0 14px 30px rgba(22,163,74,0.22),
+    inset 0 0 0 1px rgba(255,255,255,0.9) !important;
+}
+
+/* icon */
+body.station .scan-cta-btn .scan-cta-icon {
+  position: absolute !important;
+  left: 10px !important;
+
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+
+  background: radial-gradient(circle, #ffffff 55%, #dcfce7) !important;
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 10px 22px rgba(34,197,94,0.30) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* text */
+body.station .scan-cta-btn .scan-cta-text b {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+}
+
+body.station .scan-cta-btn .scan-cta-text small {
+  font-size: 11px !important;
+  color: #166534 !important;
+}
+/* ===============================
+   VISUAL INSPECTION — CTA ALIGN FIX
+   =============================== */
+
+body.station .scan-row-grid {
+  align-items: center;
+}
+
+body.station .scan-cta-wrap {
+  position: relative;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+}
+
+body.station .scan-cta-btn {
+  position: relative !important;
+  width: auto !important;
+  max-width: none !important;
+  white-space: nowrap;
+}
+
+/* 🚑 this is the real bug */
+body.station .scan-cta-btn::after,
+body.station .scan-cta-btn::before {
+  display: none !important;
+}
+/* ===============================
+   VISUAL INSPECTION — COMPACT SCAN BOX
+   =============================== */
+
+/* tighten the red boxed area */
+body.station .card-top-row {
+  padding: 14px 18px !important;     /* was too roomy */
+}
+
+/* make scan row compact */
+body.station .scan-row-grid {
+  grid-template-columns: 2fr 2fr auto;
+  gap: 16px;                         /* tighter gap */
+  align-items: center;
+}
+
+/* inputs height & padding */
+body.station .scan-row-grid input {
+  height: 36px;                      /* slightly smaller */
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* CTA container */
+body.station .scan-cta-wrap {
+  height: 36px;                      /* match input */
+  display: flex;
+  align-items: center;
+}
+
+/* CTA pill itself */
+body.station .scan-cta-btn {
+  height: 36px !important;
+  min-width: 200px !important;
+  padding: 8px 16px 8px 54px !important;
+  border-radius: 16px !important;
+}
+
+/* CTA icon slightly smaller */
+body.station .scan-cta-btn .scan-cta-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+}
+
+/* text scale */
+body.station .scan-cta-text b {
+  font-size: 13px !important;
+}
+body.station .scan-cta-text small {
+  font-size: 10px !important;
+}
+/* =====================================================
+   VISUAL INSPECTION — TRANSPARENT SCAN STRIP (TEMP)
+   ===================================================== */
+
+/* remove box feel */
+body.station .card-top-row {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 24px 0 10px !important;
+}
+
+/* keep inputs subtle */
+body.station .scan-row-grid input {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(6px);
+}
+
+/* =====================================================
+   CENTER & HERO SCAN CTA
+   ===================================================== */
+
+/* make grid stack CTA center */
+body.station .scan-row-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  row-gap: 18px;
+}
+
+/* CTA spans full width row */
+body.station .scan-cta-wrap {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* BIG, CENTERED CTA */
+body.station .scan-cta-btn {
+  height: 68px !important;
+  min-width: 320px !important;
+  padding: 16px 28px 16px 92px !important;
+
+  border-radius: 28px !important;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4) !important;
+
+  box-shadow:
+    0 30px 60px rgba(22,163,74,0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.9) !important;
+}
+
+/* BIG ICON — HERO FEEL */
+body.station .scan-cta-btn .scan-cta-icon {
+  width: 60px !important;
+  height: 60px !important;
+  left: 16px !important;
+  border-radius: 18px !important;
+
+  box-shadow:
+    inset 0 0 0 4px rgba(34,197,94,0.18),
+    0 18px 36px rgba(34,197,94,0.45) !important;
+}
+
+/* BIG animation */
+body.station .scan-cta-btn .scan-cta-icon svg,
+body.station .scan-cta-btn .scan-cta-icon canvas {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* text scale */
+body.station .scan-cta-text b {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+body.station .scan-cta-text small {
+  font-size: 12px !important;
+  opacity: 0.85;
+}
+
+</style>
+<script>
+document.addEventListener("click", function (e) {
+  if (!e.target.classList.contains("qty-btn")) return;
+
+  const wrapper = e.target.closest(".component-count");
+  const input = wrapper.querySelector(".qty-input");
+
+  let value = parseInt(input.value || "0", 10);
+
+  if (e.target.classList.contains("plus")) {
+    value = value + 1;
+  }
+
+  if (e.target.classList.contains("minus")) {
+    value = Math.max(0, value - 1);   // ✅ FIXED
+  }
+
+  input.value = value;
+});
+</script>
+<script>
+  const DISPATCH_DATE = "{{ unit.dispatch_date }}";
+</script>
+
+
+
+{% endif %}
+    </div>
+  </div>
+  <script>
+(function () {
+  const rfidInput = document.querySelector('input[name="rfid"]');
+  const scanForm  = document.getElementById("scanForm");
+
+  if (!rfidInput || !scanForm) return;
+
+  rfidInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      scanForm.submit();
+    }
+  });
+})();
+</script>
+<script>
+(function () {
+  const css = `
+    body.station button.scan-cta-btn {
+      all: unset !important;
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+
+      height: 44px !important;
+      padding: 10px 18px 10px 60px !important;
+      min-width: 220px !important;
+
+      border-radius: 20px !important;
+      cursor: pointer !important;
+
+      background: linear-gradient(135deg, #ecfdf5, #f0fdf4) !important;
+      box-shadow:
+        0 8px 18px rgba(22,163,74,0.22),
+        inset 0 0 0 1px rgba(255,255,255,0.9) !important;
+    }
+
+    body.station .scan-cta-btn .scan-cta-icon {
+      position: absolute !important;
+      left: 10px !important;
+
+      width: 46px !important;
+      height: 46px !important;
+      border-radius: 14px !important;
+
+      background: radial-gradient(circle, #ffffff 55%, #dcfce7) !important;
+      box-shadow:
+        inset 0 0 0 4px rgba(34,197,94,0.18),
+        0 10px 22px rgba(34,197,94,0.30) !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    body.station .scan-cta-btn .scan-cta-text b {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: #000 !important;
+    }
+
+    body.station .scan-cta-btn .scan-cta-text small {
+      font-size: 11px !important;
+      color: #166534 !important;
+    }
+      
+  `;
+
+  const style = document.createElement("style");
+  style.innerHTML = css;
+  document.head.appendChild(style);
+})();
+</script>
+
+
+{% endblock %}
+

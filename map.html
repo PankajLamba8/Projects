@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h2>Unit Location Overview</h2>
+
+<table>
+  <tr>
+    <th>Country</th>
+    <th>Units Count</th>
+  </tr>
+
+  {% for r in data %}
+  <tr>
+    <td>{{ r.country }}</td>
+    <td>{{ r.count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if data|length == 0 %}
+<p>No overseas units available.</p>
+{% endif %}
+
+{% endblock %}

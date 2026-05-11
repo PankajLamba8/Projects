@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* =========================================================
+   COMMON – SAME AS VISUAL & DIAGNOSIS PREVIEW
+   ========================================================= */
+
+html, body {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.traveller-wrapper {
+  background: #ffffff;
+  padding: 32px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+/* WATERMARK */
+.traveller-wrapper::before {
+  content: "INTERNAL USE ONLY";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 72px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* HEADER */
+.traveller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #0b3c8c;
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.traveller-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.traveller-subtitle {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+.traveller-meta {
+  font-size: 12px;
+  color: #444;
+  margin-top: 6px;
+}
+
+.traveller-logo img {
+  height: 100px;
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+
+/* INFO TABLE */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table td {
+  padding: 6px 8px;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.info-table b {
+  color: #374151;
+}
+
+/* HISTORY TABLE */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #0b3c8c;
+  padding: 10px 12px;
+  border-bottom: 2px solid #dbe3f3;
+}
+
+.history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #edf1f7;
+  color: #111827;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* BLOCK */
+.diag-block {
+  background: #f9fbff;
+  border: 1px solid #e3ebf6;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+/* GRID */
+.diag-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.diag-item b {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+}
+
+.diag-item span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* FAILURE STACK */
+.fail-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.fail-card {
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  border-left: 5px solid #dc2626;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.fail-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #991b1b;
+  margin-bottom: 6px;
+}
+
+.fail-pill {
+  font-size: 12px;
+  background: #fee2e2;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-top: 4px;
+}
+
+/* MODULE TABLE */
+.module-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.module-table th {
+  background: #f1f5ff;
+  color: #0b3c8c;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #dbeafe;
+}
+
+.module-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* REPAIR CARD */
+.repair-card {
+  background: #ecfeff;
+  border: 1px solid #67e8f9;
+  border-left: 5px solid #0891b2;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+
+.repair-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0e7490;
+  margin-bottom: 6px;
+}
+
+.repair-line {
+  font-size: 13px;
+  color: #0f172a;
+  margin-top: 4px;
+}
+
+/* FOOTER */
+.traveller-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #444;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #d1d5db;
+  padding-top: 10px;
+}
+
+/* PDF BUTTON */
+.pdf-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #0b3c8c;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: none;
+  position: fixed;
+  bottom: 12px;
+  left: 24px;
+  z-index: 9999;
+}
+
+.pdf-btn:hover {
+  background: #072b63;
+}
+
+/* PRINT */
+@media print {
+  nav, .pdf-btn { display: none !important; }
+  .traveller-wrapper {
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+</style>
+
+<div class="traveller-wrapper">
+
+  <!-- ================= HEADER ================= -->
+  <div class="traveller-header">
+    <div>
+      <div class="traveller-title">Repair Traveller Sheet</div>
+      <div class="traveller-subtitle">Nokia Repair Center – Gurgaon</div>
+      <div class="traveller-meta">
+        Generated on: {{ generated_at.strftime("%d %b %Y, %H:%M") }}
+      </div>
+    </div>
+    <div class="traveller-logo">
+      <img src="{{ url_for('static', filename='img/customers/nokia_traveller_logo2.svg') }}">
+    </div>
+  </div>
+
+  <!-- ================= UNIT INFO ================= -->
+  <div class="section-title">Unit Information</div>
+  <table class="info-table">
+    <tr>
+      <td><b>RID:</b> {{ unit.rid }}</td>
+      <td><b>Family:</b> {{ unit.family }}</td>
+      <td><b>Model:</b> {{ unit.model }}</td>
+    </tr>
+    <tr>
+      <td><b>Customer:</b> {{ unit.customer }}</td>
+      <td><b>Country:</b> {{ unit.country }}</td>
+      <td><b>Dispatch:</b> {{ unit.dispatch_date }}</td>
+    </tr>
+  </table>
+
+  <!-- ================= HISTORY ================= -->
+  <div class="section-title">Traveller History</div>
+  <table class="history-table">
+    <tr>
+      <th>Station</th>
+      <th>User</th>
+      <th>Remarks</th>
+      <th>Date</th>
+    </tr>
+    {% for h in history %}
+    <tr>
+      <td>{{ h.station }}</td>
+      <td>{{ h.user }}</td>
+      <td>{{ h.remarks }}</td>
+      <td>{{ h.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- ================= VISUAL INSPECTION ================= -->
+  <div class="section-title">Visual Inspection Summary</div>
+
+  <table class="info-table">
+    <tr>
+      <td><b>Engineer:</b> {{ visual.engineer }}</td>
+      <td><b>Admin Decision:</b> {{ visual.admin_decision }}</td>
+      <td><b>Warranty Label:</b> {{ visual.warranty_label or "—" }}</td>
+    </tr>
+    <tr>
+      <td><b>I/C Visual Check:</b> {{ visual.visual_check }}</td>
+      <td><b>Incoming IP Test:</b> {{ visual.incoming_ip_test }}</td>
+      <td></td>
+    </tr>
+  </table>
+
+  {% if visual.remarks %}
+  <div class="section-title">Visual Remarks</div>
+  <div class="diag-block">
+    {{ visual.remarks }}
+  </div>
+  {% endif %}
+
+  <!-- ================= DIAGNOSIS ================= -->
+  <div class="section-title">Diagnosis Summary</div>
+
+  <div class="diag-block diag-grid">
+    <div class="diag-item"><b>IC Test</b><span>{{ diag_summary.ic_test }}</span></div>
+    <div class="diag-item"><b>Overall Result</b><span>{{ diag_summary.overall_result }}</span></div>
+    <div class="diag-item"><b>Diagnosed By</b><span>{{ diag_summary.diagnosed_by }}</span></div>
+  </div>
+
+  <div class="section-title">Module Results</div>
+  <div class="diag-block diag-grid">
+    <div class="diag-item"><b>RAP</b><span>{{ diag_summary.rap_result }}</span></div>
+    <div class="diag-item"><b>UNIT</b><span>{{ diag_summary.unit_result }}</span></div>
+    <div class="diag-item"><b>TRX BSCAN</b><span>{{ diag_summary.trx_result }}</span></div>
+    <div class="diag-item"><b>TRX PA</b><span>{{ diag_summary.pa_result }}</span></div>
+  </div>
+
+  {% if diag_fail_map %}
+  <div class="section-title">Failure Details</div>
+  <div class="fail-stack">
+    {% for test, items in diag_fail_map.items() %}
+      <div class="fail-card">
+        <div class="fail-card-title">{{ test }}</div>
+        {% for f in items %}
+          <div class="fail-pill">{{ f }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if registered_modules %}
+  <div class="section-title">Registered Modules</div>
+  <table class="module-table">
+    <tr>
+      <th>Module</th>
+      <th>Part Number</th>
+      <th>Serial Number</th>
+      <th>Location</th>
+    </tr>
+    {% for m in registered_modules %}
+    <tr>
+      <td>{{ m.module_type }}</td>
+      <td>{{ m.part_no }}</td>
+      <td>{{ m.serial_no }}</td>
+      <td>{{ m.location or "—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <!-- ================= REPAIR ================= -->
+  <div class="section-title">Repair Details</div>
+
+  {% if repair_records %}
+    {% for r in repair_records %}
+      <div class="repair-card">
+        <div class="repair-title">Module: {{ r.module_name }}</div>
+        <div class="repair-line"><b>Fault Code:</b> {{ r.fault_code }}</div>
+        <div class="repair-line"><b>Sub Fault Code:</b> {{ r.sub_fault_code }}</div>
+        <div class="repair-line"><b>Action Taken:</b> {{ r.repair_action }}</div>
+        <div class="repair-line"><b>Old Part:</b> {{ r.old_part_no }} | {{ r.old_serial_no }}</div>
+        <div class="repair-line"><b>New Part:</b> {{ r.new_part_no }} | {{ r.new_serial_no }}</div>
+        <div class="repair-line"><b>Status:</b> {{ r.repair_status }}</div>
+        {% if r.remarks %}
+          <div class="repair-line"><b>Remarks:</b> {{ r.remarks }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="diag-block">
+      No repair records available.
+    </div>
+  {% endif %}
+
+  <!-- ================= FOOTER ================= -->
+  <div class="traveller-footer">
+    <div>Document: Incoming + Visual + Diagnosis + Repair</div>
+    <div>RID: {{ unit.rid }}</div>
+  </div>
+
+</div>
+
+<button class="pdf-btn" onclick="window.print()">Print</button>
+
+{% endblock %}

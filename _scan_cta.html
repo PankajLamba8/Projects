@@ -1,0 +1,21 @@
+{# ================= SCAN CTA MACRO ================= #}
+{% macro scan_cta(id, title, subtitle, anim_id) %}
+<button
+  type="button"
+  class="scan-cta-btn"
+  onclick="openScan('UNIT')"
+>
+  <span class="scan-cta-icon">
+    <div id="scanUnitAnim"></div>
+  </span>
+
+  <span class="scan-cta-text">
+    <b>Scan Unit</b>
+    <small>QR / RFID</small>
+  </span>
+</button>
+
+
+
+{% endmacro %}
+

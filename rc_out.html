@@ -1,0 +1,849 @@
+{% extends "base.html" %}
+{% set body_class = "station" %}
+{% from "_scan_cta.html" import scan_cta %}
+
+{% block content %}
+
+{% if success %}
+<div class="success-banner">
+  <span class="check">✔</span>
+  <div class="text">
+    <b>Unit Dispatched Successfully</b><br>
+    RFID detached and traveller closed.
+  </div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<div class="page-shell print-safe">
+
+  <!-- ================= HEADER (MATCH VISUAL STYLE) ================= -->
+  <div class="doc-header header-line">
+
+    <!-- LEFT -->
+    <div class="header-left">
+      <div class="left-stack">
+        <img
+          src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+          class="traveller-nokia-logo"
+        >
+        <div class="dispatch-block">
+          <div class="dispatch-label">DISPATCH</div>
+          <div class="dispatch-date">
+            {{ unit.dispatch_date if unit }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+      <h1 class="rc-title">RC OUT</h1>
+      <div class="rc-name">Final Dispatch & Closure</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+      {% if unit %}
+      <div class="right-stack">
+        <div class="qr-caption">Unit QR</div>
+        <div class="header-qr">
+          <img src="{{ url_for('static', filename='qr/' ~ unit.rid ~ '.png') }}"
+               style="width:140px;height:140px;">
+          <div class="header-qr-label">{{ unit.rid }}</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ================= MAIN CARD ================= -->
+  <div class="form-card elevated" id="formCard">
+
+    <!-- ================= SCAN ROW ================= -->
+    <div class="card-top-row">
+      <form method="POST" id="scanForm">
+        <div class="scan-row-grid">
+
+          <div class="field">
+            <label>Scan / Enter RFID</label>
+            <input name="rfid" required>
+          </div>
+
+          <div class="field">
+            <label>RC OUT Engineer</label>
+            <input name="user" required>
+          </div>
+
+          <!-- BIG RFID ANIMATION BUTTON -->
+          <div class="field scan-field">
+          {{ scan_cta(
+            id="unitScanBtn",
+            title="Scan Unit",
+            subtitle="QR / RFID",
+            anim_id="scanUnitAnim"
+          ) }}
+        </div>
+
+        </div>
+      </form>
+    </div>
+
+    <div class="qc-divider"></div>
+
+    <!-- ================= EXPANDED AREA ================= -->
+    <div id="rcOutExpanded" {% if not unit %}style="display:none;"{% endif %}>
+
+    {% if unit %}
+
+    <!-- ================= UNIT SUMMARY ================= -->
+    <div class="unit-summary-card">
+      <div class="unit-summary-grid">
+
+        <div class="us-item">
+          <span class="us-label">RID</span>
+          <span class="us-value">{{ unit.rid }}</span>
+        </div>
+
+        <div class="us-item">
+          <span class="us-label">Family</span>
+          <span class="us-value">{{ unit.family }}</span>
+        </div>
+
+        <div class="us-item">
+          <span class="us-label">Model</span>
+          <span class="us-value">{{ unit.model }}</span>
+        </div>
+
+        <div class="us-item us-customer">
+          <span class="us-label">Customer</span>
+          <span class="us-value">
+            {{ unit.customer }}
+            <img id="customerLogoInline" class="customer-logo-inline">
+          </span>
+        </div>
+
+        <div class="us-item us-full">
+          <span class="us-label">Complaint</span>
+          <span class="us-value">{{ unit.complaint }}</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= HERO ACTION BUTTONS ================= -->
+   <!-- ================= FINAL ACTION CARDS ================= -->
+<div class="final-actions-wrap">
+
+  <!-- DETACH RFID -->
+  <div class="final-action-tile danger" onclick="detachRFID()">
+    <div class="final-action-anim" id="rcOutDetachAnim"></div>
+
+    <div class="final-action-content">
+      <b>Detach RFID</b>
+      <small>Free tag for next unit</small>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD EXCEL -->
+  <a
+   href="{{ url_for('rc_out_excel', rid=unit.rid) }}"
+
+    class="final-action-tile success"
+  >
+    <div class="final-action-anim" id="rcOutExcelAnim"></div>
+
+    <div class="final-action-content">
+      <b>Download Excel</b>
+      <small>Full traveller journey</small>
+    </div>
+  </a>
+
+</div>
+
+
+
+    <!-- ================= DISPATCH FORM ================= -->
+    <form method="POST" id="dispatchForm" class="qc-form-flow">
+
+      <input type="hidden" name="rid" value="{{ unit.rid }}">
+      <input type="hidden" name="rfid" value="{{ request.form.rfid }}">
+      <input type="hidden" name="user" value="{{ request.form.user }}">
+
+      <h3 class="qc-section-title">Dispatch Details</h3>
+
+      <div class="form-row qc-row">
+        <div class="field">
+          <label>Dispatch Date</label>
+          <input type="date" name="dispatch_date" required>
+        </div>
+
+        <div class="field">
+          <label>Courier / Mode</label>
+          <select name="courier">
+            <option>Blue Dart</option>
+            <option>DHL</option>
+            <option>FedEx</option>
+            <option>DTDC</option>
+            <option>Customer Pickup</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row qc-row">
+        <div class="field">
+          <label>AWB / Docket No</label>
+          <input name="awb_no" required>
+        </div>
+
+        <div class="field">
+          <label>Package Condition</label>
+          <select name="package_condition">
+            <option>Good</option>
+            <option>Damaged</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row single qc-row">
+        <div class="field">
+          <label>RC OUT Remarks</label>
+          <textarea name="remarks"></textarea>
+        </div>
+      </div>
+
+      <!-- ================= FINAL SUBMIT ================= -->
+      <div class="visual-submit-footer">
+        <button type="submit" name="save" class="scan-btn">
+          Confirm Dispatch & Close Traveller
+        </button>
+      </div>
+
+    </form>
+
+    {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= LOTTIE ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+<script>
+/* RFID LOTTIE */
+const rfidAnim = lottie.loadAnimation({
+  container: document.getElementById('rfidLottie'),
+  renderer: 'svg',
+  loop: true,
+  autoplay: true,
+  path: '/static/video/tag.json'
+});
+
+/* CLICK = focus RFID input */
+document.getElementById("rfidAnimBtn").addEventListener("click", function () {
+  const rfidInput = document.querySelector('input[name="rfid"]');
+  if (rfidInput) rfidInput.focus();
+});
+
+/* AUTO SUBMIT ON ENTER */
+(function () {
+  const rfidInput = document.querySelector('input[name="rfid"]');
+  const scanForm  = document.getElementById("scanForm");
+  if (!rfidInput || !scanForm) return;
+
+  rfidInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      scanForm.submit();
+    }
+  });
+})();
+
+/* DETACH RFID */
+document.getElementById("detachBtn")?.addEventListener("click", function () {
+  if (!confirm("Are you sure you want to detach RFID from this unit?")) return;
+
+  fetch("{{ url_for('detach_rfid') }}", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rid: "{{ unit.rid }}" })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("RFID detached successfully");
+      location.reload();
+    } else {
+      alert(data.error || "Failed to detach RFID");
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("detachRfidAnim");
+  if (!box || !window.lottie) return;
+
+  lottie.loadAnimation({
+    container: box,
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: "/static/video/tag.json"
+  });
+});
+</script>
+
+<style>
+/* ================= HERO BUTTONS ================= */
+.rcout-hero-actions {
+  display: flex;
+  gap: 28px;
+  margin: 40px 0;
+  justify-content: center;
+}
+
+.hero-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 34px;
+  border-radius: 26px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .2s ease;
+  min-width: 280px;
+  justify-content: center;
+}
+
+.hero-btn .hero-icon {
+  font-size: 34px;
+}
+
+.hero-btn .hero-text b {
+  font-size: 18px;
+  display: block;
+}
+
+.hero-btn .hero-text small {
+  font-size: 12px;
+  opacity: .8;
+}
+
+.hero-btn.danger {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #7f1d1d;
+  box-shadow: 0 18px 40px rgba(220,38,38,0.35);
+}
+
+.hero-btn.success {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #14532d;
+  box-shadow: 0 18px 40px rgba(22,163,74,0.35);
+}
+
+.hero-btn:hover {
+  transform: translateY(-3px);
+}
+
+/* ================= RFID ANIM BUTTON ================= */
+.rfid-anim-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-radius: 22px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  box-shadow: 0 16px 34px rgba(22,163,74,0.35);
+}
+
+.rfid-lottie {
+  width: 56px;
+  height: 56px;
+}
+
+.rfid-text b {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rfid-text small {
+  font-size: 11px;
+  color: #166534;
+}
+
+
+/* ===============================
+   RFID HERO BUTTON (DETACH)
+   =============================== */
+
+.rfid-hero-btn {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  padding: 22px 34px;
+  border-radius: 30px;
+  border: none;
+
+  background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+  cursor: pointer;
+
+  box-shadow:
+    0 22px 50px rgba(220,38,38,0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.8);
+
+  transition: all 0.25s ease;
+}
+
+.rfid-hero-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 28px 65px rgba(220,38,38,0.45),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+.rfid-hero-anim {
+  width: 76px;
+  height: 76px;
+}
+
+.rfid-hero-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.rfid-hero-text b {
+  font-size: 19px;
+  font-weight: 800;
+  color: #7f1d1d;
+}
+
+.rfid-hero-text small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #991b1b;
+  opacity: 0.85;
+}
+/* ===============================
+   RC OUT – ACTION PANEL (FRAME)
+   =============================== */
+
+.rcout-action-panel {
+  margin: 42px 0 34px;
+  padding: 26px 28px 30px;
+  border-radius: 24px;
+
+  background: linear-gradient(180deg, #f8fbff, #ffffff);
+  box-shadow:
+    0 30px 60px rgba(2, 31, 79, 0.10),
+    inset 0 0 0 1px rgba(226,232,240,0.9);
+
+  border: 1px solid rgba(226,232,240,0.9);
+}
+
+/* HEADER */
+
+.rcout-action-header {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.rcout-action-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0b3c8c;
+  letter-spacing: 0.3px;
+}
+
+.rcout-action-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* BODY */
+
+.rcout-action-body {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+/* ===============================
+   EXCEL HERO BUTTON
+   =============================== */
+
+.excel-hero-btn {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 22px 34px;
+  border-radius: 30px;
+  text-decoration: none;
+
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+  cursor: pointer;
+
+  box-shadow:
+    0 22px 50px rgba(16,185,129,0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.8);
+
+  transition: all 0.25s ease;
+}
+
+.excel-hero-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 28px 65px rgba(16,185,129,0.45),
+    inset 0 0 0 1px rgba(255,255,255,1);
+}
+
+.excel-hero-icon {
+  font-size: 36px;
+}
+
+.excel-hero-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.excel-hero-text b {
+  font-size: 19px;
+  font-weight: 800;
+  color: #065f46;
+}
+
+.excel-hero-text small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #047857;
+  opacity: 0.9;
+}
+/* ================= FINAL ACTION GRID ================= */
+
+.final-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 360px));
+  justify-content: center;
+  gap: 36px;
+  margin: 48px 0 24px;
+}
+
+/* ================= CARD FRAME ================= */
+
+.final-action-card {
+  position: relative;
+  border-radius: 26px;
+  padding: 22px;
+
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+
+  box-shadow:
+    0 30px 60px rgba(2, 31, 79, 0.15),
+    inset 0 0 0 1px rgba(226, 232, 240, 0.9);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.final-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 40px 80px rgba(2, 31, 79, 0.25),
+    inset 0 0 0 1px rgba(226, 232, 240, 1);
+}
+
+/* ================= BUTTON INSIDE CARD ================= */
+
+.final-action-btn {
+  all: unset;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  padding: 22px 26px;
+  border-radius: 22px;
+
+  background: linear-gradient(135deg, #eef3ff, #f8fbff);
+
+  box-shadow:
+    0 18px 40px rgba(30, 64, 175, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+
+  transition: all 0.2s ease;
+
+  width: 100%;
+}
+
+.final-action-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 24px 52px rgba(30, 64, 175, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 1);
+}
+
+/* ================= ICON / ANIM ================= */
+
+.final-action-anim {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.final-action-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+
+  background:
+    radial-gradient(circle at center, #ffffff 55%, #e0e7ff 100%);
+
+  box-shadow:
+    inset 0 0 0 4px rgba(37, 99, 235, 0.18),
+    0 10px 22px rgba(37, 99, 235, 0.30);
+}
+
+/* ================= TEXT ================= */
+
+.final-action-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.final-action-text b {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.final-action-text small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ================= COLOR VARIANTS ================= */
+
+.danger-card .final-action-btn {
+  background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+  box-shadow:
+    0 18px 40px rgba(220, 38, 38, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+}
+
+.danger-card .final-action-text b {
+  color: #7f1d1d;
+}
+
+.danger-card .final-action-text small {
+  color: #991b1b;
+}
+
+.success-card .final-action-btn {
+  background: linear-gradient(135deg, #ecfdf3, #f0fdf9);
+  box-shadow:
+    0 18px 40px rgba(22, 163, 74, 0.25),
+    inset 0 0 0 1px rgba(255,255,255,0.9);
+}
+
+.success-card .final-action-text b {
+  color: #14532d;
+}
+
+.success-card .final-action-text small {
+  color: #166534;
+}
+/* ===============================
+   RC OUT – FINAL ACTIONS (NOKIA)
+   =============================== */
+
+.final-actions-wrap {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  align-items: center;
+  margin: 30px 0 10px;
+  flex-wrap: wrap;
+}
+
+/* TILE BASE */
+.final-action-tile {
+  position: relative;
+  width: 260px;
+  height: 130px;
+
+  border-radius: 22px;
+  padding: 22px 18px;
+
+  background: linear-gradient(180deg, #ffffff, #f7faff);
+  text-decoration: none;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 22px 50px rgba(2,31,79,0.12),
+    inset 0 0 0 1px rgba(226,232,240,0.9);
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.final-action-tile:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 32px 70px rgba(2,31,79,0.18),
+    inset 0 0 0 1px rgba(226,232,240,1);
+}
+
+/* FLOATING ANIMATION HOLDER */
+.final-action-anim {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.15));
+}
+
+/* TEXT */
+.final-action-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.final-action-content b {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.final-action-content small {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+/* ===== DANGER (DETACH) ===== */
+.final-action-tile.danger {
+  background: linear-gradient(180deg, #fff5f5, #fffafa);
+}
+
+.final-action-tile.danger b {
+  color: #991b1b;
+}
+
+.final-action-tile.danger small {
+  color: #dc2626;
+}
+
+/* ===== SUCCESS (EXCEL) ===== */
+.final-action-tile.success {
+  background: linear-gradient(180deg, #f0fdf4, #f6fffa);
+}
+
+.final-action-tile.success b {
+  color: #065f46;
+}
+
+.final-action-tile.success small {
+  color: #059669;
+}
+
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.lottie) return;
+
+  // DETACH RFID – TAG ANIMATION
+  const detachBox = document.getElementById("rcOutDetachAnim");
+  if (detachBox) {
+    lottie.loadAnimation({
+      container: detachBox,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: "/static/video/tag.json"
+    });
+  }
+
+  // EXCEL – FILE DOWNLOAD ANIMATION
+  const excelBox = document.getElementById("rcOutExcelAnim");
+  if (excelBox) {
+    lottie.loadAnimation({
+      container: excelBox,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: "/static/video/file-download.json"
+    });
+  }
+});
+</script>
+<script>
+function detachRFID() {
+  const rid = "{{ unit.rid if unit }}";
+
+  if (!rid) {
+    alert("No unit loaded");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to detach RFID from this unit?")) {
+    return;
+  }
+
+  fetch("/api/detach-rfid", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ rid: rid })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert("RFID detached successfully ✅");
+      location.reload();
+    } else {
+      alert("Failed: " + data.error);
+    }
+  })
+  .catch(err => {
+    alert("Error: " + err);
+  });
+}
+</script>
+
+{% endblock %}

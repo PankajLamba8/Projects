@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ================================
+   EXACT COPY FROM visual_inspection_preview
+   DO NOT TOUCH – DO NOT OPTIMIZE
+================================ */
+
+html, body {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ================= OFFICIAL TRAVELLER – NOKIA STYLE ================= */
+
+.traveller-wrapper {
+  background: #ffffff;
+  padding: 32px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.08);
+  position: relative;
+}
+
+/* WATERMARK */
+.traveller-wrapper::before {
+  content: "INTERNAL USE ONLY";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-25deg);
+  font-size: 72px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* HEADER */
+.traveller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #0b3c8c;
+  padding-bottom: 16px;
+  margin-bottom: 22px;
+}
+
+.traveller-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0b3c8c;
+}
+
+.traveller-subtitle {
+  font-size: 13px;
+  color: #555;
+  margin-top: 4px;
+}
+
+.traveller-meta {
+  font-size: 12px;
+  color: #444;
+  margin-top: 6px;
+}
+
+/* QR */
+.qr-box {
+  text-align: center;
+}
+
+.qr-box img {
+  width: 130px;
+  padding: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.qr-box .rid {
+  margin-top: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* SECTION */
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+  margin: 26px 0 12px;
+  border-left: 4px solid #0b3c8c;
+  padding-left: 10px;
+}
+
+/* INFO TABLE */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table td {
+  padding: 6px 8px;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.info-table b {
+  color: #374151;
+}
+
+/* HISTORY TABLE */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13.5px;
+}
+
+.history-table th {
+  text-align: left;
+  font-weight: 600;
+  color: #0b3c8c;
+  padding: 10px 12px;
+  border-bottom: 2px solid #dbe3f3;
+  background: transparent;
+}
+
+.history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #edf1f7;
+  color: #111827;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* CAPS GRID */
+.caps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.cap-card {
+  border-radius: 12px;
+  padding: 14px 14px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+.cap-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+
+.cap-status {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cap-count {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.cap-card.pass {
+  border-left: 5px solid #16a34a;
+}
+
+.cap-card.fail {
+  border-left: 5px solid #dc2626;
+  background: #fff5f5;
+}
+
+/* FOOTER */
+.traveller-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: #444;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #d1d5db;
+  padding-top: 10px;
+}
+
+/* PDF BUTTON */
+.pdf-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #0b3c8c;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  position: fixed;
+  bottom: 10px;
+  left: 24px;
+  z-index: 9999;
+}
+.pdf-btn:hover {
+  background: #072b63;
+}
+</style>
+
+<div class="traveller-wrapper">
+
+  <!-- ================= HEADER ================= -->
+  <div class="traveller-header">
+    <div>
+      <div class="traveller-title">Traveller Sheet</div>
+      <div class="traveller-subtitle">
+        <div style="color:#0b3c8c;font-weight:600;font-size:15px;">
+          Nokia Repair Center – Gurgaon
+        </div>
+        <p style="font-size:13px;color:#555;line-height:1.4;margin-top:4px;">
+          Plot 25–21, Tenon Lane, Electronic City, Phase IV<br>
+          Udyog Vihar, Sector 18, Gurugram, Haryana 122015
+        </p>
+      </div>
+      <div class="traveller-meta">
+        Generated on: {{ generated_at.strftime("%d %b %Y, %H:%M") }}
+      </div>
+    </div>
+
+    <div class="traveller-logo">
+      <img src="{{ url_for('static', filename='img/customers/nokia_traveller_logo2.svg') }}" height="100">
+    </div>
+  </div>
+
+  <!-- ================= UNIT INFO ================= -->
+  <div class="section-title">Unit Information</div>
+
+  <table class="info-table">
+    <tr>
+      <td>
+        <p><b>RID:</b> {{ unit.rid }}</p>
+        <p><b>RFID:</b> {{ unit.rfid or "—" }}</p>
+        <p><b>Unit Serial:</b> {{ unit.unit_serial }}</p>
+        <p><b>Customer:</b> {{ unit.customer }}</p>
+        <p><b>Complaint:</b> <span style="color:#7c2d12;font-weight:600;">{{ unit.complaint }}</span></p>
+      </td>
+      <td>
+        <p><b>Family:</b> {{ unit.family }}</p>
+        <p><b>Model:</b> {{ unit.model }}</p>
+        <p><b>Unit Type:</b> {% if unit.is_overseas == 1 %}Overseas{% else %}Domestic{% endif %}</p>
+        <p><b>Country:</b> {{ unit.country }}</p>
+        <p><b>Dispatch Date:</b> {{ unit.dispatch_date }}</p>
+      </td>
+      <td align="center">
+        {% set qr_path = 'qr/' ~ unit.rid ~ '.png' %}
+        <img src="{{ url_for('static', filename=qr_path) }}" width="120" style="border:1px solid #ccc;padding:4px;">
+        <div style="margin-top:6px;font-size:13px;font-weight:600;">{{ unit.rid }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ================= HISTORY ================= -->
+  <div class="section-title">Traveller History</div>
+  <table class="history-table">
+    <tr>
+      <th>Station</th>
+      <th>User</th>
+      <th>Remarks</th>
+      <th>Date</th>
+    </tr>
+    {% for h in history %}
+    <tr>
+      <td>{{ h.station }}</td>
+      <td>{{ h.user }}</td>
+      <td>{{ h.remarks }}</td>
+      <td>{{ h.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- ================= VISUAL INSPECTION ================= -->
+  <div class="section-title">Visual Inspection Summary</div>
+
+  <table class="info-table">
+    <tr>
+      <td>
+        <p><b>Engineer:</b> {{ visual.engineer }}</p>
+        <p><b>Admin Decision:</b> {{ visual.admin_decision }}</p>
+        <p><b>Warranty Label:</b> {{ visual.warranty_label or "—" }}</p>
+      </td>
+      <td>
+        <p><b>I/C Visual Check:</b> {{ visual.visual_check }}</p>
+        <p><b>Incoming IP Test:</b> {{ visual.incoming_ip_test }}</p>
+      </td>
+    </tr>
+  </table>
+
+  <div class="section-title">Component / Caps Check</div>
+
+  <div class="caps-grid">
+    {% for name, data in caps.items() %}
+      {% if data.status != "NA" %}
+        <div class="cap-card {{ data.status|lower }}">
+          <div class="cap-name">{{ name.replace("_", " ").upper() }}</div>
+          <div class="cap-status">{{ data.status }}</div>
+          {% if data.count and data.count > 0 %}
+            <div class="cap-count">Qty: {{ data.count }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- ================= DIAGNOSIS SECTION ===================== -->
+  <!-- ========================================================= -->
+
+  <!-- ================= DIAGNOSIS SUMMARY ================= -->
+<div class="section-title">Diagnosis Summary</div>
+
+<div class="diag-section diag-grid">
+  <div class="diag-card">
+    <b>IC Test</b>
+    <span>{{ diagnosis.ic_test or "—" }}</span>
+  </div>
+
+  <div class="diag-card">
+    <b>Disassembly Status</b>
+    <span>{{ modules.disassembly_status or "—" }}</span>
+  </div>
+
+  <div class="diag-card">
+    <b>Overall Result</b>
+    <span class="{% if diagnosis.overall_result == 'PASS' %}diag-pass{% else %}diag-fail{% endif %}">
+      {{ diagnosis.overall_result }}
+    </span>
+  </div>
+
+  <div class="diag-card">
+    <b>Diagnosed By</b>
+    <span>{{ diagnosis.diagnosed_by }}</span>
+  </div>
+
+  <div class="diag-card">
+    <b>Date</b>
+    <span>{{ generated_at.strftime("%d %b %Y, %H:%M") }}</span>
+  </div>
+</div>
+
+<!-- ================= MODULE RESULTS ================= -->
+<div class="section-title">Module Results</div>
+
+<div class="module-pill-grid">
+  <div class="module-pill {{ 'pass' if diagnosis.rap_result == 'PASS' else 'fail' }}">RAP <span>{{ diagnosis.rap_result }}</span></div>
+  <div class="module-pill {{ 'pass' if diagnosis.unit_result == 'PASS' else 'fail' }}">UNIT <span>{{ diagnosis.unit_result }}</span></div>
+  <div class="module-pill {{ 'pass' if diagnosis.trx_result == 'PASS' else 'fail' }}">TRX BSCAN <span>{{ diagnosis.trx_result }}</span></div>
+  <div class="module-pill {{ 'pass' if diagnosis.pa_result == 'PASS' else 'fail' }}">TRX PA <span>{{ diagnosis.pa_result }}</span></div>
+  <div class="module-pill {{ 'pass' if modules.fan_result == 'PASS' else 'fail' }}">FAN <span>{{ modules.fan_result }}</span></div>
+  <div class="module-pill {{ 'pass' if modules.psu_result == 'PASS' else 'fail' }}">PSU <span>{{ modules.psu_result }}</span></div>
+  <div class="module-pill {{ 'pass' if modules.trx_module_result == 'PASS' else 'fail' }}">TRX MODULE <span>{{ modules.trx_module_result }}</span></div>
+</div>
+
+<!-- ================= FAILURE IDS ================= -->
+<div class="section-title">Failure IDs</div>
+
+<div class="diag-grid">
+  <div class="fail-box">
+    <b>RAP Failures</b>
+    <ul>
+      {% for f in failures.get("RAP", []) %}
+        <li>{{ f }}</li>
+      {% else %}
+        <li>—</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="fail-box">
+    <b>UNIT Failures</b>
+    <ul>
+      {% for f in failures.get("UNIT", []) %}
+        <li>{{ f }}</li>
+      {% else %}
+        <li>—</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="fail-box">
+    <b>TRX BSCAN Failures</b>
+    <ul>
+      {% for f in failures.get("TRX_BSCAN", []) %}
+        <li>{{ f }}</li>
+      {% else %}
+        <li>—</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="fail-box">
+    <b>TRX PA Failures</b>
+    <ul>
+      {% for f in failures.get("TRX_PA", []) %}
+        <li>{{ f }}</li>
+      {% else %}
+        <li>—</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+<!-- ================= REGISTERED MODULES ================= -->
+{% if registered_modules %}
+<div class="section-title">Registered Modules</div>
+
+<table class="history-table">
+  <tr>
+    <th>Module Type</th>
+    <th>Part No</th>
+    <th>Serial No</th>
+    <th>Location</th>
+  </tr>
+  {% for m in registered_modules %}
+  <tr>
+    <td>{{ m.module_type }}</td>
+    <td>{{ m.part_no }}</td>
+    <td>{{ m.serial_no }}</td>
+    <td>{{ m.location }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+
+  <div class="traveller-footer">
+    <div>Document: Incoming + Visual + Diagnosis Report<br>RID: {{ unit.rid }}</div>
+    <div>Page 1 of 1</div>
+  </div>
+
+</div>
+
+<a href="{{ url_for('incoming_preview_pdf', rid=unit.rid) }}" class="pdf-btn">
+  Download Traveller PDF
+</a>
+<style>/* ================= DIAGNOSIS – PREMIUM ================= */
+
+.diag-section {
+  margin-top: 24px;
+}
+
+.diag-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.diag-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+.diag-card b {
+  display: block;
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.diag-card span {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* STATUS COLORS */
+.diag-pass {
+  color: #166534;
+}
+
+.diag-fail {
+  color: #991b1b;
+}
+
+/* MODULE RESULT PILLS */
+.module-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.module-pill {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.module-pill.pass {
+  border-left: 5px solid #16a34a;
+  color: #166534;
+}
+
+.module-pill.fail {
+  border-left: 5px solid #dc2626;
+  background: #fff5f5;
+  color: #991b1b;
+}
+
+/* FAILURE BOX */
+.fail-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+.fail-box b {
+  color: #0b3c8c;
+  font-size: 13px;
+}
+
+.fail-box ul {
+  margin-top: 8px;
+  padding-left: 18px;
+}
+
+.fail-box li {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+</style>
+{% endblock %}

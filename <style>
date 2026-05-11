@@ -1,0 +1,33 @@
+.row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.card {
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  min-width: 120px;
+  background: #f9f9f9;
+}
+
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.nav-grid a {
+  padding: 12px;
+  background: #0072c6;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.nav-grid a:hover {
+  background: #005fa3;
+}

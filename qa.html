@@ -1,0 +1,1369 @@
+{% extends "base.html" %}
+{% set body_class = "station" %}
+{% from "_macros.html" import station_history_block %}
+{% from "_scan_cta.html" import scan_cta %}
+{% set rap_failures = rap_out_failures | default({}) %}
+{% set unit_failures = unit_out_failures | default({}) %}
+{% set trx_bscan_failures = trx_bscan_failures | default({}) %}
+{% set trx_pa_failures = trx_pa_failures | default({}) %}
+
+
+
+
+
+{% block content %}
+
+{% if success %}
+<div class="success-banner">
+  <span class="check">✔</span>
+  <div class="text">
+    <b>QA Saved Successfully</b><br>
+    Unit moved to <b>RC OUT</b>.
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-preview"
+       href="{{ url_for('qa_preview', rid=unit.rid) }}"
+       target="_blank">
+      Preview
+    </a>
+
+    <a class="btn btn-print"
+       href="{{ url_for('qa_preview', rid=unit.rid) }}">
+      Print
+    </a>
+  </div>
+</div>
+{% endif %}
+
+
+<div class="page-shell">
+
+  <!-- ================= HEADER ================= -->
+  <div class="doc-header header-3col">
+
+    <!-- LEFT -->
+    <div class="header-left">
+      <div class="left-stack">
+        <img
+          src="{{ url_for('static', filename='img/customers/nokia_traveller_logo.svg') }}"
+          class="traveller-nokia-logo"
+          alt="Nokia"
+        >
+        <div class="dispatch-block">
+          <div class="dispatch-label">DISPATCH</div>
+          <div class="dispatch-date">
+            {% if unit and unit.dispatch_date %}
+              {% set parts = unit.dispatch_date.split('-') %}
+              {{ parts[2] }}.{{ parts[1] }}.{{ parts[0] }}
+            {% else %}
+              —
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+      <h1 class="rc-title">QA / FINAL TEST</h1>
+      <div class="rc-name">RC Station – Quality Assurance</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+      {% if unit %}
+      <div class="right-stack">
+        <div class="qr-caption">Unit QR</div>
+        <div class="header-qr">
+          <img
+            src="{{ url_for('static', filename='qr/' ~ unit.rid ~ '.png') }}"
+            alt="QR Code"
+            style="width:140px;height:140px;">
+          <div class="header-qr-label">{{ unit.rid }}</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+
+  <!-- ================= CARD ================= -->
+  <div class="form-card">
+
+    <!-- ================= SCAN ROW ================= -->
+    <form method="POST">
+      <div class="form-row scan-row">
+
+        <div class="field">
+          <label>Scan / Enter RFID</label>
+          <input name="rfid" placeholder="Scan RFID" required>
+        </div>
+
+        <div class="field">
+          <label>QA Engineer</label>
+          <input name="user" required>
+        </div>
+
+        <div class="field scan-field">
+          {{ scan_cta(
+            id="unitScanBtn",
+            title="Scan Unit",
+            subtitle="QR / RFID",
+            anim_id="scanUnitAnim"
+          ) }}
+        </div>
+
+      </div>
+    </form>
+
+
+  
+
+   {% if unit %}
+
+<hr>
+
+<!-- ================= UNIT SUMMARY ================= -->
+<div class="unit-summary-card">
+  <div class="unit-summary-grid">
+
+    <div class="us-item">
+      <span class="us-label">RID</span>
+      <span class="us-value">{{ unit.rid }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Family</span>
+      <span class="us-value">{{ unit.family }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Model</span>
+      <span class="us-value">{{ unit.model }}</span>
+    </div>
+
+    <div class="us-item us-customer">
+      <span class="us-label">Customer</span>
+      <span class="us-value">{{ unit.customer }}</span>
+    </div>
+
+    <div class="us-item us-full">
+      <span class="us-label">Complaint</span>
+      <span class="us-value">{{ unit.complaint }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Unit Type</span>
+      <span class="us-value">
+        {% if unit.is_overseas == 1 %}
+          Overseas
+        {% else %}
+          Domestic
+        {% endif %}
+      </span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Country</span>
+      <span class="us-value">{{ unit.country }}</span>
+    </div>
+
+    <div class="us-item">
+      <span class="us-label">Dispatch</span>
+      <span class="us-value">{{ unit.dispatch_date or "—" }}</span>
+    </div>
+
+  </div>
+</div>
+
+{% endif %}
+
+
+    <!-- ================= TRAVELLER HISTORY ================= -->
+    {% if history and history|length > 0 %}
+    <div class="traveller-history">
+      <h4>Unit Traveller History</h4>
+      <table class="traveller-table">
+        <thead>
+          <tr>
+            <th>Station</th>
+            <th>User</th>
+            <th>Remarks</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in history %}
+          <tr>
+            <td>{{ h.station }}</td>
+            <td>{{ h.user }}</td>
+            <td>{{ h.remarks }}</td>
+            <td>{{ h.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+
+   {% if visual %}
+<div class="history-card visual-readonly">
+
+  <div class="history-header">
+    <span class="history-icon">🔍</span>
+    <span class="history-title">Visual Inspection</span>
+    <span class="history-sub">(Read Only)</span>
+  </div>
+
+  <div class="vi-meta">
+    <div><b>Engineer:</b> {{ visual.engineer or "—" }}</div>
+    <div><b>Decision:</b> {{ visual.admin_decision or "—" }}</div>
+    <div><b>Incoming IP Test:</b> {{ visual.incoming_ip_test or "—" }}</div>
+    <div><b>Warranty Label:</b> {{ visual.warranty_label or "—" }}</div>
+  </div>
+
+  <!-- CAPS GRID -->
+  <div class="caps-grid">
+    {% for name, data in caps.items() %}
+      {% set status = data.status if data.status else "NA" %}
+      {% set count = data.count if data.count is not none else 0 %}
+
+      <div class="cap-pill {{ status|lower }}">
+        <span class="cap-name">
+          {{ name }}
+        </span>
+
+        <span class="cap-status">
+          {{ status }}
+          {% if status != "NA" %}
+            ({{ count }})
+          {% endif %}
+        </span>
+      </div>
+
+    {% endfor %}
+  </div>
+
+  {% if visual.pre_diag_note or visual.sanity_note %}
+  <div class="vi-notes">
+    {% if visual.pre_diag_note %}
+      <div><b>Pre-Diagnosis Note:</b> {{ visual.pre_diag_note }}</div>
+    {% endif %}
+    {% if visual.sanity_note %}
+      <div><b>Sanity Check:</b> {{ visual.sanity_note }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if visual.remarks %}
+  <div class="history-remarks">
+    <b>Remarks:</b> {{ visual.remarks }}
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+    <!-- ================= DIAGNOSIS (READ ONLY) ================= -->
+   {% if diag_summary %}
+<div class="diagnosis-panel">
+
+  <!-- HEADER -->
+  <div class="diagnosis-head">
+    <div>
+      <h3>🧪 Diagnosis Report</h3>
+      <div class="diag-sub">Read Only · Captured at Diagnosis Station</div>
+    </div>
+
+    {% if diag_summary.overall_result %}
+    <div class="diag-result {{ diag_summary.overall_result|lower }}">
+      {{ diag_summary.overall_result }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- META -->
+  <div class="diag-meta-grid">
+    <div><span>Pre-Screening</span><b>{{ diag_summary.pre_screening or "—" }}</b></div>
+    <div><span>IC Test</span><b>{{ diag_summary.ic_test or "—" }}</b></div>
+    <div><span>FSPX Test</span><b>{{ diag_summary.fspx_test or "—" }}</b></div>
+    <div><span>FEPB Test</span><b>{{ diag_summary.fepb_test or "—" }}</b></div>
+    <div><span>Tuning Status</span><b>{{ diag_summary.tuning_status or "—" }}</b></div>
+    <div><span>External Fan</span><b>{{ diag_summary.external_fan or "—" }}</b></div>
+  </div>
+
+  <!-- SNAP GRID -->
+  <div class="snap-grid">
+
+    <!-- RAP -->
+    <div class="diag-snap-wrap">
+      <div class="diag-snap {{ (diag_summary.rap_result or 'NA')|lower }}">
+        <div class="diag-snap-title">RAP</div>
+        <div class="diag-snap-value">{{ diag_summary.rap_result or "NA" }}</div>
+      </div>
+
+      {% if diag_fail_map.RAP %}
+      <div class="trace-items">
+        {% for fid in diag_fail_map.RAP %}
+          <span class="trace-pill">{{ fid }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div class="no-failure">No failures</div>
+      {% endif %}
+    </div>
+
+    <!-- UNIT -->
+    <div class="diag-snap-wrap">
+      <div class="diag-snap {{ (diag_summary.unit_result or 'NA')|lower }}">
+        <div class="diag-snap-title">UNIT</div>
+        <div class="diag-snap-value">{{ diag_summary.unit_result or "NA" }}</div>
+      </div>
+
+      {% if diag_fail_map.UNIT %}
+      <div class="trace-items">
+        {% for fid in diag_fail_map.UNIT %}
+          <span class="trace-pill">{{ fid }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div class="no-failure">No failures</div>
+      {% endif %}
+    </div>
+
+    <!-- TRX-BSCAN -->
+    <div class="diag-snap-wrap">
+      <div class="diag-snap {{ (diag_summary.trx_result or 'NA')|lower }}">
+        <div class="diag-snap-title">TRX-BSCAN</div>
+        <div class="diag-snap-value">{{ diag_summary.trx_result or "NA" }}</div>
+      </div>
+
+      {% if diag_fail_map.TRX_BSCAN %}
+      <div class="trace-items">
+        {% for fid in diag_fail_map.TRX_BSCAN %}
+          <span class="trace-pill">{{ fid }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div class="no-failure">No failures</div>
+      {% endif %}
+    </div>
+
+    <!-- TRX-PA -->
+    <div class="diag-snap-wrap">
+      <div class="diag-snap {{ (diag_summary.pa_result or 'NA')|lower }}">
+        <div class="diag-snap-title">TRX-PA</div>
+        <div class="diag-snap-value">{{ diag_summary.pa_result or "NA" }}</div>
+      </div>
+
+      {% if diag_fail_map.TRX_PA %}
+      <div class="trace-items">
+        {% for fid in diag_fail_map.TRX_PA %}
+          <span class="trace-pill">{{ fid }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+        <div class="no-failure">No failures</div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endif %}
+
+
+
+    <!-- ================= REGISTERED MODULES ================= -->
+    {% if registered_modules and registered_modules|length > 0 %}
+    <div class="history-card">
+      <div class="history-header">
+        <span class="history-icon">🔌</span>
+        <span class="history-title">Registered Modules</span>
+      </div>
+
+      <div class="diag-deep-panel">
+        {% for m in registered_modules %}
+        <div class="diag-module-card">
+          <div class="diag-module-title">{{ m.module_type }} MODULE</div>
+          <div class="diag-module-grid">
+            <div class="diag-kv"><span>Part No</span><b>{{ m.part_no or "—" }}</b></div>
+            <div class="diag-kv"><span>Serial No</span><b>{{ m.serial_no or "—" }}</b></div>
+            {% if m.location %}
+            <div class="diag-kv"><span>Location</span><b>{{ m.location }}</b></div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+  {% if unit %}
+    <!-- ===== QA FORM ===== -->
+    <!-- ================= FINAL QA / FACTORY TEST FLOW ================= -->
+<!-- ================= FINAL QA / FACTORY TEST FLOW ================= -->
+<form method="POST" class="qc-form-flow">
+
+  <input type="hidden" name="rid" value="{{ unit.rid }}">
+  <input type="hidden" name="rfid" value="{{ request.form.rfid }}">
+  <input type="hidden" name="user" value="{{ request.form.user }}">
+
+  <!-- GROUP: UNIT FINAL & DISASSEMBLY -->
+  <div class="qa-section">
+    <h3>Unit Final & Disassembly</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>UNIT FINAL (W/O ANT)</label>
+        <select name="unit_final_wo_ant" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>AFM DIS / ASSEMBLY</label>
+        <select name="afm_disassembly" required>
+          <option value="">Select</option>
+          <option>DONE</option>
+          <option>NA</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP: RAP + OTA -->
+  <div class="qa-section">
+    <h3>RAP & OTA Tests</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>RAP FINAL TEST (WITH ANT)</label>
+        <select name="rap_final_with_ant" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>OTA TEST</label>
+        <select name="ota_test" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP: LBTS + SW LOAD -->
+  <div class="qa-section">
+    <h3>Integration & Load Tests</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>LBTS TEST</label>
+        <select name="lbts_test" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>SW LOAD TEST</label>
+        <select name="sw_load_test" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP: IP + CHECK SEAL -->
+  <div class="qa-section">
+    <h3>IP & Physical Check</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>IP TEST</label>
+        <select name="ip_test" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>CHECK SEAL</label>
+        <select name="check_seal" required>
+          <option value="">Select</option>
+          <option>OK</option>
+          <option>NOT OK</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP: FINAL METRIC TESTS -->
+  <div class="qa-section">
+    <h3>Final Metrics</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>DIS TEST (100%)</label>
+        <select name="dis_test_100" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>OTA TEST (100%)</label>
+        <select name="ota_test_100" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GROUP: QUALITY CONTROL SIGNS -->
+  <div class="qa-section">
+    <h3>Quality Control</h3>
+    <div class="form-row two-col">
+      <div class="field">
+        <label>FINAL QC</label>
+        <select name="final_qc" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>GROUND TEST</label>
+        <select name="ground_test" required>
+          <option value="">Select</option>
+          <option>PASS</option>
+          <option>FAIL</option>
+          <option>NA</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-section">
+    <div class="form-row two-col">
+      <div class="field">
+        <label>QC Sign</label>
+        <input name="qc_sign" required>
+      </div>
+      <div class="field">
+        <label>Tool Sign</label>
+        <input name="tool_sign" required>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- ================= POST FINAL TEST – SHEET FIELDS ================= -->
+
+<div class="qa-section">
+  <h3>Unit Level Repair</h3>
+  <div class="form-row two-col">
+    <div class="field">
+      <label>MAC</label>
+      <input name="ulr_mac">
+    </div>
+    <div class="field">
+      <label>EC</label>
+      <input name="ulr_ec">
+    </div>
+    <div class="field">
+      <label>S3</label>
+      <input name="ulr_s3">
+    </div>
+    <div class="field">
+      <label>S5</label>
+      <input name="ulr_s5">
+    </div>
+    <div class="field">
+      <label>EQ Ref</label>
+      <input name="ulr_eq">
+    </div>
+  </div>
+</div>
+
+<div class="qa-section">
+  <h3>Fault Classification</h3>
+  <div class="form-row two-col">
+    <div class="field">
+      <label>FC Code</label>
+      <input name="fc_code">
+    </div>
+    <div class="field">
+      <label>Fault Code Details</label>
+      <input name="fault_code_details">
+    </div>
+  </div>
+</div>
+
+<div class="qa-section">
+  <h3>Version Upgrade</h3>
+  <div class="form-row single">
+    <div class="field">
+      <label>Version Upgrade (M-Module / U-Unit)</label>
+      <input name="version_upgrade">
+    </div>
+  </div>
+</div>
+
+<div class="qa-section">
+  <h3>OGI Check</h3>
+  <div class="form-row three-col">
+    <div class="field"><label>Label</label><select name="ogi_label"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Ground Screw</label><select name="ogi_ground_screw"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Conn Protection</label><select name="ogi_conn_protection"><option>OK</option><option>NOT OK</option></select></div>
+
+    <div class="field"><label>Caps</label><select name="ogi_caps"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Power Cap</label><select name="ogi_power_cap"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Fan Cap</label><select name="ogi_fan_cap"><option>OK</option><option>NOT OK</option></select></div>
+
+    <div class="field"><label>IP Cap</label><select name="ogi_ip_cap"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Warning Label</label><select name="ogi_warning_label"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Mounting Bracket</label><select name="ogi_mounting_bracket"><option>OK</option><option>NOT OK</option></select></div>
+
+    <div class="field"><label>Guide Pin</label><select name="ogi_guide_pin"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Surface Clean</label><select name="ogi_surface_clean"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Screws/Washer</label><select name="ogi_screws_washer"><option>OK</option><option>NOT OK</option></select></div>
+
+    <div class="field"><label>Gap</label><select name="ogi_gap"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Fan/Cable</label><select name="ogi_fan_cable"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Ter. Chain</label><select name="ogi_ter_chain"><option>OK</option><option>NOT OK</option></select></div>
+
+    <div class="field"><label>Top Cover</label><select name="ogi_top_cover"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>No Deform</label><select name="ogi_no_deform"><option>OK</option><option>NOT OK</option></select></div>
+    <div class="field"><label>Serial No Match</label><select name="ogi_serial_match"><option>OK</option><option>NOT OK</option></select></div>
+  </div>
+</div>
+
+<div class="qa-section">
+  <h3>Signatures & Checks</h3>
+  <div class="form-row two-col">
+    <div class="field">
+      <label>Energy Sign</label>
+      <input name="energy_sign">
+    </div>
+    <div class="field">
+      <label>TL Sign</label>
+      <input name="tl_sign">
+    </div>
+    <div class="field">
+      <label>Quality Check</label>
+      <select name="quality_check">
+        <option value="">Select</option>
+        <option>PASS</option>
+        <option>FAIL</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>QC Sign</label>
+      <input name="qc_sign">
+    </div>
+    <div class="field">
+      <label>RC Tool Sign</label>
+      <input name="rc_tool_sign">
+    </div>
+  </div>
+</div>
+
+  <div class="form-row single">
+    <div class="field">
+      <label>QA Remarks</label>
+      <textarea name="remarks"></textarea>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" name="save" class="scan-btn">
+      Save QA & Move to RC OUT
+    </button>
+  </div>
+
+</form>
+
+{% endif %}
+
+
+
+
+
+  </div>
+</div>
+
+<!-- ================= CUSTOMER + OVERSEAS LOGIC ================= -->
+<style>
+/* =====================================================
+   REPAIR PAGE — LOGO + DISPATCH ALIGNMENT FIX
+   (MATCHES VISUAL / DIAGNOSIS)
+   ===================================================== */
+
+/* Remove any top padding pushing things up */
+body.station .header-left {
+  padding-top: 0 !important;
+}
+
+/* Stack logo + dispatch cleanly */
+body.station .left-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0 !important;
+}
+
+/* Move NOKIA logo down */
+body.station .traveller-nokia-logo {
+  margin-top: 110px !important;   /* same value as Visual */
+  margin-bottom: 20px !important;
+  height: 30px !important;
+}
+
+/* Keep dispatch tight under logo */
+body.station .dispatch-block {
+  margin-top: 0 !important;
+}
+
+</style>
+<style>
+/* =====================================================
+   REPAIR PAGE — CENTER TITLE VERTICAL ALIGN FIX
+   ===================================================== */
+
+/* Move center title down to match logo + dispatch */
+body.station .header-center {
+  padding-top: 120px !important;   /* same as Diagnosis */
+}
+
+/* Optional fine-tune if needed (do NOT add unless asked)
+body.station .header-center {
+  padding-top: 130px !important;
+}
+*/
+
+
+
+
+  .qa-section {
+    margin-bottom: 1.6rem;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1rem;
+  }
+  .qa-section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: #333;
+  }
+  .form-row.two-col {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .form-row.two-col .field {
+    flex: 1 1 48%;
+  }
+  .form-row.single .field {
+    width: 100%;
+  }
+  .form-row.two-col .field label {
+    font-weight: 500;
+    font-size: .95rem;
+  }
+  .form-row.two-col .field select,
+  .form-row.two-col .field input {
+    width: 100%;
+  }
+  
+.form-row.three-col {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.form-row.three-col .field {
+  flex: 1 1 30%;
+  min-width: 160px;
+}
+.qa-section {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px dashed #d0d0d0;
+}
+.qa-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+/* ===============================
+   QA SUBMIT BUTTON — MATCH REPAIR STYLE
+   =============================== */
+
+.form-actions {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.form-actions .scan-btn,
+.form-actions button[type="submit"] {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+
+  padding: 12px 28px;            /* 👈 compact */
+  min-width: auto;              /* 👈 NOT full width */
+  width: auto;                  /* 👈 NOT full width */
+
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, #1f2933, #111827); /* 👈 repair style dark */
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  transition: all 0.22s ease;
+}
+
+/* Hover */
+.form-actions .scan-btn:hover,
+.form-actions button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Active */
+.form-actions .scan-btn:active,
+.form-actions button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.form-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.form-actions .scan-btn {
+  width: auto;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #1f2933, #111827);
+}
+.caps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.cap-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 110px;
+  text-align: center;
+}
+
+.cap-pill.pass {
+  background: #e8f7ef;
+  color: #0f5132;
+}
+
+.cap-pill.fail {
+  background: #fdecec;
+  color: #842029;
+}
+
+.cap-pill.na {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+/* ==============================
+   VISUAL INSPECTION – PREMIUM CARD
+   ============================== */
+
+.visual-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.06);
+  margin-bottom: 22px;
+  border: 1px solid #f0f2f5;
+}
+
+.visual-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.visual-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 18px;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 14px;
+}
+
+.visual-meta b {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* ==============================
+   CAPS GRID
+   ============================== */
+
+.caps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  margin: 10px 0 14px;
+}
+
+/* Base pill */
+.cap-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* PASS */
+.cap-pass {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+/* FAIL */
+.cap-fail {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+/* NA */
+.cap-na {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+/* ==============================
+   SUB TEXT BLOCKS
+   ============================== */
+
+.visual-notes {
+  font-size: 13px;
+  color: #334155;
+  margin-top: 6px;
+}
+
+.visual-notes b {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* ===============================
+   VISUAL INSPECTION CARD (READ ONLY)
+   =============================== */
+
+.history-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  margin: 22px 0;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e6edf7;
+}
+
+/* Header row */
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9eef5;
+}
+
+.history-icon {
+  font-size: 16px;
+  color: #0b3c8c;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+.history-sub {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+/* ===============================
+   VISUAL META GRID
+   =============================== */
+
+.vi-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #333;
+}
+
+.vi-meta b {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+/* ===============================
+   CAPS GRID
+   =============================== */
+
+.caps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Base pill */
+.cap-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+
+  cursor: default;
+}
+
+/* Name */
+.cap-pill .cap-name {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+}
+
+/* Status */
+.cap-pill .cap-status {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* PASS */
+.cap-pill.pass {
+  background: #e6f7ec;
+  color: #0f5132;
+}
+
+/* FAIL */
+.cap-pill.fail {
+  background: #fdeaea;
+  color: #842029;
+}
+
+/* NA */
+.cap-pill.na {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+
+/* ===============================
+   CAPS HOVER ANIMATION (PREMIUM)
+   =============================== */
+
+.cap-pill:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+}
+
+/* PASS hover */
+.cap-pill.pass:hover {
+  background: #dcfce7;
+}
+
+/* FAIL hover */
+.cap-pill.fail:hover {
+  background: #fee2e2;
+}
+
+/* NA hover */
+.cap-pill.na:hover {
+  background: #f3f4f6;
+}
+
+/* ===============================
+   VISUAL REMARKS BLOCK
+   =============================== */
+
+.history-remarks {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #f6f9fc;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.history-remarks b {
+  color: #0b3c8c;
+}
+
+/* ===============================
+   LOCKED BADGE
+   =============================== */
+
+.badge.locked {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 11px;
+  font-weight: 700;
+}
+/* ===============================
+   VISUAL INSPECTION CARD (READ ONLY)
+   =============================== */
+
+.history-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  margin: 22px 0;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e6edf7;
+}
+
+/* Header row */
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9eef5;
+}
+
+.history-icon {
+  font-size: 16px;
+  color: #0b3c8c;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+.history-sub {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 6px;
+}
+
+/* ===============================
+   VISUAL META GRID
+   =============================== */
+
+.vi-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #333;
+}
+
+.vi-meta b {
+  font-weight: 600;
+  color: #0b3c8c;
+}
+
+/* ===============================
+   CAPS GRID
+   =============================== */
+
+.caps-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Base pill */
+.cap-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+
+  cursor: default;
+}
+
+/* Name */
+.cap-pill .cap-name {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+}
+
+/* Status */
+.cap-pill .cap-status {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* PASS */
+.cap-pill.pass {
+  background: #e6f7ec;
+  color: #0f5132;
+}
+
+/* FAIL */
+.cap-pill.fail {
+  background: #fdeaea;
+  color: #842029;
+}
+
+/* NA */
+.cap-pill.na {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+
+/* ===============================
+   CAPS HOVER ANIMATION (PREMIUM)
+   =============================== */
+
+.cap-pill:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+}
+
+/* PASS hover */
+.cap-pill.pass:hover {
+  background: #dcfce7;
+}
+
+/* FAIL hover */
+.cap-pill.fail:hover {
+  background: #fee2e2;
+}
+
+/* NA hover */
+.cap-pill.na:hover {
+  background: #f3f4f6;
+}
+
+/* ===============================
+   VISUAL REMARKS BLOCK
+   =============================== */
+
+.history-remarks {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #f6f9fc;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.history-remarks b {
+  color: #0b3c8c;
+}
+
+/* ===============================
+   LOCKED BADGE
+   =============================== */
+
+.badge.locked {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+</style>
+
+
+
+{% endblock %}
