@@ -1,6 +1,6 @@
 # 🚴 Adventure Works Sales Dashboard
 
-## 📌 Overview
+##  Overview
 
 This Power BI dashboard analyzes sales, revenue, profitability, and transaction performance for Adventure Works.
 
@@ -13,7 +13,7 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 🎯 Business Objectives
+##  Business Objectives
 
 - Analyze yearly revenue growth
 - Track profitability trends
@@ -23,7 +23,7 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 🛠 Tools & Technologies
+##  Tools & Technologies
 
 - Power BI
 - DAX
@@ -33,7 +33,7 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 📊 Key Metrics
+##  Key Metrics
 
 - Total Revenue: 24.91M
 - Total Cost: 14.46M
@@ -43,13 +43,13 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 📷 Dashboard Preview
+##  Dashboard Preview
 
 ![Adventure Works Dashboard](AdventureWorksDashboard.png)
 
 ---
 
-## 📈 Key Insights
+##  Key Insights
 
 - North America generated the highest revenue contribution
 - Revenue showed steady year-over-year growth
@@ -58,7 +58,7 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 🚀 Skills Demonstrated
+##  Skills Demonstrated
 
 - KPI Dashboard Development
 - Interactive Reporting
@@ -69,7 +69,7 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 📂 Files Included
+##  Files Included
 
 | File | Description |
 |------|-------------|
@@ -79,6 +79,6 @@ The dashboard provides interactive business insights across:
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 Pankaj Lamba
